@@ -4,26 +4,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 using MachManager.Context;
 using MachManager.Models;
 using MachManager.Models.Operational;
+using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 
 namespace MachManager.Controllers
 {
+    [Authorize(Policy = "Dealer")]
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
-    public class DealerController : ControllerBase
+    public class DealerController : MgControllerBase
     {
-        MetaGanosSchema _context;
-        Translation _translator;
-
-        public DealerController(MetaGanosSchema context){
-            _context = context;
-            _translator = new Translation(_context);
-        }
+        public DealerController(MetaGanosSchema context): base(context){ }
 
         [HttpGet]
         public IEnumerable<DealerModel> Get()
@@ -75,6 +72,7 @@ namespace MachManager.Controllers
         [HttpPost]
         public BusinessResult Post(DealerModel model){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request.Headers);
 
             try
             {
@@ -85,12 +83,13 @@ namespace MachManager.Controllers
                 }
 
                 if (_context.Dealer.Any(d => d.DealerCode == model.DealerCode && d.Id != model.Id))
-                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, "default"));
+                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 dbObj.DealerCode = model.DealerCode;
                 dbObj.DealerName = model.DealerName;
                 dbObj.ParentDealerId = model.ParentDealerId;
                 dbObj.IsActive = model.IsActive;
+                dbObj.DealerPassword = model.DealerPassword;
                 dbObj.Explanation = model.Explanation;
 
                 _context.SaveChanges();
@@ -109,12 +108,13 @@ namespace MachManager.Controllers
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request.Headers);
 
             try
             {
                 var dbObj = _context.Dealer.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
-                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, "default"));
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 _context.Dealer.Remove(dbObj);
 

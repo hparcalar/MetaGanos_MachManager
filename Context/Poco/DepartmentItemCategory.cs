@@ -12,5 +12,9 @@ namespace MachManager.Context {
 
         [ForeignKey("ItemCategory")]
         public Nullable<int> ItemCategoryId { get; set; }
+
+        // REFERENCES
+        public virtual Department Department { get; set; }
+        public virtual ItemCategory ItemCategory { get; set; }
     }
 }

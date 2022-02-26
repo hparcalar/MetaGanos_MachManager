@@ -65,6 +65,9 @@ namespace MachManager.Migrations
                     b.Property<string>("DealerName")
                         .HasColumnType("text");
 
+                    b.Property<string>("DealerPassword")
+                        .HasColumnType("text");
+
                     b.Property<string>("Explanation")
                         .HasColumnType("text");
 
@@ -124,6 +127,10 @@ namespace MachManager.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ItemCategoryId");
+
                     b.ToTable("DepartmentItemCategory");
                 });
 
@@ -151,6 +158,9 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmployeeName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmployeePassword")
                         .HasColumnType("text");
 
                     b.Property<string>("Gsm")
@@ -628,6 +638,8 @@ namespace MachManager.Migrations
 
                     b.HasIndex("ItemGroupId");
 
+                    b.HasIndex("ItemId");
+
                     b.HasIndex("MachineId");
 
                     b.ToTable("MachineSpiral");
@@ -800,6 +812,21 @@ namespace MachManager.Migrations
                     b.Navigation("Plant");
                 });
 
+            modelBuilder.Entity("MachManager.Context.DepartmentItemCategory", b =>
+                {
+                    b.HasOne("MachManager.Context.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
+                    b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
+                        .WithMany()
+                        .HasForeignKey("ItemCategoryId");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("ItemCategory");
+                });
+
             modelBuilder.Entity("MachManager.Context.Employee", b =>
                 {
                     b.HasOne("MachManager.Context.Department", "Department")
@@ -807,7 +834,7 @@ namespace MachManager.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.HasOne("MachManager.Context.EmployeeCard", "EmployeeCard")
-                        .WithMany()
+                        .WithMany("Employee")
                         .HasForeignKey("EmployeeCardId");
 
                     b.HasOne("MachManager.Context.Plant", "Plant")
@@ -948,9 +975,15 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("ItemGroupId");
 
+                    b.HasOne("MachManager.Context.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
                     b.HasOne("MachManager.Context.Machine", "Machine")
                         .WithMany()
                         .HasForeignKey("MachineId");
+
+                    b.Navigation("Item");
 
                     b.Navigation("ItemCategory");
 
@@ -984,6 +1017,11 @@ namespace MachManager.Migrations
                         .HasForeignKey("DealerId");
 
                     b.Navigation("Dealer");
+                });
+
+            modelBuilder.Entity("MachManager.Context.EmployeeCard", b =>
+                {
+                    b.Navigation("Employee");
                 });
 #pragma warning restore 612, 618
         }

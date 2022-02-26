@@ -11,6 +11,7 @@ namespace MachManager.Context {
         public string Explanation { get; set; } = "";
         public bool IsActive { get; set; }
 
+        [ForeignKey("Dealer")]
         public Nullable<int> DealerId { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
 

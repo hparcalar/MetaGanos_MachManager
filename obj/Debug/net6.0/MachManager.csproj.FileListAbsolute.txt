@@ -33,3 +33,12 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.Extensions.Caching.Memory.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Npgsql.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.IdentityModel.Logging.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.IdentityModel.Protocols.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.IdentityModel.Tokens.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.IdentityModel.Tokens.Jwt.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.Security.Permissions.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/AutoMapper.dll

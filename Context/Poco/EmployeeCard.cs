@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MachManager.Context {
     public class EmployeeCard{
+        public EmployeeCard(){
+            this.Employee = new HashSet<Employee>();
+        }
         public int Id { get; set; }
         public string CardCode { get; set; } = "";
         public string HexKey { get; set; } = "";
@@ -15,5 +18,8 @@ namespace MachManager.Context {
 
         // REFERENCES
         public virtual Plant Plant { get; set; }
+
+        [InverseProperty("EmployeeCard")]
+        public virtual ICollection<Employee> Employee { get; set; }
     }
 }
