@@ -76,6 +76,23 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("Count")]
+        public int GetPlantCount(){
+            int plantCount = 0;
+
+            try
+            {
+                plantCount = _context.Plant.Count();
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return plantCount;
+        }
+
         [Authorize(Policy = "Dealer")]
         [HttpPost]
         public BusinessResult Post(PlantModel model){
