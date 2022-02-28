@@ -19,6 +19,7 @@ namespace MachManager.Models{
         public string DepartmentName { get; set; }
         public string EmployeeCardCode { get; set; }
         public string EmployeeCardHex { get; set; }
+        public EmployeeCreditModel[] Credits { get; set; }
         #endregion
     }
 }

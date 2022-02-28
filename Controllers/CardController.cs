@@ -48,14 +48,14 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Route("Available")]
-        public IEnumerable<EmployeeCardModel> GetAvailables()
+        [Route("Available/{id}")]
+        public IEnumerable<EmployeeCardModel> GetAvailables(int id)
         {
             EmployeeCardModel[] data = new EmployeeCardModel[0];
             try
             {
                 data = _context.EmployeeCard
-                        .Where(d => d.IsActive == true && !d.Employee.Any())
+                        .Where(d => d.IsActive == true && !d.Employee.Any() && d.PlantId == id)
                         .Select(d => new EmployeeCardModel{
                             Id = d.Id,
                             CardCode = d.CardCode,

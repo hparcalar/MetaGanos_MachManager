@@ -93,6 +93,33 @@ namespace MachManager.Controllers
             return plantCount;
         }
 
+        [HttpGet]
+        [Route("{id}/Departments")]
+        public IEnumerable<DepartmentModel> GetDepartments(int id)
+        {
+            DepartmentModel[] data = new DepartmentModel[0];
+            
+            try
+            {
+                data = _context.Department.Where(d => d.PlantId == id).Select(d => new DepartmentModel{
+                        Id = d.Id,
+                        DepartmentCode = d.DepartmentCode,
+                        DepartmentName = d.DepartmentName,
+                        IsActive = d.IsActive,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                        PlantId = d.PlantId,
+                    }).OrderBy(d => d.DepartmentCode).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
         [Authorize(Policy = "Dealer")]
         [HttpPost]
         public BusinessResult Post(PlantModel model){

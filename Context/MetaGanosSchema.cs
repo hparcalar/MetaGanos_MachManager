@@ -26,6 +26,8 @@ namespace MachManager.Context {
         public DbSet<SysLangDict> SysLangDict { get; set; }
         public DbSet<UnitType> UnitType { get; set; }
         public DbSet<Warehouse> Warehouse { get; set; }
+        public DbSet<EmployeeCredit> EmployeeCredit { get; set; }
+        public DbSet<EmployeeCreditConsume> EmployeeCreditConsume { get; set; }
 
         public MetaGanosSchema() : base(){}
         public MetaGanosSchema(Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options){}
