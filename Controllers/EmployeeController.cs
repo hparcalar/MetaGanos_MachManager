@@ -199,7 +199,7 @@ namespace MachManager.Controllers
 
                 // create load history
                 var dbLoadHistory = new CreditLoadHistory{
-                    CreatedDate = DateTime.Now,
+                    //CreatedDate = DateTime.Now,
                     DealerId = null, // will be got from jwt token
                     EmployeeId = dbObj.Id,
                     ItemCategoryId = model.ItemCategoryId,

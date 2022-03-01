@@ -19,26 +19,22 @@ namespace MachManager.Controllers
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
-    public class ItemCategoryController : MgControllerBase
+    public class UnitTypeController : MgControllerBase
     {
-        public ItemCategoryController(MetaGanosSchema context): base(context){ }
+        public UnitTypeController(MetaGanosSchema context): base(context){ }
 
         [HttpGet]
-        public IEnumerable<ItemCategoryModel> Get()
+        public IEnumerable<UnitTypeModel> Get()
         {
-            ItemCategoryModel[] data = new ItemCategoryModel[0];
+            UnitTypeModel[] data = new UnitTypeModel[0];
             try
             {
-                data = _context.ItemCategory.Select(d => new ItemCategoryModel{
+                data = _context.UnitType.Select(d => new UnitTypeModel{
                         Id = d.Id,
-                        ControlTimeType = d.ControlTimeType,
-                        CreatedDate = d.CreatedDate,
+                        UnitTypeCode = d.UnitTypeCode,
                         IsActive = d.IsActive,
-                        ItemCategoryCode = d.ItemCategoryCode,
-                        ItemCategoryName = d.ItemCategoryName,
-                        ItemChangeTime = d.ItemChangeTime,
-                        ViewOrder = d.ViewOrder,
-                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
+                        UnitTypeName = d.UnitTypeName,
+                    }).OrderBy(d => d.UnitTypeCode).ToArray();
             }
             catch
             {
@@ -50,43 +46,17 @@ namespace MachManager.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public ItemCategoryModel Get(int id)
+        public UnitTypeModel Get(int id)
         {
-            ItemCategoryModel data = new ItemCategoryModel();
+            UnitTypeModel data = new UnitTypeModel();
             try
             {
-                data = _context.ItemCategory.Where(d => d.Id == id).Select(d => new ItemCategoryModel{
+                data = _context.UnitType.Where(d => d.Id == id).Select(d => new UnitTypeModel{
                         Id = d.Id,
-                        ControlTimeType = d.ControlTimeType,
-                        CreatedDate = d.CreatedDate,
+                        UnitTypeCode = d.UnitTypeCode,
                         IsActive = d.IsActive,
-                        ItemCategoryCode = d.ItemCategoryCode,
-                        ItemCategoryName = d.ItemCategoryName,
-                        ItemChangeTime = d.ItemChangeTime,
-                        ViewOrder = d.ViewOrder,
+                        UnitTypeName = d.UnitTypeName,
                     }).FirstOrDefault();
-            }
-            catch
-            {
-                
-            }
-            
-            return data;
-        }
-
-        [HttpGet]
-        [Route("{id}/Groups")]
-        public IEnumerable<ItemGroupModel> GetGroups(int id)
-        {
-            ItemGroupModel[] data = new ItemGroupModel[0];
-            
-            try
-            {
-                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id).Select(d => new ItemGroupModel{
-                        Id = d.Id,
-                        ItemGroupCode = d.ItemGroupCode,
-                        ItemGroupName = d.ItemGroupName,
-                    }).OrderBy(d => d.ItemGroupCode).ToArray();
             }
             catch
             {
@@ -98,19 +68,19 @@ namespace MachManager.Controllers
 
         [Authorize(Policy = "Dealer")]
         [HttpPost]
-        public BusinessResult Post(ItemCategoryModel model){
+        public BusinessResult Post(UnitTypeModel model){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request.Headers);
 
             try
             {
-                var dbObj = _context.ItemCategory.FirstOrDefault(d => d.Id == model.Id);
+                var dbObj = _context.UnitType.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
-                    dbObj = new ItemCategory();
-                    _context.ItemCategory.Add(dbObj);
+                    dbObj = new UnitType();
+                    _context.UnitType.Add(dbObj);
                 }
 
-                if (_context.ItemCategory.Any(d => d.ItemCategoryCode == model.ItemCategoryCode && d.Id != model.Id))
+                if (_context.UnitType.Any(d => d.UnitTypeCode == model.UnitTypeCode && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);
@@ -136,11 +106,11 @@ namespace MachManager.Controllers
 
             try
             {
-                var dbObj = _context.ItemCategory.FirstOrDefault(d => d.Id == id);
+                var dbObj = _context.UnitType.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
-                _context.ItemCategory.Remove(dbObj);
+                _context.UnitType.Remove(dbObj);
 
                 _context.SaveChanges();
                 result.Result=true;
