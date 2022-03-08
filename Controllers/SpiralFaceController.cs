@@ -19,27 +19,26 @@ namespace MachManager.Controllers
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
-    public class ItemGroupController : MgControllerBase
+    public class SpiralFaceController : MgControllerBase
     {
-        public ItemGroupController(MetaGanosSchema context): base(context){ }
+        public SpiralFaceController(MetaGanosSchema context): base(context){ }
 
         [HttpGet]
-        public IEnumerable<ItemGroupModel> Get()
+        public IEnumerable<SpiralFaceModel> Get()
         {
-            ItemGroupModel[] data = new ItemGroupModel[0];
+            SpiralFaceModel[] data = new SpiralFaceModel[0];
             try
             {
-                data = _context.ItemGroup.Select(d => new ItemGroupModel{
+                data = _context.SpiralFace.Select(d => new SpiralFaceModel{
                         Id = d.Id,
-                        CreatedDate = d.CreatedDate,
-                        IsActive = d.IsActive,
+                        Capacity = d.Capacity,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
                         ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
-                        ItemCategoryId = d.ItemCategoryId,
-                        ItemGroupCode = d.ItemGroupCode,
-                        ItemGroupName = d.ItemGroupName,
-                        ViewOrder = d.ViewOrder,
-                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                    }).OrderBy(d => d.Id).ToArray();
             }
             catch
             {
@@ -51,22 +50,20 @@ namespace MachManager.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public ItemGroupModel Get(int id)
+        public SpiralFaceModel Get(int id)
         {
-            ItemGroupModel data = new ItemGroupModel();
+            SpiralFaceModel data = new SpiralFaceModel();
             try
             {
-                data = _context.ItemGroup.Where(d => d.Id == id).Select(d => new ItemGroupModel{
+                data = _context.SpiralFace.Where(d => d.Id == id).Select(d => new SpiralFaceModel{
                         Id = d.Id,
-                        CreatedDate = d.CreatedDate,
-                        IsActive = d.IsActive,
+                        Capacity = d.Capacity,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
                         ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
-                        ItemCategoryId = d.ItemCategoryId,
-                        ItemGroupCode = d.ItemGroupCode,
-                        ItemGroupName = d.ItemGroupName,
-                        GroupImage = d.GroupImage,
-                        ViewOrder = d.ViewOrder,
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
                     }).FirstOrDefault();
             }
             catch
@@ -79,20 +76,17 @@ namespace MachManager.Controllers
 
         [Authorize(Policy = "Dealer")]
         [HttpPost]
-        public BusinessResult Post(ItemGroupModel model){
+        public BusinessResult Post(SpiralFaceModel model){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request.Headers);
 
             try
             {
-                var dbObj = _context.ItemGroup.FirstOrDefault(d => d.Id == model.Id);
+                var dbObj = _context.SpiralFace.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
-                    dbObj = new ItemGroup();
-                    _context.ItemGroup.Add(dbObj);
+                    dbObj = new SpiralFace();
+                    _context.SpiralFace.Add(dbObj);
                 }
-
-                if (_context.ItemGroup.Any(d => d.ItemGroupCode == model.ItemGroupCode && d.Id != model.Id))
-                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);
 
@@ -117,11 +111,11 @@ namespace MachManager.Controllers
 
             try
             {
-                var dbObj = _context.ItemGroup.FirstOrDefault(d => d.Id == id);
+                var dbObj = _context.SpiralFace.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
-                _context.ItemGroup.Remove(dbObj);
+                _context.SpiralFace.Remove(dbObj);
 
                 _context.SaveChanges();
                 result.Result=true;

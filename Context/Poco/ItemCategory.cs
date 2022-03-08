@@ -12,6 +12,7 @@ namespace MachManager.Context {
         public int ControlTimeType { get; set; }
         public int ItemChangeTime { get; set; }
         public bool IsActive { get; set; }
+        public string CategoryImage { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
     }
 }

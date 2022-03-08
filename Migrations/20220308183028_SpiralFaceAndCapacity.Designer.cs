@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220308183028_SpiralFaceAndCapacity")]
+    partial class SpiralFaceAndCapacity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -498,9 +500,6 @@ namespace MachManager.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("GroupImage")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -812,32 +811,6 @@ namespace MachManager.Migrations
                     b.HasIndex("DealerId");
 
                     b.ToTable("Plant");
-                });
-
-            modelBuilder.Entity("MachManager.Context.SpiralFace", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ItemCategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ItemGroupId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemCategoryId");
-
-                    b.HasIndex("ItemGroupId");
-
-                    b.ToTable("SpiralFace");
                 });
 
             modelBuilder.Entity("MachManager.Context.SysLang", b =>
@@ -1254,21 +1227,6 @@ namespace MachManager.Migrations
                         .HasForeignKey("DealerId");
 
                     b.Navigation("Dealer");
-                });
-
-            modelBuilder.Entity("MachManager.Context.SpiralFace", b =>
-                {
-                    b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
-                        .WithMany()
-                        .HasForeignKey("ItemCategoryId");
-
-                    b.HasOne("MachManager.Context.ItemGroup", "ItemGroup")
-                        .WithMany()
-                        .HasForeignKey("ItemGroupId");
-
-                    b.Navigation("ItemCategory");
-
-                    b.Navigation("ItemGroup");
                 });
 
             modelBuilder.Entity("MachManager.Context.SysLangDict", b =>

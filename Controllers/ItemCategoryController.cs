@@ -64,6 +64,7 @@ namespace MachManager.Controllers
                         ItemCategoryName = d.ItemCategoryName,
                         ItemChangeTime = d.ItemChangeTime,
                         ViewOrder = d.ViewOrder,
+                        CategoryImage = d.CategoryImage
                     }).FirstOrDefault();
             }
             catch
@@ -87,6 +88,48 @@ namespace MachManager.Controllers
                         ItemGroupCode = d.ItemGroupCode,
                         ItemGroupName = d.ItemGroupName,
                     }).OrderBy(d => d.ItemGroupCode).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/Items")]
+        public IEnumerable<ItemModel> GetItems(int id)
+        {
+            ItemModel[] data = new ItemModel[0];
+            try
+            {
+                data = _context.Item.Where(d => d.ItemCategoryId == id).Select(d => new ItemModel{
+                        Id = d.Id,
+                        AlternatingCode1 = d.AlternatingCode1,
+                        AlternatingCode2 = d.AlternatingCode2,
+                        Barcode1 = d.Barcode1,
+                        Barcode2 = d.Barcode2,
+                        CreatedDate = d.CreatedDate,
+                        CriticalMax = d.CriticalMax,
+                        CriticalMin = d.CriticalMin,
+                        Explanation = d.Explanation,
+                        IsActive = d.IsActive,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.ItemCode,
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemName = d.ItemName,
+                        Price1 = d.Price1,
+                        Price2 = d.Price2,
+                        UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                        UnitTypeId = d.UnitTypeId,
+                        UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                        ViewOrder = d.ViewOrder
+                    }).OrderBy(d => d.ItemCode).ToArray();
             }
             catch
             {

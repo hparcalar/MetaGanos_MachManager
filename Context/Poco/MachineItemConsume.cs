@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MachManager.Context {
-    public class EmployeeCreditConsume{
+    public class MachineItemConsume{
         public int Id { get; set; }
-        public int ConsumedCredit { get; set; } = 0;
+        public int ConsumedCount { get; set; } = 0;
 
-        [ForeignKey("ItemCategory")]
-        public Nullable<int> ItemCategoryId { get; set; }
+        [ForeignKey("Machine")]
+        public Nullable<int> MachineId { get; set; }
+
+        public Nullable<int> SpiralNo { get; set; }
 
         [ForeignKey("ItemGroup")]
         public Nullable<int> ItemGroupId { get; set; }
@@ -23,8 +25,8 @@ namespace MachManager.Context {
         public Nullable<DateTime> ConsumedDate { get; set; }
 
         // REFERENCES
+        public virtual Machine Machine { get; set; }
         public virtual Employee Employee { get; set; }
-        public virtual ItemCategory ItemCategory { get; set; }
         public virtual ItemGroup ItemGroup { get; set; }
         public virtual Item Item { get; set; }
     }

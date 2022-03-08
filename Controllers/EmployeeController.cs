@@ -221,6 +221,41 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "Dealer")]
+        [HttpPost]
+        [Route("EditCredit")]
+        public BusinessResult EditCredit(EmployeeCreditModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request.Headers);
+
+            try
+            {
+                var dbObj = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
+                    && d.ItemCategoryId == model.ItemCategoryId);
+                if (dbCredit == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                // change current credit
+                dbCredit.ActiveCredit = model.ActiveCredit;
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbCredit.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "Dealer")]
         [HttpDelete]
         [Route("UnloadCredit")]
         public BusinessResult UnloadCredit(int historyId){

@@ -14,6 +14,7 @@ namespace MachManager.Context {
         public Nullable<int> ItemCategoryId { get; set; }
         public bool IsActive { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public string GroupImage { get; set; }
 
         // REFERENCES
         public virtual ItemCategory ItemCategory { get; set; }

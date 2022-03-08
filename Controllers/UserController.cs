@@ -12,6 +12,7 @@ using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Authentication;
+using MachManager.Helpers;
 
 namespace MachManager.Controllers
 {
@@ -91,6 +92,50 @@ namespace MachManager.Controllers
 
             return Unauthorized();
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("LoginCard")]
+        public CardLoginResult LoginCard([FromBody] UserLoginModel model)
+        {
+            CardLoginResult result = new CardLoginResult{
+                Result = false,
+            };
+
+            try
+            {
+                var dbUser = _context.Employee.Where(d =>
+                    d.EmployeeCard != null &&
+                    (d.EmployeeCard.CardCode == model.Login
+                        || d.EmployeeCard.HexKey == model.Login)).FirstOrDefault();
+
+                if (dbUser == null)
+                    throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
+
+                if (!string.Equals(dbUser.EmployeePassword, model.Password))
+                    throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
+
+                var tokenStr = _authObject.Authenticate(true, model.Login, MgAuthType.Employee);
+
+                result.Token = tokenStr;
+                result.Result=true;
+                result.Employee = new EmployeeModel();
+                dbUser.MapTo(result.Employee);
+
+                var dbDepartment = _context.Department.FirstOrDefault(d => d.Id == dbUser.DepartmentId);
+
+                result.Employee.DepartmentCode = dbDepartment != null ? dbDepartment.DepartmentCode : "";
+                result.Employee.DepartmentName = dbDepartment != null ? dbDepartment.DepartmentName : "";
+            }
+            catch (Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
 
         [AllowAnonymous]
         [HttpPost]

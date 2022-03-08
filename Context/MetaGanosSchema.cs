@@ -28,6 +28,8 @@ namespace MachManager.Context {
         public DbSet<Warehouse> Warehouse { get; set; }
         public DbSet<EmployeeCredit> EmployeeCredit { get; set; }
         public DbSet<EmployeeCreditConsume> EmployeeCreditConsume { get; set; }
+        public DbSet<MachineItemConsume> MachineItemConsume { get; set; }
+        public DbSet<SpiralFace> SpiralFace { get; set; }
 
         public MetaGanosSchema() : base(){}
         public MetaGanosSchema(Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options){}
