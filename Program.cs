@@ -65,6 +65,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHsts();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

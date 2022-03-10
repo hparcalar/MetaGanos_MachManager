@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using MachManager.Context;
 using MachManager.Models;
 using MachManager.Models.Operational;
@@ -13,6 +14,7 @@ using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace MachManager.Controllers
 {
@@ -22,7 +24,11 @@ namespace MachManager.Controllers
     [EnableCors()]
     public class MachineController : MgControllerBase
     {
-        public MachineController(MetaGanosSchema context): base(context){ }
+        private IWebHostEnvironment Environment = null;
+        
+        public MachineController(MetaGanosSchema context, IWebHostEnvironment environment): base(context, environment){
+            this.Environment = environment;
+        }
 
         [Authorize(Policy = "Dealer")]
         [HttpGet]
@@ -300,6 +306,76 @@ namespace MachManager.Controllers
             }
 
             return result;
+        }
+
+        [Authorize(Policy = "Dealer")]
+        [HttpPost]
+        [Route("{id}/UploadVideo")]
+        public BusinessResult UploadVideo(int id, IFormFile videoData){
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
+                if (dbMachine == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                string contentPath = this.Environment.ContentRootPath;
+        
+                string path = Path.Combine(contentPath, "Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (videoData != null){
+                    string fileName = Path.GetFileName(dbMachine.Id.ToString() + "_" + videoData.FileName);
+                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    {
+                        videoData.CopyTo(stream);
+                    }   
+
+                    dbMachine.StartVideoPath = fileName;
+                    _context.SaveChanges();
+                }
+
+                result.RecordId = dbMachine.Id;
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("{id}/Video")]
+        public FileStreamResult GetVideo(int id){
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
+                if (dbMachine != null && !string.IsNullOrEmpty(dbMachine.StartVideoPath)){
+                    string contentPath = this.Environment.ContentRootPath;
+                    string path = Path.Combine(contentPath, "Uploads");
+
+                    string fileName = Path.GetFileName(dbMachine.StartVideoPath);
+                    string contentType = "";
+                        new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
+
+                    FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Open, FileAccess.Read);
+                    return new FileStreamResult(stream, contentType);
+                }    
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return new FileStreamResult(null, "");
         }
 
         [Authorize(Policy = "Dealer")]

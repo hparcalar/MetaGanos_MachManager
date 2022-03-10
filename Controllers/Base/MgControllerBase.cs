@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using MachManager.Authentication;
 
 namespace MachManager.Controllers.Base{
@@ -22,7 +23,14 @@ namespace MachManager.Controllers.Base{
             _authObject = authObject;
             _translator = new Translation(_context);
         }
+
+        public MgControllerBase(MetaGanosSchema context, IWebHostEnvironment environment){
+            _context = context;
+            _environment = environment;
+
+        }
         protected MetaGanosSchema _context;
+        protected IWebHostEnvironment _environment;
         protected Translation _translator;
         protected MgAuth _authObject;
         protected string _userLanguage = "default";

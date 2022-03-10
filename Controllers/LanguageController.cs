@@ -67,6 +67,53 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("Find/{code}")]
+        public SysLangModel Find(string code){
+            SysLangModel data = new SysLangModel();
+            try
+            {
+                code = code.ToUpper();
+                data = _context.SysLang.Where(d => d.LanguageCode == code).Select(d => new SysLangModel{
+                        Id = d.Id,
+                        LanguageCode = d.LanguageCode,
+                        LanguageName = d.LanguageName,
+                        IsDefault = d.IsDefault,
+                        IsActive = d.IsActive,
+                    }).FirstOrDefault();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/Dict")]
+        public IEnumerable<SysLangDictModel> GetDict(int id){
+            SysLangDictModel[] data = new SysLangDictModel[0];
+
+            try
+            {
+                data = _context.SysLangDict.Where(d => d.SysLangId == id)
+                    .Select(d => new SysLangDictModel{
+                        Id = d.Id,
+                        SysLangId = d.SysLangId,
+                        EqualResponse = d.EqualResponse,
+                        ExpNo = d.ExpNo,
+                        Expression = d.Expression,
+                    }).ToArray();
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
         [HttpPost]
         public BusinessResult Post(SysLangModel model){
             BusinessResult result = new BusinessResult();
@@ -88,13 +135,63 @@ namespace MachManager.Controllers
                 dbObj.IsDefault = model.IsDefault;
                 dbObj.IsActive = model.IsActive;
 
+                // update expressions in dictionary of current language
+                foreach (var item in DefaultEqualResponses.List)
+                {
+                    if (!dbObj.SysLangDict.Any(d => d.Expression == item.Key.ToString())){
+                        var newDictItem = new SysLangDict{
+                            SysLang = dbObj,
+                            ExpNo = (int)item.Key,
+                            Expression = item.Key.ToString(),
+                            EqualResponse = null,
+                        };
+                        dbObj.SysLangDict.Add(newDictItem);
+                        _context.SysLangDict.Add(newDictItem);
+                    }
+                }
+
                 _context.SaveChanges();
+
                 result.Result=true;
                 result.RecordId = dbObj.Id;
             }
             catch (System.Exception ex)
             {
                 result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [HttpPost]
+        [Route("{id}/Dict")]
+        public BusinessResult PostDict(int id, SysLangDictModel[] model){
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbLang = _context.SysLang.FirstOrDefault(d => d.Id == id);
+                if (dbLang == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (model != null){
+                    foreach (var item in model)
+                    {
+                        var dbExp = dbLang.SysLangDict.FirstOrDefault(d => d.Expression == item.Expression);
+                        if (dbExp != null){
+                            dbExp.EqualResponse = item.EqualResponse;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                }
+
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
                 result.ErrorMessage = ex.Message;
             }
 

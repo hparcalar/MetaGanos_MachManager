@@ -159,5 +159,12 @@ namespace MachManager.Controllers
 
             return Unauthorized();
         }
+    
+        [Authorize]
+        [HttpGet]
+        [Route("CheckToken")]
+        public IActionResult CheckToken(){
+            return Ok();
+        }
     }
 }
