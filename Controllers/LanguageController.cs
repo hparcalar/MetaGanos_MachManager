@@ -97,14 +97,37 @@ namespace MachManager.Controllers
 
             try
             {
-                data = _context.SysLangDict.Where(d => d.SysLangId == id)
+                var dbLang = _context.SysLang.FirstOrDefault(d => d.Id == id);
+
+                var dbData = _context.SysLangDict.Where(d => d.SysLangId == id)
                     .Select(d => new SysLangDictModel{
                         Id = d.Id,
                         SysLangId = d.SysLangId,
                         EqualResponse = d.EqualResponse,
                         ExpNo = d.ExpNo,
                         Expression = d.Expression,
-                    }).ToArray();
+                    }).ToList();
+
+                var noResponses = dbData.Where(d => string.IsNullOrEmpty(d.EqualResponse));
+                foreach (var item in noResponses)
+                {
+                    item.EqualResponse = _translator.Translate((Expressions)item.ExpNo, dbLang.LanguageCode);
+                }
+
+                var nonExistence = DefaultEqualResponses
+                    .List.Where(d => !dbData.Any(m => m.ExpNo == (int)d.Key)).ToArray();
+                foreach (var item in nonExistence)
+                {
+                    dbData.Add(new SysLangDictModel{
+                        Id = 0,
+                        EqualResponse = _translator.Translate(item.Key, dbLang.LanguageCode),
+                        ExpNo = (int)item.Key,
+                        Expression = item.Key.ToString(),
+                        SysLangId = dbLang.Id,
+                    });
+                }
+
+                data = dbData.ToArray();
             }
             catch (System.Exception)
             {

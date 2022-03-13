@@ -256,6 +256,37 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "Dealer")]
+        [HttpPost]
+        [Route("SaveFileProcess")]
+        public BusinessResult PostFileProcess(PlantFileProcessModel model){
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbProc = _context.PlantFileProcess.FirstOrDefault(d => d.Id == model.Id);
+                if (dbProc == null){
+                    dbProc = new PlantFileProcess();
+                    model.MapTo(dbProc);
+                    dbProc.CreatedDate = DateTime.Now;
+                    _context.PlantFileProcess.Add(dbProc);
+                }
+                else
+                    model.MapTo(dbProc);
+
+                _context.SaveChanges();
+
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "Dealer")]
         [HttpDelete]
         [Route("UnloadCredit")]
         public BusinessResult UnloadCredit(int historyId){

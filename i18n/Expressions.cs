@@ -33,6 +33,10 @@ namespace MachManager.i18n{
         Item=29,
         Units=30,
         LanguageSettings=31,
+        RecordWasUsedAndCannotBeDeleted=32,
+        Created=33,
+        Approved=34,
+        Finished=35,
     }
 
     public class DefaultEqualResponses{
@@ -67,7 +71,11 @@ namespace MachManager.i18n{
             { Expressions.Edit, "Düzenle" },
             { Expressions.Item, "Stok" },
             { Expressions.Units, "Birimler" },
-            { Expressions.LanguageSettings, "Dil Ayarları" }
+            { Expressions.LanguageSettings, "Dil Ayarları" },
+            { Expressions.RecordWasUsedAndCannotBeDeleted, "Bu kayıt kullanılmış olduğu için silinemez. Pasif olarak işaretlemeyi deneyebilirsiniz." },
+            { Expressions.Created, "Oluşturuldu" },
+            { Expressions.Approved, "Onaylandı" },
+            { Expressions.Finished, "Tamamlandı" },
         };
     }
 }

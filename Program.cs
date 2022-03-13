@@ -7,6 +7,7 @@ using MachManager.Authentication;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.Services.AddDbContext<MetaGanosSchema>(options =>

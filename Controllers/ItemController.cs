@@ -106,6 +106,52 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("ForMachine/{machineCode}")]
+        public IEnumerable<ItemModel> GetItemsForMachine(string machineCode){
+            ItemModel[] data = new ItemModel[0];
+
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == machineCode);
+                if (dbMachine != null){
+                    data = _context.Item.Where(d => d.IsActive == true)
+                        .Select(d => new ItemModel{
+                            Id = d.Id,
+                            AlternatingCode1 = d.AlternatingCode1,
+                            AlternatingCode2 = d.AlternatingCode2,
+                            Barcode1 = d.Barcode1,
+                            Barcode2 = d.Barcode2,
+                            CreatedDate = d.CreatedDate,
+                            CriticalMax = d.CriticalMax,
+                            CriticalMin = d.CriticalMin,
+                            Explanation = d.Explanation,
+                            IsActive = d.IsActive,
+                            ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                            ItemCode = d.ItemCode,
+                            ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                            ItemGroupId = d.ItemGroupId,
+                            ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                            ItemName = d.ItemName,
+                            Price1 = d.Price1,
+                            Price2 = d.Price2,
+                            UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                            UnitTypeId = d.UnitTypeId,
+                            UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                            ViewOrder = d.ViewOrder
+                        }).ToArray();
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
         [Authorize(Policy = "Dealer")]
         [HttpPost]
         public BusinessResult Post(ItemModel model){

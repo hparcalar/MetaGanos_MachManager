@@ -9,6 +9,7 @@ namespace MachManager.Context {
         public string PlantCode { get; set; } = "";
         public string PlantName { get; set; } = "";
         public string Explanation { get; set; } = "";
+        public string PlantLogo { get; set; } = "";
         public bool IsActive { get; set; }
 
         [ForeignKey("Dealer")]

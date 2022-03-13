@@ -5,6 +5,7 @@ namespace MachManager.Models{
         public string PlantName { get; set; } = "";
         public string Explanation { get; set; } = "";
         public bool IsActive { get; set; }
+        public string PlantLogo { get; set; } = "";
         public Nullable<int> DealerId { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
 

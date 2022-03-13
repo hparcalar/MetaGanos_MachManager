@@ -4,6 +4,7 @@ namespace MachManager.Models{
         public string DepartmentCode { get; set; } = "";
         public string DepartmentName { get; set; } = "";
         public Nullable<int> PlantId { get; set; }
+        public Nullable<int> PlantPrintFileId { get; set; }
         public bool IsActive { get; set; }
 
         #region VISUAL ELEMENTS

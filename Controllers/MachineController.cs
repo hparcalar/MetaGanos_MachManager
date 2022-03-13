@@ -227,6 +227,44 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("{machineCode}/SpiralContents")]
+        public IEnumerable<MachineSpiralModel> GetSpiralContents(string machineCode){
+            MachineSpiralModel[] data = new MachineSpiralModel[0];
+
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == machineCode);
+                if (dbMachine != null){
+                    data = _context.MachineSpiral.Where(d => d.MachineId == dbMachine.Id)
+                        .Select(d => new MachineSpiralModel{
+                            Id = d.Id,
+                            ActiveQuantity = d.ActiveQuantity,
+                            ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                            ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                            ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                            ItemGroupId = d.ItemGroupId,
+                            ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                            ItemId = d.ItemId,
+                            ItemName = d.Item != null ? d.Item.ItemName : "",
+                            MachineId = d.MachineId,
+                            PosOrders = d.PosOrders,
+                            Capacity = d.Capacity,
+                            PosX = d.PosX,
+                            PosY = d.PosY,
+                        }).ToArray();
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}/Spirals/{spiralNo}/Consumings")]
         public MachineItemConsumeModel[] GetSpiralConsumings(int id, int spiralNo)
         {
@@ -457,7 +495,7 @@ namespace MachManager.Controllers
                 //// create machine item consume
                 _context.MachineItemConsume.Add(new MachineItemConsume{
                     ConsumedCount = 1,
-                    //ConsumedDate = DateTime.Now,
+                    ConsumedDate = model.DeliverDate,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,
@@ -469,7 +507,7 @@ namespace MachManager.Controllers
                 //// create employee credit consume
                 _context.EmployeeCreditConsume.Add(new EmployeeCreditConsume{
                     ConsumedCredit = 1,
-                    //ConsumedDate = DateTime.Now,
+                    ConsumedDate = model.DeliverDate,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,

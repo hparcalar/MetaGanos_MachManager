@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220313114045_PlantPrintFiles")]
+    partial class PlantPrintFiles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -874,10 +876,10 @@ namespace MachManager.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Explanation")
-                        .HasColumnType("text");
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("ImageData")
+                    b.Property<string>("Explanation")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -893,6 +895,8 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("PlantId");
 
@@ -1364,11 +1368,17 @@ namespace MachManager.Migrations
 
             modelBuilder.Entity("MachManager.Context.PlantPrintFile", b =>
                 {
+                    b.HasOne("MachManager.Context.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
                     b.HasOne("MachManager.Context.Plant", "Plant")
                         .WithMany()
                         .HasForeignKey("PlantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Department");
 
                     b.Navigation("Plant");
                 });
