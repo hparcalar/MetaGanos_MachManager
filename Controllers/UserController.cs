@@ -104,10 +104,33 @@ namespace MachManager.Controllers
 
             try
             {
+                List<string> possibleKeys = new List<string>(){ model.Login };
+                
+                #region CALCULATE HEX KEY POSSIBILITES
+                // check hex key chars length and store standart version
+                var stdHexKey = Convert.ToInt64(model.Login).ToString("X");
+                possibleKeys.Add(stdHexKey);
+                if (stdHexKey.Length > 8)
+                    possibleKeys.Add(stdHexKey.Substring(0, 8));
+                
+                // calc and store reversed version
+                var rawHexKey = stdHexKey.Length > 6 ? stdHexKey.Substring(0,6) : stdHexKey;
+                string reversedHexKey = "";
+                if (rawHexKey.Length % 2 == 0){
+                    int hexIndex = rawHexKey.Length - 2;
+                    while (hexIndex >= 0){
+                        reversedHexKey += rawHexKey.Substring(hexIndex, 2);
+                        hexIndex -= 2;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(reversedHexKey))
+                    possibleKeys.Add(reversedHexKey);
+                #endregion
+
                 var dbUser = _context.Employee.Where(d =>
                     d.EmployeeCard != null &&
-                    (d.EmployeeCard.CardCode == model.Login
-                        || d.EmployeeCard.HexKey == model.Login)).FirstOrDefault();
+                    possibleKeys.Contains(d.EmployeeCard.CardCode)).FirstOrDefault();
 
                 if (dbUser == null)
                     throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));

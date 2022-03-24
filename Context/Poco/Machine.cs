@@ -26,6 +26,7 @@ namespace MachManager.Context {
         public int Rows { get; set; }
         public int Cols { get; set; }
         public bool IsActive { get; set; }
+        public Nullable<int> SpiralStartIndex { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
 
         // REFERENCES

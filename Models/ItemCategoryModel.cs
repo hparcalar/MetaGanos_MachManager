@@ -9,5 +9,13 @@ namespace MachManager.Models{
         public bool IsActive { get; set; }
         public string CategoryImage { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public Nullable<int> CreditRangeType { get; set; }
+        public Nullable<int> CreditByRange { get; set; }
+
+        #region VISUAL ELEMENTS
+        public string CreditRangeTypeText { get; set; }
+        public string ControlTimeTypeText { get; set; }
+
+        #endregion
     }
 }

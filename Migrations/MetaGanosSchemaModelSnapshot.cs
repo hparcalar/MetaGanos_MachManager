@@ -31,7 +31,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("DealerId")
                         .HasColumnType("integer");
@@ -134,6 +134,12 @@ namespace MachManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreditByRange")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CreditRangeType")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("integer");
 
@@ -234,7 +240,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EmployeeCardId")
                         .HasColumnType("integer");
@@ -302,7 +308,7 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ConsumedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("integer");
@@ -341,7 +347,7 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("DebitFormSamplePath")
                         .HasColumnType("text");
@@ -406,7 +412,7 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal?>("CriticalMax")
                         .HasColumnType("numeric");
@@ -470,7 +476,13 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("CreditByRange")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CreditRangeType")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -501,7 +513,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("GroupImage")
                         .HasColumnType("text");
@@ -537,7 +549,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("DealerId")
                         .HasColumnType("integer");
@@ -552,7 +564,7 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ReceiptDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ReceiptNo")
                         .HasColumnType("text");
@@ -651,7 +663,7 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("District")
                         .HasColumnType("text");
@@ -660,7 +672,7 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("InventoryEntryDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -678,13 +690,16 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ProductionDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Rows")
                         .HasColumnType("integer");
 
                     b.Property<string>("SpecialCustomer")
                         .HasColumnType("text");
+
+                    b.Property<int?>("SpiralStartIndex")
+                        .HasColumnType("integer");
 
                     b.Property<string>("StartVideoPath")
                         .HasColumnType("text");
@@ -708,7 +723,7 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ConsumedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("integer");
@@ -751,6 +766,9 @@ namespace MachManager.Migrations
 
                     b.Property<int?>("Capacity")
                         .HasColumnType("integer");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<int?>("ItemCategoryId")
                         .HasColumnType("integer");
@@ -795,7 +813,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("DealerId")
                         .HasColumnType("integer");
@@ -831,10 +849,10 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("ApprovedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("integer");
@@ -843,7 +861,7 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Explanation")
                         .HasColumnType("text");
@@ -857,6 +875,8 @@ namespace MachManager.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("PlantPrintFileId");
 
@@ -872,7 +892,7 @@ namespace MachManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Explanation")
                         .HasColumnType("text");
@@ -1353,11 +1373,17 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
+                    b.HasOne("MachManager.Context.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
+
                     b.HasOne("MachManager.Context.PlantPrintFile", "PlantPrintFile")
                         .WithMany()
                         .HasForeignKey("PlantPrintFileId");
 
                     b.Navigation("Department");
+
+                    b.Navigation("Employee");
 
                     b.Navigation("PlantPrintFile");
                 });

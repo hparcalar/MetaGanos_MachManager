@@ -20,6 +20,7 @@ namespace MachManager.Models{
         public int Cols { get; set; }
         public bool IsActive { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public Nullable<int> SpiralStartIndex { get; set; }
 
         #region VISUAL ELEMENTS
         public MachineSpiralModel[] Spirals { get; set; }

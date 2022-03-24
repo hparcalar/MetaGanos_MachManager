@@ -11,6 +11,8 @@ namespace MachManager.Context {
         public int ViewOrder { get; set; }
         public int ControlTimeType { get; set; }
         public int ItemChangeTime { get; set; }
+        public Nullable<int> CreditRangeType { get; set; }
+        public Nullable<int> CreditByRange { get; set; }
         public bool IsActive { get; set; }
         public string CategoryImage { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }

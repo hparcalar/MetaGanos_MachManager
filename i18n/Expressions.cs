@@ -37,6 +37,11 @@ namespace MachManager.i18n{
         Created=33,
         Approved=34,
         Finished=35,
+        Daily=36,
+        Weekly=37,
+        Monthly=38,
+        Indefinite=39,
+        Yearly = 40,
     }
 
     public class DefaultEqualResponses{
@@ -76,6 +81,11 @@ namespace MachManager.i18n{
             { Expressions.Created, "Oluşturuldu" },
             { Expressions.Approved, "Onaylandı" },
             { Expressions.Finished, "Tamamlandı" },
+            { Expressions.Daily, "Günlük" },
+            { Expressions.Weekly, "Haftalık" },
+            { Expressions.Monthly, "Aylık" },
+            { Expressions.Yearly, "Yıllık" },
+            { Expressions.Indefinite, "Süresiz" },
         };
     }
 }

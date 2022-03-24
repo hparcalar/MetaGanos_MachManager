@@ -12,6 +12,7 @@ using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
+using MachManager.Models.Constants;
 
 namespace MachManager.Controllers
 {
@@ -73,7 +74,17 @@ namespace MachManager.Controllers
                         ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryId = d.ItemCategoryId,
                         ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        CreditRangeType = d.CreditRangeType,
+                        CreditByRange = d.CreditByRange,
                     }).ToArray();
+
+                foreach (var item in data.ItemCategories)
+                {
+                    item.CreditRangeTypeText = _translator.Translate(
+                        CreditRangeOption.GetExpression(item.CreditRangeType ?? CreditRangeOption.INDEFINITE),
+                        _userLanguage
+                    );
+                }
             }
             catch
             {

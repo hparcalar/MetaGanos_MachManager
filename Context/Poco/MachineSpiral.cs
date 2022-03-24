@@ -26,6 +26,7 @@ namespace MachManager.Context {
         public Nullable<int> ItemGroupId { get; set; }
         
         public Nullable<int> Capacity { get; set; }
+        public Nullable<bool> IsEnabled { get; set; }
 
         // REFERENCES
         public virtual Item Item { get; set; }
