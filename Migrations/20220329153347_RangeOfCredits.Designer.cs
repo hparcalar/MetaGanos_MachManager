@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220329153347_RangeOfCredits")]
+    partial class RangeOfCredits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -271,9 +273,6 @@ namespace MachManager.Migrations
                     b.Property<int>("ActiveCredit")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CreditByRange")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("CreditEndDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -299,9 +298,6 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("RangeIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RangeLength")
                         .HasColumnType("integer");
 
                     b.Property<int>("RangeType")
@@ -503,9 +499,6 @@ namespace MachManager.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("CreditByRange")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CreditRangeLength")
                         .HasColumnType("integer");
 
                     b.Property<int?>("CreditRangeType")

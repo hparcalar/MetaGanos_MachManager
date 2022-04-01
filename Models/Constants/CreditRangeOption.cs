@@ -2,10 +2,10 @@ using MachManager.i18n;
 
 namespace MachManager.Models.Constants{
     public class CreditRangeOption{
-        public static readonly int DAILY = 1;
-        public static readonly int WEEKLY = 2;
-        public static readonly int MONTHLY = 3;
-        public static readonly int INDEFINITE = 4;
+        public const int DAILY = 1;
+        public const int WEEKLY = 2;
+        public const int MONTHLY = 3;
+        public const int INDEFINITE = 4;
 
         public static Expressions GetExpression(int creditRangeType){
             

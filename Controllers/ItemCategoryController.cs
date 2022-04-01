@@ -41,6 +41,7 @@ namespace MachManager.Controllers
                         ViewOrder = d.ViewOrder,
                         CreditRangeType = d.CreditRangeType,
                         CreditByRange = d.CreditByRange,
+                        CreditRangeLength = d.CreditRangeLength,
                     }).OrderBy(d => d.ItemCategoryCode).ToArray();
 
                 foreach (var item in data)
@@ -77,6 +78,7 @@ namespace MachManager.Controllers
                         CategoryImage = d.CategoryImage,
                         CreditRangeType = d.CreditRangeType,
                         CreditByRange = d.CreditByRange,
+                        CreditRangeLength = d.CreditRangeLength,
                     }).FirstOrDefault();
 
                 if (data != null){

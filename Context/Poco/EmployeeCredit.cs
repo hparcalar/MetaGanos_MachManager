@@ -20,6 +20,16 @@ namespace MachManager.Context {
         [ForeignKey("Department")]
         public Nullable<int> EmployeeId { get; set; }
 
+        public int RangeCredit { get; set; } = 0;
+        public int RangeIndex { get; set; } = 0;
+        public int RangeType { get; set; } = 4;
+        public int RangeLength { get; set; } = 1;
+        public int CreditByRange { get; set; } = 0;
+
+        public Nullable<DateTime> CreditLoadDate { get; set; }
+        public Nullable<DateTime> CreditStartDate { get; set; }
+        public Nullable<DateTime> CreditEndDate { get; set; }
+
         // REFERENCES
         public virtual Employee Employee { get; set; }
         public virtual ItemCategory ItemCategory { get; set; }

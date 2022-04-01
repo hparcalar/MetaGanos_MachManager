@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TfwHf615AYmvc+zf2/hrfgDlgWLyVO2wDVAsaTGlts2NSEU+GAlMOmxZLiaVDocuH4g6LYX9BiUaROpKtKD5Pw==",
+  "dgSpecHash": "r5yN+vW8EMhPvSNPLZHBTKNut0qB/Tcy4d2U9ysK6zG+FwkFvFQqfb1jwhks5e5QBtnty33qp/+GTxk19V+0Xg==",
   "success": true,
   "projectFilePath": "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj",
   "expectedPackageFiles": [
@@ -67,7 +67,10 @@
     "/root/.nuget/packages/system.security.cryptography.xml/4.5.0/system.security.cryptography.xml.4.5.0.nupkg.sha512",
     "/root/.nuget/packages/system.security.permissions/4.5.0/system.security.permissions.4.5.0.nupkg.sha512",
     "/root/.nuget/packages/system.security.principal.windows/4.5.0/system.security.principal.windows.4.5.0.nupkg.sha512",
-    "/root/.nuget/packages/system.text.encodings.web/4.5.0/system.text.encodings.web.4.5.0.nupkg.sha512"
+    "/root/.nuget/packages/system.text.encodings.web/4.5.0/system.text.encodings.web.4.5.0.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.netcore.app.runtime.win-x64/6.0.3/microsoft.netcore.app.runtime.win-x64.6.0.3.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.aspnetcore.app.runtime.win-x64/6.0.3/microsoft.aspnetcore.app.runtime.win-x64.6.0.3.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.netcore.app.host.win-x64/6.0.3/microsoft.netcore.app.host.win-x64.6.0.3.nupkg.sha512"
   ],
   "logs": []
 }

@@ -11,6 +11,7 @@ namespace MachManager.Models{
         public Nullable<DateTime> CreatedDate { get; set; }
         public Nullable<int> CreditRangeType { get; set; }
         public Nullable<int> CreditByRange { get; set; }
+        public Nullable<int> CreditRangeLength { get; set; }
 
         #region VISUAL ELEMENTS
         public string CreditRangeTypeText { get; set; }

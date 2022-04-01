@@ -490,9 +490,11 @@ namespace MachManager.Controllers
                 if (dbItem == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
                 
-                var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ItemCategoryId == dbItem.ItemCategoryId);
-                if (dbCredit == null || dbCredit.ActiveCredit <= 0)
+                var dbCreditList = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId
+                    && d.ItemCategoryId == dbItem.ItemCategoryId).ToArray();
+                var dbCredit = dbCreditList.FirstOrDefault(d => 
+                    (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
+                if (dbCredit == null || dbCredit.RangeCredit <= 0)
                     throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
 
                 // start delivery operation
@@ -517,10 +519,19 @@ namespace MachManager.Controllers
                     ItemGroupId = dbItem.ItemGroupId,
                     ItemCategoryId = dbItem.ItemCategoryId,
                 });
-                dbCredit.ActiveCredit -= 1;
 
                 _context.SaveChanges();
                 result.Result = true;
+
+                // update live credits data
+                using (MetaGanosSchema checkContext = SchemaFactory.CreateContext()){
+                    EmployeeCreditModel creditModelDomain = new EmployeeCreditModel();
+                    var checkDbCredit = checkContext.EmployeeCredit.FirstOrDefault(d => d.Id == dbCredit.Id);
+                    checkDbCredit.MapTo(creditModelDomain);
+                    creditModelDomain.UpdateLiveRangeData(_context);
+                    creditModelDomain.MapTo(checkDbCredit);
+                    checkContext.SaveChanges();
+                }
             }
             catch (System.Exception ex)
             {

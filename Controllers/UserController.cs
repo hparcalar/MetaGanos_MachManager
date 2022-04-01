@@ -108,24 +108,31 @@ namespace MachManager.Controllers
                 
                 #region CALCULATE HEX KEY POSSIBILITES
                 // check hex key chars length and store standart version
-                var stdHexKey = Convert.ToInt64(model.Login).ToString("X");
-                possibleKeys.Add(stdHexKey);
-                if (stdHexKey.Length > 8)
-                    possibleKeys.Add(stdHexKey.Substring(0, 8));
-                
-                // calc and store reversed version
-                var rawHexKey = stdHexKey.Length > 6 ? stdHexKey.Substring(0,6) : stdHexKey;
-                string reversedHexKey = "";
-                if (rawHexKey.Length % 2 == 0){
-                    int hexIndex = rawHexKey.Length - 2;
-                    while (hexIndex >= 0){
-                        reversedHexKey += rawHexKey.Substring(hexIndex, 2);
-                        hexIndex -= 2;
+                try
+                {
+                    var stdHexKey = Convert.ToInt64(model.Login).ToString("X2");
+                    possibleKeys.Add(stdHexKey);
+                    if (stdHexKey.Length > 8)
+                        possibleKeys.Add(stdHexKey.Substring(0, 8));
+                    
+                    // calc and store reversed version
+                    var rawHexKey = stdHexKey.Length >= 10 ? stdHexKey.Substring(2,8) : stdHexKey;
+                    string reversedHexKey = "";
+                    if (rawHexKey.Length % 2 == 0){
+                        int hexIndex = rawHexKey.Length - 2;
+                        while (hexIndex >= 0){
+                            reversedHexKey += rawHexKey.Substring(hexIndex, 2);
+                            hexIndex -= 2;
+                        }
                     }
-                }
 
-                if (!string.IsNullOrEmpty(reversedHexKey))
-                    possibleKeys.Add(reversedHexKey);
+                    if (!string.IsNullOrEmpty(reversedHexKey))
+                        possibleKeys.Add(reversedHexKey);
+                }
+                catch (System.Exception)
+                {
+                    
+                }
                 #endregion
 
                 var dbUser = _context.Employee.Where(d =>

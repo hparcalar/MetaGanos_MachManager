@@ -27,6 +27,7 @@ namespace MachManager.Controllers.Base{
         public MgControllerBase(MetaGanosSchema context, IWebHostEnvironment environment){
             _context = context;
             _environment = environment;
+            _translator = new Translation(_context);
 
         }
         protected MetaGanosSchema _context;

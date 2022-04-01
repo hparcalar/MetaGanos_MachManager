@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using MachManager.Context;
 using MachManager.Models;
+using MachManager.Models.Constants;
 using MachManager.Models.Operational;
 using MachManager.Controllers.Base;
 using MachManager.i18n;
@@ -94,8 +95,96 @@ namespace MachManager.Controllers
                         ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
                         ItemCode = d.Item != null ? d.Item.ItemCode : "",
                         ItemId = d.ItemId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
                         ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        CreditByRange = d.CreditByRange,
+                        RangeCredit = d.RangeCredit,
+                        RangeLength = d.RangeLength,
+                        RangeIndex = d.RangeIndex,
+                        RangeType = d.RangeType,
                     }).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/Credits")]
+        public IEnumerable<EmployeeCreditModel> GetCredits(int id)
+        {
+            EmployeeCreditModel[] data = new EmployeeCreditModel[0];
+
+            try
+            {
+                data = _context.EmployeeCredit.Where(d => d.EmployeeId == id)
+                    .Select(d => new EmployeeCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        EmployeeId = d.EmployeeId,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                        ItemId = d.ItemId,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        CreditByRange = d.CreditByRange,
+                        RangeLength = d.RangeLength,
+                        RangeCredit = d.RangeCredit,
+                        RangeIndex = d.RangeIndex,
+                        RangeType = d.RangeType,
+                    }).OrderBy(d => d.CreditLoadDate).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/Credits/{creditId}")]
+        public EmployeeCreditModel GetCreditInfo(int id, int creditId)
+        {
+            EmployeeCreditModel data = new EmployeeCreditModel();
+
+            try
+            {
+                data = _context.EmployeeCredit.Where(d => d.Id == creditId)
+                    .Select(d => new EmployeeCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        EmployeeId = d.EmployeeId,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                        ItemId = d.ItemId,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        RangeCredit = d.RangeCredit,
+                        CreditByRange = d.CreditByRange,
+                        RangeIndex = d.RangeIndex,
+                        RangeLength = d.RangeLength,
+                        RangeType = d.RangeType,
+                    }).FirstOrDefault();
             }
             catch
             {
@@ -181,8 +270,10 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
                 }
 
+                model.UpdateLiveRangeData(_context);
+
                 var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ItemCategoryId == model.ItemCategoryId);
+                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId);
                 if (dbCredit == null){
                     dbCredit = new EmployeeCredit{
                         Employee = dbObj,
@@ -191,11 +282,22 @@ namespace MachManager.Controllers
                         ItemId = model.ItemId,
                         ActiveCredit = 0,
                     };
+                    model.MapTo(dbCredit);
+                    dbCredit.ActiveCredit = 0;
+                    dbCredit.Employee = dbObj;
+
                     _context.EmployeeCredit.Add(dbCredit);
+                }
+                else
+                {
+                    int currentId = dbCredit.Id;
+                    model.MapTo(dbCredit);
+                    dbCredit.Id = currentId;
+                    dbCredit.Employee = dbObj;
                 }
 
                 // add to current credit
-                dbCredit.ActiveCredit += model.ActiveCredit;
+                dbCredit.ActiveCredit = model.ActiveCredit;
 
                 // create load history
                 var dbLoadHistory = new CreditLoadHistory{
@@ -235,12 +337,12 @@ namespace MachManager.Controllers
                 }
 
                 var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ItemCategoryId == model.ItemCategoryId);
+                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId);
                 if (dbCredit == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
-                // change current credit
-                dbCredit.ActiveCredit = model.ActiveCredit;
+                model.UpdateLiveRangeData(_context);
+                model.MapTo(dbCredit);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -254,6 +356,85 @@ namespace MachManager.Controllers
 
             return result;
         }
+
+        [HttpGet]
+        [Authorize(Policy = "Dealer")]
+        [Route("{id}/FileProcess")]
+        public IEnumerable<PlantFileProcessModel> GetFileProcessList(int id){
+            PlantFileProcessModel[] data = new PlantFileProcessModel[0];
+
+            try
+            {
+                data = _context.PlantFileProcess.Where(d => d.EmployeeId == id)
+                    .Select(d => new PlantFileProcessModel{
+                        Id = d.Id,
+                        ApprovedDate = d.ApprovedDate,
+                        CreatedDate = d.CreatedDate,
+                        DepartmentCode = d.Department != null ? d.Department.DepartmentCode : "",
+                        DepartmentId = d.DepartmentId,
+                        DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
+                        EmployeeCode = d.Employee != null ? d.Employee.EmployeeCode : "",
+                        EmployeeId = d.EmployeeId,
+                        EmployeeName = d.Employee != null ? d.Employee.EmployeeName : "",
+                        EndDate = d.EndDate,
+                        Explanation = d.Explanation,
+                        PlantPrintFileId = d.PlantPrintFileId,
+                        PrintFileCode = d.PlantPrintFile != null ? d.PlantPrintFile.PrintFileCode : "",
+                        PrintFileName = d.PlantPrintFile != null ? d.PlantPrintFile.PrintFileName : "",
+                        ProcessStatus = d.ProcessStatus,
+                    })
+                    .OrderBy(d => d.CreatedDate)
+                    .ToArray();
+
+                foreach (var item in data)
+                {
+                    item.ProcessStatusText = _translator
+                        .Translate(PrintFileStatus.GetExpression(item.ProcessStatus), _userLanguage);
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/FileProcess/{processId}")]
+        public PlantFileProcessModel GetFileProcess(int id, int processId)
+        {
+            PlantFileProcessModel data = new PlantFileProcessModel();
+
+            try
+            {
+                data = _context.PlantFileProcess
+                    .Where(d => d.EmployeeId == id && d.Id == processId)
+                    .Select(d => new PlantFileProcessModel{
+                        Id = d.Id,
+                        Explanation = d.Explanation,
+                        PlantPrintFileId = d.PlantPrintFileId,
+                        EmployeeId = d.EmployeeId,
+                        DepartmentId = d.DepartmentId,
+                        ProcessStatus = d.ProcessStatus,
+                        CreatedDate = d.CreatedDate,
+                        ApprovedDate = d.ApprovedDate,
+                        EndDate = d.EndDate,
+                    }).FirstOrDefault();
+
+                if (data != null){
+                    data.ProcessStatusText = _translator
+                        .Translate(PrintFileStatus.GetExpression(data.ProcessStatus), _userLanguage);
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
 
         [Authorize(Policy = "Dealer")]
         [HttpPost]
@@ -273,9 +454,24 @@ namespace MachManager.Controllers
                 else
                     model.MapTo(dbProc);
 
+                // auto assign the department
+                if (dbProc.DepartmentId == null){
+                    var dbEmployee = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                    dbProc.DepartmentId = dbEmployee.DepartmentId;
+                }
+
+                // overwrite status specific dates
+                if (dbProc.ApprovedDate == null && dbProc.ProcessStatus == PrintFileStatus.APPROVED)
+                    dbProc.ApprovedDate = DateTime.Now;
+                else if (dbProc.ApprovedDate != null && dbProc.ProcessStatus == PrintFileStatus.CREATED){
+                    dbProc.ApprovedDate = null;
+                    dbProc.EndDate = null;
+                }
+
                 _context.SaveChanges();
 
                 result.Result = true;
+                result.RecordId = dbProc.Id;
             }
             catch (System.Exception ex)
             {
