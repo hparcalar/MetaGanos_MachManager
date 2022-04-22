@@ -12,6 +12,8 @@ namespace MachManager.Models{
         #region VISUAL ELEMENTS
         public string ItemCategoryCode { get; set; }
         public string ItemCategoryName { get; set; }
+        public string PlantCode { get; set; }
+        public string PlantName { get; set; }
         #endregion
     }
 }

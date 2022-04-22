@@ -11,11 +11,16 @@ namespace MachManager.Context {
         public int ViewOrder { get; set; }
         public int ControlTimeType { get; set; }
         public int ItemChangeTime { get; set; }
+
+        [ForeignKey("Plant")]
+        public Nullable<int> PlantId { get; set; }
         public Nullable<int> CreditRangeType { get; set; }
         public Nullable<int> CreditRangeLength { get; set; }
         public Nullable<int> CreditByRange { get; set; }
         public bool IsActive { get; set; }
         public string CategoryImage { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+
+        public virtual Plant Plant { get; set; }
     }
 }

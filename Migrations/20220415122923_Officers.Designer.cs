@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220415122923_Officers")]
+    partial class Officers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,9 +78,6 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("DealerPassword")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DefaultLanguage")
                         .HasColumnType("text");
 
                     b.Property<string>("Explanation")
@@ -156,29 +155,6 @@ namespace MachManager.Migrations
                     b.HasIndex("ItemCategoryId");
 
                     b.ToTable("DepartmentItemCategory");
-                });
-
-            modelBuilder.Entity("MachManager.Context.DepartmentMachine", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("MachineId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("MachineId");
-
-                    b.ToTable("DepartmentMachine");
                 });
 
             modelBuilder.Entity("MachManager.Context.Employee", b =>
@@ -723,9 +699,6 @@ namespace MachManager.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("DefaultLanguage")
-                        .HasColumnType("text");
-
                     b.Property<string>("District")
                         .HasColumnType("text");
 
@@ -863,39 +836,6 @@ namespace MachManager.Migrations
                     b.HasIndex("MachineId");
 
                     b.ToTable("MachineSpiral");
-                });
-
-            modelBuilder.Entity("MachManager.Context.Officer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DefaultLanguage")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("OfficerCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("OfficerName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("OfficerPassword")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PlantId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlantId");
-
-                    b.ToTable("Officer");
                 });
 
             modelBuilder.Entity("MachManager.Context.Plant", b =>
@@ -1206,21 +1146,6 @@ namespace MachManager.Migrations
                     b.Navigation("ItemCategory");
                 });
 
-            modelBuilder.Entity("MachManager.Context.DepartmentMachine", b =>
-                {
-                    b.HasOne("MachManager.Context.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId");
-
-                    b.HasOne("MachManager.Context.Machine", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineId");
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Machine");
-                });
-
             modelBuilder.Entity("MachManager.Context.Employee", b =>
                 {
                     b.HasOne("MachManager.Context.Department", "Department")
@@ -1474,17 +1399,6 @@ namespace MachManager.Migrations
                     b.Navigation("ItemGroup");
 
                     b.Navigation("Machine");
-                });
-
-            modelBuilder.Entity("MachManager.Context.Officer", b =>
-                {
-                    b.HasOne("MachManager.Context.Plant", "Plant")
-                        .WithMany()
-                        .HasForeignKey("PlantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("MachManager.Context.Plant", b =>

@@ -28,6 +28,7 @@ namespace MachManager.Context {
         public bool IsActive { get; set; }
         public Nullable<int> SpiralStartIndex { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public string DefaultLanguage { get; set; }
 
         // REFERENCES
         public virtual Plant Plant { get; set; }

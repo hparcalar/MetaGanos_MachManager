@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Cors;
 
 namespace MachManager.Controllers
 {
-    [Authorize(Policy = "Dealer")]
+    [Authorize(Policy = "FactoryOfficer")]
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
@@ -140,7 +140,7 @@ namespace MachManager.Controllers
         [HttpPost]
         public BusinessResult Post(SysLangModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -224,7 +224,7 @@ namespace MachManager.Controllers
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

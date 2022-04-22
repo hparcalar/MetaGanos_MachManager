@@ -70,7 +70,7 @@ namespace MachManager.Controllers
         [HttpPost]
         public BusinessResult Post(UnitTypeModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -102,7 +102,7 @@ namespace MachManager.Controllers
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

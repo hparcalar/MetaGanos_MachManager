@@ -13,6 +13,7 @@ using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
+using MachManager.Business;
 
 namespace MachManager.Controllers
 {
@@ -27,28 +28,20 @@ namespace MachManager.Controllers
         [HttpGet]
         public IEnumerable<EmployeeModel> Get()
         {
+            ResolveHeaders(Request);
+
             EmployeeModel[] data = new EmployeeModel[0];
             try
             {
-                data = _context.Employee.Select(d => new EmployeeModel{
-                        Id = d.Id,
-                        ActiveCredit = d.ActiveCredit,
-                        DepartmentCode = d.Department != null ? d.Department.DepartmentCode : "",
-                        DepartmentId = d.DepartmentId,
-                        DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
-                        Email = d.Email,
-                        EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
-                        EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
-                        EmployeeCardId = d.EmployeeCardId,
-                        EmployeeCode = d.EmployeeCode,
-                        EmployeeName = d.EmployeeName,
-                        EmployeePassword = "",
-                        Gsm = d.Gsm,
-                        IsActive = d.IsActive,
-                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
-                        PlantId = d.PlantId,
-                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
-                    }).OrderBy(d => d.EmployeeCode).ToArray();
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetEmployees(plants);
+                }
             }
             catch
             {
@@ -57,6 +50,34 @@ namespace MachManager.Controllers
             
             return data;
         }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpGet]
+        [Route("Count")]
+        public int GetEmployeeCount(){
+            ResolveHeaders(Request);
+            int dataCount = 0;
+
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    dataCount = bObj.GetEmployeeCount(plants);
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return dataCount;
+        }
+
 
         [HttpGet]
         [Route("{id}")]
@@ -228,7 +249,7 @@ namespace MachManager.Controllers
         [HttpPost]
         public BusinessResult Post(EmployeeModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -261,7 +282,7 @@ namespace MachManager.Controllers
         [Route("LoadCredit")]
         public BusinessResult LoadCredit(EmployeeCreditModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -327,7 +348,7 @@ namespace MachManager.Controllers
         [Route("EditCredit")]
         public BusinessResult EditCredit(EmployeeCreditModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -441,6 +462,7 @@ namespace MachManager.Controllers
         [Route("SaveFileProcess")]
         public BusinessResult PostFileProcess(PlantFileProcessModel model){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
 
             try
             {
@@ -487,7 +509,7 @@ namespace MachManager.Controllers
         [Route("UnloadCredit")]
         public BusinessResult UnloadCredit(int historyId){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -523,7 +545,7 @@ namespace MachManager.Controllers
         [Route("DeleteCredit")]
         public BusinessResult DeleteCredit(int creditId){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -549,7 +571,7 @@ namespace MachManager.Controllers
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

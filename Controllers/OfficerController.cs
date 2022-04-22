@@ -16,19 +16,39 @@ using MachManager.Business;
 
 namespace MachManager.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "Dealer")]
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
-    public class CardController : MgControllerBase
+    public class OfficerController : MgControllerBase
     {
-        public CardController(MetaGanosSchema context): base(context){ }
+        public OfficerController(MetaGanosSchema context): base(context){ }
 
         [HttpGet]
-        public IEnumerable<EmployeeCardModel> Get()
+        public IEnumerable<OfficerModel> Get()
         {
+            OfficerModel[] data = new OfficerModel[0];
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetOfficers();
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [Authorize(Policy = "Dealer")]
+        [HttpGet]
+        [Route("Count")]
+        public int GetOfficerCount(){
             ResolveHeaders(Request);
-            EmployeeCardModel[] data = new EmployeeCardModel[0];
+            int dataCount = 0;
+
             try
             {
                 int[] plants = null;
@@ -38,51 +58,34 @@ namespace MachManager.Controllers
                     plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
 
                 using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
-                    data = bObj.GetCards(plants);
+                    dataCount = bObj.GetOfficerCount(plants);
                 }
             }
-            catch
+            catch (System.Exception)
             {
                 
             }
-            
-            return data;
+
+
+            return dataCount;
         }
 
-        [HttpGet]
-        [Route("Available/{id}")]
-        public IEnumerable<EmployeeCardModel> GetAvailables(int id)
-        {
-            ResolveHeaders(Request);
-            EmployeeCardModel[] data = new EmployeeCardModel[0];
-            try
-            {
-                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
-                    data = bObj.GetCards(new int[]{ id }, true);
-                }
-            }
-            catch
-            {
-                
-            }
-            
-            return data;
-        }
 
         [HttpGet]
         [Route("{id}")]
-        public EmployeeCardModel Get(int id)
+        public OfficerModel Get(int id)
         {
-            EmployeeCardModel data = new EmployeeCardModel();
+            OfficerModel data = new OfficerModel();
             try
             {
-                data = _context.EmployeeCard.Where(d => d.Id == id).Select(d => new EmployeeCardModel{
+                data = _context.Officer.Where(d => d.Id == id).Select(d => new OfficerModel{
                         Id = d.Id,
-                        CardCode = d.CardCode,
-                        HexKey = d.HexKey,
+                        OfficerCode = d.OfficerCode,
                         IsActive = d.IsActive,
-                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        OfficerName = d.OfficerName,
+                        OfficerPassword = d.OfficerPassword,
                         PlantId = d.PlantId,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
                         PlantName = d.Plant != null ? d.Plant.PlantName : "",
                     }).FirstOrDefault();
             }
@@ -94,21 +97,24 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
-        public BusinessResult Post(EmployeeCardModel model){
+        public BusinessResult Post(OfficerModel model){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
 
             try
             {
-                var dbObj = _context.EmployeeCard.FirstOrDefault(d => d.Id == model.Id);
+                if (model.PlantId <= 0)
+                    throw new Exception(_translator.Translate(Expressions.PlantDoesntExists, _userLanguage));
+
+                var dbObj = _context.Officer.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
-                    dbObj = new EmployeeCard();
-                    _context.EmployeeCard.Add(dbObj);
+                    dbObj = new Officer();
+                    _context.Officer.Add(dbObj);
                 }
 
-                if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode && d.Id != model.Id))
+                if (_context.Officer.Any(d => d.OfficerCode == model.OfficerCode 
+                    && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);
@@ -126,7 +132,6 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
@@ -134,20 +139,11 @@ namespace MachManager.Controllers
 
             try
             {
-                var dbObj = _context.EmployeeCard.FirstOrDefault(d => d.Id == id);
+                var dbObj = _context.Officer.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
-                if (_context.Employee.Any(d => d.EmployeeCardId == dbObj.Id))
-                    throw new Exception(_translator.Translate(Expressions.CardIsBoundToEmployee, _userLanguage));
-
-                var matchHistory = _context.EmployeeCardMatchHistory.Where(d => d.EmployeeCardId == dbObj.Id).ToArray();
-                foreach (var item in matchHistory)
-                {
-                    _context.EmployeeCardMatchHistory.Remove(item);
-                }
-
-                _context.EmployeeCard.Remove(dbObj);
+                _context.Officer.Remove(dbObj);
 
                 _context.SaveChanges();
                 result.Result=true;

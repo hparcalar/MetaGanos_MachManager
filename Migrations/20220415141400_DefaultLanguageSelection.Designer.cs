@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220415141400_DefaultLanguageSelection")]
+    partial class DefaultLanguageSelection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,29 +158,6 @@ namespace MachManager.Migrations
                     b.HasIndex("ItemCategoryId");
 
                     b.ToTable("DepartmentItemCategory");
-                });
-
-            modelBuilder.Entity("MachManager.Context.DepartmentMachine", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("MachineId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("MachineId");
-
-                    b.ToTable("DepartmentMachine");
                 });
 
             modelBuilder.Entity("MachManager.Context.Employee", b =>
@@ -1204,21 +1183,6 @@ namespace MachManager.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("ItemCategory");
-                });
-
-            modelBuilder.Entity("MachManager.Context.DepartmentMachine", b =>
-                {
-                    b.HasOne("MachManager.Context.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId");
-
-                    b.HasOne("MachManager.Context.Machine", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineId");
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("MachManager.Context.Employee", b =>

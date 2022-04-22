@@ -13,6 +13,7 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Models.Constants;
+using MachManager.Business;
 
 namespace MachManager.Controllers
 {
@@ -27,20 +28,13 @@ namespace MachManager.Controllers
         [HttpGet]
         public IEnumerable<PlantModel> Get()
         {
+            ResolveHeaders(Request);
             PlantModel[] data = new PlantModel[0];
             try
             {
-                data = _context.Plant.Select(d => new PlantModel{
-                        Id = d.Id,
-                        CreatedDate = d.CreatedDate,
-                        DealerCode = d.Dealer != null ? d.Dealer.DealerCode : "",
-                        DealerId = d.DealerId,
-                        DealerName = d.Dealer != null ? d.Dealer.DealerName : "",
-                        Explanation = d.Explanation,
-                        IsActive = d.IsActive,
-                        PlantCode = d.PlantCode,
-                        PlantName = d.PlantName,
-                    }).OrderBy(d => d.PlantCode).ToArray();
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetPlants();
+                }
             }
             catch
             {
@@ -78,14 +72,17 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [Route("Count")]
         public int GetPlantCount(){
+            ResolveHeaders(Request);
             int plantCount = 0;
 
             try
             {
-                plantCount = _context.Plant.Count();
+                if (_isDealer)
+                    plantCount = _context.Plant.Where(d => d.DealerId == _appUserId).Count();
             }
             catch (System.Exception)
             {
@@ -96,6 +93,47 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
+        [Route("{id}/Officers")]
+        public IEnumerable<OfficerModel> GetOfficers(int id){
+            OfficerModel[] data = new OfficerModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetOfficers(new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
+        [Route("{id}/ItemCategories")]
+        public IEnumerable<ItemCategoryModel> GetItemCategories(int id){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItemCategories(new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/Departments")]
         public IEnumerable<DepartmentModel> GetDepartments(int id)
         {
@@ -103,15 +141,9 @@ namespace MachManager.Controllers
             
             try
             {
-                data = _context.Department.Where(d => d.PlantId == id).Select(d => new DepartmentModel{
-                        Id = d.Id,
-                        DepartmentCode = d.DepartmentCode,
-                        DepartmentName = d.DepartmentName,
-                        IsActive = d.IsActive,
-                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
-                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
-                        PlantId = d.PlantId,
-                    }).OrderBy(d => d.DepartmentCode).ToArray();
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetDepartments(new int[]{ id });
+                }
             }
             catch
             {
@@ -122,7 +154,7 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/PrintFiles")]
         public IEnumerable<PlantPrintFileModel> GetPrintFiles(int id){
             PlantPrintFileModel[] data = new PlantPrintFileModel[0];
@@ -149,7 +181,7 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{plantId}/PrintFile/{id}")]
         public PlantPrintFileModel GetPrintFiles(int plantId, int id){
             PlantPrintFileModel data = new PlantPrintFileModel();
@@ -176,7 +208,7 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/FileProcess")]
         public IEnumerable<PlantFileProcessModel> GetFileProcess(int id){
             PlantFileProcessModel[] data = new PlantFileProcessModel[0];
@@ -217,10 +249,11 @@ namespace MachManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/PrintFiles")]
         public BusinessResult PostPrintFiles(int id, PlantPrintFileModel[] model){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
 
             try
             {
@@ -275,10 +308,11 @@ namespace MachManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/PrintFile")]
         public BusinessResult PostPrintFiles(int id, PlantPrintFileModel model){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
 
             try
             {
@@ -322,7 +356,7 @@ namespace MachManager.Controllers
         [HttpPost]
         public BusinessResult Post(PlantModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -350,11 +384,12 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         [Route("{plantId}/PrintFile/{id}")]
         public BusinessResult DeletePrintFile(int plantId, int id){
             BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
 
             try
             {
@@ -383,7 +418,7 @@ namespace MachManager.Controllers
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

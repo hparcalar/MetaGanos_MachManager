@@ -8,5 +8,6 @@ namespace MachManager.Models
         public string DealerPassword { get; set; } = "";
         public Nullable<int> ParentDealerId { get; set; }
         public bool IsActive { get; set; }
+        public string DefaultLanguage { get; set; }
     }
 }

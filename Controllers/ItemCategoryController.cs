@@ -13,6 +13,7 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Models.Constants;
+using MachManager.Business;
 
 namespace MachManager.Controllers
 {
@@ -27,22 +28,19 @@ namespace MachManager.Controllers
         [HttpGet]
         public IEnumerable<ItemCategoryModel> Get()
         {
+            ResolveHeaders(Request);
             ItemCategoryModel[] data = new ItemCategoryModel[0];
             try
             {
-                data = _context.ItemCategory.Select(d => new ItemCategoryModel{
-                        Id = d.Id,
-                        ControlTimeType = d.ControlTimeType,
-                        CreatedDate = d.CreatedDate,
-                        IsActive = d.IsActive,
-                        ItemCategoryCode = d.ItemCategoryCode,
-                        ItemCategoryName = d.ItemCategoryName,
-                        ItemChangeTime = d.ItemChangeTime,
-                        ViewOrder = d.ViewOrder,
-                        CreditRangeType = d.CreditRangeType,
-                        CreditByRange = d.CreditByRange,
-                        CreditRangeLength = d.CreditRangeLength,
-                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItemCategories(plants);
+                }
 
                 foreach (var item in data)
                 {
@@ -79,6 +77,9 @@ namespace MachManager.Controllers
                         CreditRangeType = d.CreditRangeType,
                         CreditByRange = d.CreditByRange,
                         CreditRangeLength = d.CreditRangeLength,
+                        PlantId = d.PlantId,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
                     }).FirstOrDefault();
 
                 if (data != null){
@@ -160,14 +161,17 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(ItemCategoryModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
+                if ((model.PlantId ?? 0) <= 0)
+                    throw new Exception(_translator.Translate(Expressions.PlantDoesntExists, _userLanguage));
+
                 var dbObj = _context.ItemCategory.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
                     dbObj = new ItemCategory();
@@ -192,11 +196,11 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

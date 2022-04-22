@@ -13,6 +13,8 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Authentication;
 using MachManager.Helpers;
+using MachManager.Models.Parameters;
+using System.Text.Json;
 
 namespace MachManager.Controllers
 {
@@ -26,6 +28,7 @@ namespace MachManager.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        [Obsolete]
         [Route("LoginDealer")]
         public IActionResult LoginDealer([FromBody] UserLoginModel model)
         {
@@ -55,11 +58,147 @@ namespace MachManager.Controllers
                 if (!string.Equals(dbUser.DealerPassword, model.Password))
                     throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
 
-                var tokenStr = _authObject.Authenticate(true, model.Login, MgAuthType.Dealer);
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Dealer);
 
                 return Ok(tokenStr);
             }
             catch (Exception)
+            {
+                
+            }
+
+            return Unauthorized();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Obsolete]
+        [Route("LoginOfficer")]
+        public IActionResult LoginOfficer([FromBody] UserLoginModel model){
+            try
+            {
+                Officer dbUser = null;
+
+                if (!string.IsNullOrEmpty(model.DealerCode)){
+                    var dbDealer = _context.Dealer.FirstOrDefault(d => d.DealerCode == model.DealerCode);
+                    if (dbDealer != null)
+                        throw new Exception(model.DealerCode + ": " + _translator.Translate(Expressions.DealerNotFound, _userLanguage));
+
+                    var factoriesOfDealer = _context.Plant.Where(d => d.DealerId == dbDealer.Id)
+                        .Select(d => d.Id).ToArray();
+
+                    dbUser = _context.Officer.FirstOrDefault(d => d.OfficerCode == model.Login
+                        && factoriesOfDealer.Contains(d.PlantId));
+                }
+                else
+                    dbUser = _context.Officer.FirstOrDefault(d => d.OfficerCode == model.Login);
+
+                if (dbUser == null)
+                    throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
+
+                if (!string.Equals(dbUser.OfficerPassword, model.Password))
+                    throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
+                
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.FactoryOfficer);
+
+                return Ok(tokenStr);
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return Unauthorized();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("LoginPanelUser")]
+        public IActionResult LoginPanelUser([FromBody] UserLoginModel model){
+            try
+            {
+                PanelLoginResult result = new PanelLoginResult();
+
+                var dealerCount = _context.Dealer.Count();
+
+                if (string.IsNullOrEmpty(model.DealerCode) && dealerCount > 1)
+                    throw new Exception(_translator.Translate(Expressions.DealerNotFound, _userLanguage));
+
+                if (!string.IsNullOrEmpty(model.DealerCode)){
+                    var dbDealer = _context.Dealer.FirstOrDefault(d => d.DealerCode == model.DealerCode);
+                    if (dbDealer == null)
+                        throw new Exception(_translator.Translate(Expressions.DealerNotFound, _userLanguage));
+
+                    if ((string.IsNullOrEmpty(model.Login) || string.Equals(model.Login, model.DealerCode)) 
+                        && string.Equals(dbDealer.DealerPassword, model.Password)){
+                        var tokenStr = _authObject.Authenticate(true, model.DealerCode, dbDealer.Id, MgAuthType.Dealer);
+
+                        // DEALER LOGIN
+                        result.AuthType = "Dealer";
+                        result.DefaultLanguage = dbDealer.DefaultLanguage;
+                        result.UserId = dbDealer.Id;
+                        result.Username = dbDealer.DealerName;
+                        result.Token = tokenStr;
+
+                        return Ok(JsonSerializer.Serialize(result));
+                    }
+
+                    var dbOfficer = _context.Officer.FirstOrDefault(d => d.OfficerCode == model.Login);
+                    if (dbOfficer == null)
+                        throw new Exception(_translator.Translate(Expressions.OfficerNotFound, _userLanguage));
+
+                    if (string.Equals(dbOfficer.OfficerPassword, model.Password)){
+                        var tokenStr = _authObject.Authenticate(true, model.Login, dbOfficer.Id, MgAuthType.FactoryOfficer);
+
+                        // OFFICER LOGIN
+                        result.AuthType = "FactoryOfficer";
+                        result.DefaultLanguage = dbOfficer.DefaultLanguage;
+                        result.UserId = dbOfficer.Id;
+                        result.Username = dbOfficer.OfficerName;
+                        result.FactoryId = dbOfficer.PlantId;
+                        result.FactoryName = dbOfficer.Plant != null ? dbOfficer.Plant.PlantName : "";
+                        result.Token = tokenStr;
+
+                        return Ok(JsonSerializer.Serialize(result));
+                    }
+                }
+                else{
+                    var dbDealer = _context.Dealer.FirstOrDefault(d => d.DealerCode == model.Login);
+                    if (dbDealer != null 
+                        && string.Equals(dbDealer.DealerPassword, model.Password)){
+                        var tokenStr = _authObject.Authenticate(true, model.DealerCode, dbDealer.Id, MgAuthType.Dealer);
+
+                        // DEALER LOGIN
+                        result.AuthType = "Dealer";
+                        result.DefaultLanguage = dbDealer.DefaultLanguage;
+                        result.UserId = dbDealer.Id;
+                        result.Username = dbDealer.DealerName;
+                        result.Token = tokenStr;
+
+                        return Ok(JsonSerializer.Serialize(result));
+                    }
+
+                    var dbOfficer = _context.Officer.FirstOrDefault(d => d.OfficerCode == model.Login);
+                    if (dbOfficer == null)
+                        throw new Exception(_translator.Translate(Expressions.OfficerNotFound, _userLanguage));
+
+                    if (string.Equals(dbOfficer.OfficerPassword, model.Password)){
+                        var tokenStr = _authObject.Authenticate(true, model.Login, dbOfficer.Id, MgAuthType.FactoryOfficer);
+
+                        // OFFICER LOGIN
+                        result.AuthType = "FactoryOfficer";
+                        result.DefaultLanguage = dbOfficer.DefaultLanguage;
+                        result.UserId = dbOfficer.Id;
+                        result.Username = dbOfficer.OfficerName;
+                        result.FactoryId = dbOfficer.PlantId;
+                        result.FactoryName = dbOfficer.Plant != null ? dbOfficer.Plant.PlantName : "";
+                        result.Token = tokenStr;
+
+                        return Ok(JsonSerializer.Serialize(result));
+                    }
+                }
+            }
+            catch (System.Exception)
             {
                 
             }
@@ -81,7 +220,7 @@ namespace MachManager.Controllers
                 if (!string.Equals(dbUser.EmployeePassword, model.Password))
                     throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
 
-                var tokenStr = _authObject.Authenticate(true, model.Login, MgAuthType.Employee);
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Employee);
 
                 return Ok(tokenStr);
             }
@@ -145,7 +284,7 @@ namespace MachManager.Controllers
                 if (!string.Equals(dbUser.EmployeePassword, model.Password))
                     throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
 
-                var tokenStr = _authObject.Authenticate(true, model.Login, MgAuthType.Employee);
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Employee);
 
                 result.Token = tokenStr;
                 result.Result=true;
@@ -166,7 +305,6 @@ namespace MachManager.Controllers
             return result;
         }
 
-
         [AllowAnonymous]
         [HttpPost]
         [Route("LoginMachine")]
@@ -178,7 +316,7 @@ namespace MachManager.Controllers
                 if (dbUser == null)
                     throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
 
-                var tokenStr = _authObject.Authenticate(true, model.Login, MgAuthType.Machine);
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Machine);
 
                 return Ok(tokenStr);
             }
@@ -190,6 +328,40 @@ namespace MachManager.Controllers
             return Unauthorized();
         }
     
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("SetLanguage")]
+        public BusinessResult SetLanguage(SetLanguageModel model){
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                if (string.Equals(model.AuthType, "Dealer")){
+                    var dbDealer = _context.Dealer.FirstOrDefault(d => d.Id == model.UserId);
+                    if (dbDealer != null){
+                        dbDealer.DefaultLanguage = model.LanguageCode;
+                        _context.SaveChanges();
+                    }
+                }
+                else if (string.Equals(model.AuthType, "FactoryOfficer")){
+                    var dbOfficer = _context.Officer.FirstOrDefault(d => d.Id == model.UserId);
+                    if (dbOfficer != null){
+                        dbOfficer.DefaultLanguage = model.LanguageCode;
+                        _context.SaveChanges();
+                    }
+                }
+
+                result.Result=true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
         [Authorize]
         [HttpGet]
         [Route("CheckToken")]

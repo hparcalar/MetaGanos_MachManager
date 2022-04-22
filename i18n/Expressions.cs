@@ -42,6 +42,12 @@ namespace MachManager.i18n{
         Monthly=38,
         Indefinite=39,
         Yearly = 40,
+        PlantDoesntExists = 41,
+        DealerNotFound=42,
+        OfficerNotFound=43,
+        Officers=44,
+        OfficerDefinitions=45,
+        DepartmentNotFound=46,
     }
 
     public class DefaultEqualResponses{
@@ -86,6 +92,12 @@ namespace MachManager.i18n{
             { Expressions.Monthly, "Aylık" },
             { Expressions.Yearly, "Yıllık" },
             { Expressions.Indefinite, "Süresiz" },
+            { Expressions.PlantDoesntExists, "Fabrika seçilmemiş" },
+            { Expressions.DealerNotFound, "Bayi kodu geçersiz" },
+            { Expressions.OfficerNotFound, "Kullanıcı kodu geçersiz" },
+            { Expressions.Officers, "Kullanıcılar" },
+            { Expressions.OfficerDefinitions, "Kullanıcı Tanımları" },
+            { Expressions.DepartmentNotFound, "Departman bulunamadı" },
         };
     }
 }

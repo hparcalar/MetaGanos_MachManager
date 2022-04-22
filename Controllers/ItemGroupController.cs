@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
+using MachManager.Business;
 
 namespace MachManager.Controllers
 {
@@ -26,10 +28,20 @@ namespace MachManager.Controllers
         [HttpGet]
         public IEnumerable<ItemGroupModel> Get()
         {
+            ResolveHeaders(Request);
             ItemGroupModel[] data = new ItemGroupModel[0];
             try
             {
-                data = _context.ItemGroup.Select(d => new ItemGroupModel{
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                data = _context.ItemGroup
+                    .Where(d => plants == null || plants.Length == 0 ||
+                        (plants != null && d.ItemCategory != null && plants.Contains(d.ItemCategory.PlantId ?? 0)))
+                    .Select(d => new ItemGroupModel{
                         Id = d.Id,
                         CreatedDate = d.CreatedDate,
                         IsActive = d.IsActive,
@@ -38,6 +50,10 @@ namespace MachManager.Controllers
                         ItemCategoryId = d.ItemCategoryId,
                         ItemGroupCode = d.ItemGroupCode,
                         ItemGroupName = d.ItemGroupName,
+                        PlantCode = d.ItemCategory != null && d.ItemCategory.Plant != null ?
+                            d.ItemCategory.Plant.PlantCode : "",
+                        PlantName = d.ItemCategory != null && d.ItemCategory.Plant != null ?
+                            d.ItemCategory.Plant.PlantName : "",
                         ViewOrder = d.ViewOrder,
                     }).OrderBy(d => d.ItemCategoryCode).ToArray();
             }
@@ -77,11 +93,11 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(ItemGroupModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -109,11 +125,11 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {

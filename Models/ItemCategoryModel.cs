@@ -12,10 +12,13 @@ namespace MachManager.Models{
         public Nullable<int> CreditRangeType { get; set; }
         public Nullable<int> CreditByRange { get; set; }
         public Nullable<int> CreditRangeLength { get; set; }
+        public Nullable<int> PlantId { get; set; }
 
         #region VISUAL ELEMENTS
         public string CreditRangeTypeText { get; set; }
         public string ControlTimeTypeText { get; set; }
+        public string PlantCode { get; set; }
+        public string PlantName { get; set; }
 
         #endregion
     }

@@ -39,6 +39,7 @@ builder.Services.AddSingleton<MgAuth>(new MgAuth(apiKey));
 builder.Services.AddAuthorization(options =>
 {
    options.AddPolicy("Dealer", policy => policy.RequireClaim(ClaimTypes.Role, "Dealer"));
+   options.AddPolicy("FactoryOfficer", policy => policy.RequireClaim(ClaimTypes.Role, "FactoryOfficer"));
    options.AddPolicy("Employee", policy => policy.RequireClaim(ClaimTypes.Role, "Employee"));
    options.AddPolicy("Machine", policy => policy.RequireClaim(ClaimTypes.Role, "Machine"));
 });

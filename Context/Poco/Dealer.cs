@@ -10,6 +10,7 @@ namespace MachManager.Context {
         public string DealerName { get; set; } = "";
         public string Explanation { get; set; } = "";
         public string DealerPassword { get; set; }
+        public string DefaultLanguage { get; set; }
 
         [ForeignKey("ParentDealer")]
         public Nullable<int> ParentDealerId { get; set; }

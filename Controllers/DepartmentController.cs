@@ -13,6 +13,7 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Models.Constants;
+using MachManager.Business;
 
 namespace MachManager.Controllers
 {
@@ -27,19 +28,19 @@ namespace MachManager.Controllers
         [HttpGet]
         public IEnumerable<DepartmentModel> Get()
         {
+            ResolveHeaders(Request);
             DepartmentModel[] data = new DepartmentModel[0];
             try
             {
-                data = _context.Department.Select(d => new DepartmentModel{
-                        Id = d.Id,
-                        DepartmentCode = d.DepartmentCode,
-                        DepartmentName = d.DepartmentName,
-                        IsActive = d.IsActive,
-                        PlantPrintFileId = d.PlantPrintFileId,
-                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
-                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
-                        PlantId = d.PlantId,
-                    }).OrderBy(d => d.DepartmentCode).ToArray();
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+                
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetDepartments(plants);
+                }
             }
             catch
             {
@@ -47,6 +48,99 @@ namespace MachManager.Controllers
             }
             
             return data;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpGet]
+        [Route("Count")]
+        public int GetDepartmentCount(){
+            ResolveHeaders(Request);
+            int dataCount = 0;
+
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    dataCount = bObj.GetDepartmentCount(plants);
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return dataCount;
+        }
+
+        [HttpGet]
+        [Route("{id}/Machines")]
+        [Authorize(Policy = "FactoryOfficer")]
+        public IEnumerable<DepartmentMachineModel> GetMachines(int id){
+            DepartmentMachineModel[] data = new DepartmentMachineModel[0];
+
+            try
+            {
+                data = _context.DepartmentMachine
+                    .Where(d => d.DepartmentId == id)
+                    .Select(d => new DepartmentMachineModel{
+                        Id = d.Id,
+                        DepartmentId = d.DepartmentId,
+                        MachineId = d.MachineId,
+                        MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
+                        MachineName = d.Machine != null ? d.Machine.MachineName : "",
+                    }).ToArray();
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpPost]
+        [Route("{id}/Machines")]
+        [Authorize(Policy = "FactoryOfficer")]
+        public BusinessResult SaveMachines(int id, DepartmentMachineModel[] model){
+            ResolveHeaders(Request);
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbDepartment = _context.Department.FirstOrDefault(d => d.Id == id);
+                if (dbDepartment == null)
+                    throw new Exception(_translator.Translate(Expressions.DepartmentNotFound, _userLanguage));
+
+                var exMatches = _context.DepartmentMachine.Where(d => d.DepartmentId == id).ToArray();
+                foreach (var item in exMatches)
+                {
+                    _context.DepartmentMachine.Remove(item);
+                }
+
+                foreach (var item in model)
+                {
+                    _context.DepartmentMachine.Add(new DepartmentMachine{
+                        DepartmentId = id,
+                        MachineId = item.MachineId,
+                    });
+                }
+
+                _context.SaveChanges();
+
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
         }
 
         [HttpGet]
@@ -94,11 +188,11 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(DepartmentModel model){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
@@ -144,11 +238,11 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request.Headers);
+            ResolveHeaders(Request);
 
             try
             {
