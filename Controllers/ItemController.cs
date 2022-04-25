@@ -13,6 +13,9 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Business;
+using MachManager.Models.Parameters;
+using ClosedXML;
+using ClosedXML.Excel;
 
 namespace MachManager.Controllers
 {
@@ -190,6 +193,171 @@ namespace MachManager.Controllers
             catch (System.Exception ex)
             {
                 result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("Upload")]
+        public BusinessResult UploadData([FromForm]UploadItemModel model){
+            ResolveHeaders(Request);
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == model.PlantId);
+                if (dbPlant == null)
+                    throw new Exception(_translator.Translate(Expressions.PlantDoesntExists, _userLanguage));
+
+                if (model.File == null || model.File.Length == 0)
+                    throw new Exception(_translator.Translate(Expressions.FileNotFound, _userLanguage));
+
+                List<Item> newItemList = new List<Item>();
+                List<ItemCategory> newCategoryList = new List<ItemCategory>();
+                List<ItemGroup> newGroupList = new List<ItemGroup>();
+                List<UnitType> newUnitList = new List<UnitType>();
+
+                int insertedCount = 0;
+                int updatedCount = 0;
+
+                using (var wb = new XLWorkbook(model.File.OpenReadStream()))
+                {
+                    var ws = wb.Worksheet(1);
+                    var sheetRows = ws.Rows();
+                    var rowIndex = 0;
+                    foreach (var row in sheetRows)
+                    {
+                        if (rowIndex == 0){
+                            rowIndex++;
+                            continue;
+                        }
+
+                        var clCode = row.Cell(1);
+                        var clName = row.Cell(2);
+                        var clCat = row.Cell(3);
+                        var clGrp = row.Cell(4);
+                        var clBar = row.Cell(5);
+                        var clUnit = row.Cell(6);
+
+                        string dtCode = clCode.GetValue<string>();
+                        string dtName = clName.GetValue<string>();
+                        string dtCat = clCat.GetValue<string>();
+                        string dtGrp = clGrp.GetValue<string>();
+                        string dtBar = clBar.GetValue<string>();
+                        string dtUnit = clUnit.GetValue<string>();
+
+                        if (!string.IsNullOrEmpty(dtCode)){
+                            if (!newItemList.Any(d => d.ItemCode == dtCode)){
+                                bool isValid = true;
+                                if (string.IsNullOrEmpty(dtName))
+                                    isValid = false;
+                                if (string.IsNullOrEmpty(dtCat))
+                                    isValid = false;
+                                if (string.IsNullOrEmpty(dtGrp))
+                                    isValid = false;
+
+                                if (isValid){
+                                    // check category
+                                    var dbCat = _context.ItemCategory.FirstOrDefault(d => (d.ItemCategoryCode == dtCat
+                                        || d.ItemCategoryName == dtCat) && d.PlantId == model.PlantId);
+                                    if (dbCat == null)
+                                        newCategoryList.FirstOrDefault(d => (d.ItemCategoryCode == dtCat 
+                                            || d.ItemCategoryName == dtCat) && d.PlantId == model.PlantId);
+                                    if (dbCat == null){
+                                        dbCat = new ItemCategory{
+                                            ItemCategoryCode = dtCat,
+                                            ItemCategoryName = dtCat,
+                                            CreatedDate = DateTime.Now,
+                                            IsActive = true,
+                                            PlantId = model.PlantId,
+                                        };
+                                        _context.ItemCategory.Add(dbCat);
+                                        newCategoryList.Add(dbCat);
+                                    }
+
+                                    // check group
+                                    var dbGrp = _context.ItemGroup.FirstOrDefault(d => (d.ItemGroupCode == dtGrp
+                                        || d.ItemGroupName == dtGrp) && d.ItemCategory != null && d.ItemCategory.PlantId == model.PlantId);
+                                    if (dbGrp == null)
+                                        newGroupList.FirstOrDefault(d => (d.ItemGroupCode == dtGrp 
+                                            || d.ItemGroupName == dtGrp) && d.ItemCategory.PlantId == model.PlantId);
+                                    if (dbGrp == null){
+                                        dbGrp = new ItemGroup{
+                                            ItemGroupCode = dtGrp,
+                                            ItemGroupName = dtGrp,
+                                            CreatedDate = DateTime.Now,
+                                            IsActive = true,
+                                            ItemCategory = dbCat,
+                                        };
+                                        _context.ItemGroup.Add(dbGrp);
+                                        newGroupList.Add(dbGrp);
+                                    }
+
+                                    // check unit type
+                                    UnitType dbUnit = null;
+                                    if (!string.IsNullOrEmpty(dtUnit)){
+                                        dbUnit = _context.UnitType.FirstOrDefault(d => d.UnitTypeCode == dtUnit);
+                                        if (dbUnit == null)
+                                            newUnitList.FirstOrDefault(d => d.UnitTypeCode == dtUnit);
+                                        if (dbUnit == null){
+                                            dbUnit = new UnitType{
+                                                UnitTypeCode = dtUnit,
+                                                UnitTypeName = dtUnit,
+                                                IsActive = true,
+                                            };
+                                            _context.UnitType.Add(dbUnit);
+                                            newUnitList.Add(dbUnit);
+                                        }
+                                    }
+
+                                    var dbItem = _context.Item.FirstOrDefault(d => d.ItemCode == dtCode
+                                        && d.ItemCategory.PlantId == model.PlantId);
+                                    if (dbItem == null)
+                                        dbItem = newItemList.FirstOrDefault(d => d.ItemCode == dtCode
+                                            && d.ItemCategory.PlantId == model.PlantId);
+                                    if (dbItem == null){
+                                        dbItem = new Item{
+                                            Barcode1 = dtBar,
+                                            CreatedDate = DateTime.Now,
+                                            IsActive = true,
+                                            ItemCategory = dbCat,
+                                            ItemCode = dtCode,
+                                            ItemGroup = dbGrp,
+                                            ItemName = dtName,
+                                            UnitType = dbUnit,
+                                        };
+
+                                        _context.Item.Add(dbItem);
+                                        newItemList.Add(dbItem);
+                                        insertedCount++;
+                                    }
+                                    else{
+                                        dbItem.ItemName = dtName;
+                                        dbItem.ItemCategory = dbCat;
+                                        dbItem.ItemGroup = dbGrp;
+                                        dbItem.UnitType = dbUnit;
+                                        updatedCount++;
+                                    }
+                                }
+                            }
+                        }
+
+                        rowIndex++;
+                    }
+                }
+
+                _context.SaveChanges();
+                result.Result = true;
+                result.InfoMessage = insertedCount.ToString() +
+                    " adet yeni kayıt sisteme transfer edildi ve " +
+                    updatedCount.ToString() + " adet kayıt güncellendi.";
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
                 result.ErrorMessage = ex.Message;
             }
 

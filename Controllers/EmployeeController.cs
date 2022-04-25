@@ -14,6 +14,9 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Business;
+using MachManager.Models.Parameters;
+using ClosedXML;
+using ClosedXML.Excel;
 
 namespace MachManager.Controllers
 {
@@ -503,6 +506,149 @@ namespace MachManager.Controllers
 
                 result.Result = true;
                 result.RecordId = dbProc.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("Upload")]
+        public BusinessResult UploadData([FromForm]UploadEmployeeModel model){
+            ResolveHeaders(Request);
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == model.PlantId);
+                if (dbPlant == null)
+                    throw new Exception(_translator.Translate(Expressions.PlantDoesntExists, _userLanguage));
+
+                if (model.File == null || model.File.Length == 0)
+                    throw new Exception(_translator.Translate(Expressions.FileNotFound, _userLanguage));
+
+                List<Employee> newEmployeeList = new List<Employee>();
+                List<Department> newDepartmentList = new List<Department>();
+                List<EmployeeCard> newCardList = new List<EmployeeCard>();
+
+                int insertedCount = 0;
+                int updatedCount = 0;
+
+                using (var wb = new XLWorkbook(model.File.OpenReadStream()))
+                {
+                    var ws = wb.Worksheet(1);
+                    var sheetRows = ws.Rows();
+                    var rowIndex = 0;
+                    foreach (var row in sheetRows)
+                    {
+                        if (rowIndex == 0){
+                            rowIndex++;
+                            continue;
+                        }
+
+                        var clCode = row.Cell(1);
+                        var clName = row.Cell(2);
+                        var clDpt = row.Cell(3);
+                        var clCard = row.Cell(4);
+                        var clGsm = row.Cell(5);
+                        var clEmail = row.Cell(6);
+
+                        string dtCode = clCode.GetValue<string>();
+                        string dtName = clName.GetValue<string>();
+                        string dtDpt = clDpt.GetValue<string>();
+                        string dtCard = clCard.GetValue<string>();
+                        string dtGsm = clGsm.GetValue<string>();
+                        string dtEmail = clGsm.GetValue<string>();
+
+                        if (!string.IsNullOrEmpty(dtCode)){
+                            if (!newEmployeeList.Any(d => d.EmployeeCode == dtCode)){
+                                bool isValid = true;
+                                if (string.IsNullOrEmpty(dtName))
+                                    isValid = false;
+                                if (string.IsNullOrEmpty(dtDpt))
+                                    isValid = false;
+
+                                if (isValid){
+                                    // check department
+                                    var dbDpt = _context.Department.FirstOrDefault(d => (d.DepartmentCode == dtDpt
+                                        || d.DepartmentName == dtDpt) && d.PlantId == model.PlantId);
+                                    if (dbDpt == null)
+                                        newDepartmentList.FirstOrDefault(d => (d.DepartmentCode == dtDpt 
+                                            || d.DepartmentName == dtDpt) && d.PlantId == model.PlantId);
+                                    if (dbDpt == null){
+                                        dbDpt = new Department{
+                                            DepartmentCode = dtDpt,
+                                            DepartmentName = dtDpt,
+                                            IsActive = true,
+                                            PlantId = model.PlantId,
+                                        };
+                                        _context.Department.Add(dbDpt);
+                                        newDepartmentList.Add(dbDpt);
+                                    }
+
+                                    // check card
+                                    EmployeeCard dbCard = null;
+                                    if (!string.IsNullOrEmpty(dtCard)){
+                                        dbCard = _context.EmployeeCard.FirstOrDefault(d => d.CardCode == dtCard && d.PlantId == model.PlantId);
+                                        if (dbCard == null)
+                                            newCardList.FirstOrDefault(d => d.CardCode == dtCard && d.PlantId == model.PlantId);
+                                        if (dbCard == null){
+                                            dbCard = new EmployeeCard{
+                                                CardCode = dtCard,
+                                                IsActive = true,
+                                                PlantId = model.PlantId,
+                                            };
+                                            _context.EmployeeCard.Add(dbCard);
+                                            newCardList.Add(dbCard);
+                                        }
+                                    }
+
+                                    var dbEmployee = _context.Employee.FirstOrDefault(d => d.EmployeeCode == dtCode
+                                        && d.PlantId == model.PlantId);
+                                    if (dbEmployee == null)
+                                        dbEmployee = newEmployeeList.FirstOrDefault(d => d.EmployeeCode == dtCode
+                                            && d.PlantId == model.PlantId);
+                                    if (dbEmployee == null){
+                                        dbEmployee = new Employee{
+                                            EmployeeCode = dtCode,
+                                            EmployeeName = dtName,
+                                            Gsm = dtGsm,
+                                            Email = dtEmail,
+                                            PlantId = model.PlantId,
+                                            Department = dbDpt,
+                                            EmployeeCard = dbCard,
+                                        };
+
+                                        _context.Employee.Add(dbEmployee);
+                                        newEmployeeList.Add(dbEmployee);
+                                        insertedCount++;
+                                    }
+                                    else{
+                                        dbEmployee.EmployeeName = dtName;
+                                        dbEmployee.Gsm = dtGsm;
+                                        dbEmployee.Email = dtEmail;
+                                        dbEmployee.Department = dbDpt;
+                                        dbEmployee.EmployeeCard = dbCard;
+                                        updatedCount++;
+                                    }
+                                }
+                            }
+                        }
+
+                        rowIndex++;
+                    }
+                }
+
+                _context.SaveChanges();
+                result.Result = true;
+                result.InfoMessage = insertedCount.ToString() +
+                    " adet yeni kayıt sisteme transfer edildi ve " +
+                    updatedCount.ToString() + " adet kayıt güncellendi.";
             }
             catch (System.Exception ex)
             {

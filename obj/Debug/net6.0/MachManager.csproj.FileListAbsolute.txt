@@ -42,3 +42,12 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.IdentityModel.Tokens.Jwt.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.Security.Permissions.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/AutoMapper.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/ClosedXML.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/DocumentFormat.OpenXml.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/ExcelNumberFormat.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/Microsoft.Win32.SystemEvents.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.Drawing.Common.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/System.IO.Packaging.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/runtimes/unix/lib/netcoreapp2.0/System.Drawing.Common.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Debug/net6.0/runtimes/win/lib/netcoreapp2.0/System.Drawing.Common.dll
