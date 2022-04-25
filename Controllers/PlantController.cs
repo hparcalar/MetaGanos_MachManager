@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Models.Constants;
 using MachManager.Business;
+using MachManager.Models.ReportContainers;
 
 namespace MachManager.Controllers
 {
@@ -92,6 +93,78 @@ namespace MachManager.Controllers
             return plantCount;
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("OverallStats")]
+        public PlantOverallStats GetOverallStats(int[] plants){
+            PlantOverallStats data = new PlantOverallStats();
+
+            try
+            {
+                var mostConsumedItem = _context.MachineItemConsume
+                    .Where(d => plants.Contains(d.Machine.PlantId ?? 0) && d.Item != null)
+                    .GroupBy(d => new {
+                        ItemName = d.Item.ItemName
+                    })
+                    .Select(d => new {
+                        ItemName = d.Key.ItemName,
+                        Count = d.Sum(m => m.ConsumedCount)
+                    })
+                    .OrderByDescending(d => d.Count)
+                    .FirstOrDefault();
+                if (mostConsumedItem != null){
+                    data.MostConsumedItemName = mostConsumedItem.ItemName;
+                    data.MostConsumedItemCount = mostConsumedItem.Count;
+                }
+
+                data.ActiveMachineCount = _context.Machine
+                    .Where(d => plants.Contains(d.PlantId ?? 0) && d.IsActive == true).Count();
+                data.TotalMachineCount = _context.Machine
+                    .Where(d => plants.Contains(d.PlantId ?? 0)).Count();
+
+                data.InFaultSpiralCount = _context.MachineSpiral
+                    .Where(d => plants.Contains(d.Machine.PlantId ?? 0) && d.IsInFault == true).Count();
+
+                var yearStart = DateTime.ParseExact("01.01." + string.Format("{0:yyyy}", DateTime.Now), "dd.MM.yyyy",
+                    System.Globalization.CultureInfo.GetCultureInfo("tr"));
+                var yearEnd = DateTime.ParseExact("31.12." + string.Format("{0:yyyy}", DateTime.Now), "dd.MM.yyyy",
+                    System.Globalization.CultureInfo.GetCultureInfo("tr"));
+
+                List<CategoryStatsYearly> yearlyStats = new List<CategoryStatsYearly>();
+                var allCategories = _context.ItemCategory.Where(d => plants.Contains(d.PlantId ?? 0)).ToArray();
+                foreach (var cat in allCategories)
+                {
+                    CategoryStatsYearly catStat = new CategoryStatsYearly{
+                        CategoryName = cat.ItemCategoryName,
+                    };
+
+                    List<int> catConsumings = new List<int>();
+                    for (int i = 0; i < 12; i++)
+                    {
+                        var monthStart = yearStart.AddMonths(i);
+                        var monthEnd = yearStart.AddMonths(i + 1);
+
+                        int monthConsumed = _context.MachineItemConsume.Where(d => d.Item != null 
+                            && d.Item.ItemCategoryId == cat.Id
+                            && d.ConsumedDate >= monthStart && d.ConsumedDate <= monthEnd)
+                            .Sum(d => d.ConsumedCount);
+                        catConsumings.Add(monthConsumed);
+                    }
+
+                    catStat.MonthlyStats = catConsumings.ToArray();
+                    yearlyStats.Add(catStat);
+                }
+
+                data.CategoryStats = yearlyStats.ToArray();
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
         [HttpGet]
         [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/Officers")]
@@ -111,6 +184,27 @@ namespace MachManager.Controllers
 
             return data;
         }
+
+        [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
+        [Route("{id}/Machines")]
+        public IEnumerable<MachineModel> GetMachines(int id){
+            MachineModel[] data = new MachineModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetMachines(new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
 
         [HttpGet]
         [Authorize(Policy = "FactoryOfficer")]

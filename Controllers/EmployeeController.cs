@@ -127,6 +127,9 @@ namespace MachManager.Controllers
                         RangeLength = d.RangeLength,
                         RangeIndex = d.RangeIndex,
                         RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
                     }).ToArray();
             }
             catch
@@ -166,6 +169,9 @@ namespace MachManager.Controllers
                         RangeCredit = d.RangeCredit,
                         RangeIndex = d.RangeIndex,
                         RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
                     }).OrderBy(d => d.CreditLoadDate).ToArray();
             }
             catch
@@ -205,6 +211,9 @@ namespace MachManager.Controllers
                         RangeIndex = d.RangeIndex,
                         RangeLength = d.RangeLength,
                         RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
                     }).FirstOrDefault();
             }
             catch
@@ -245,7 +254,7 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(EmployeeModel model){
             BusinessResult result = new BusinessResult();
@@ -277,7 +286,7 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         [Route("LoadCredit")]
         public BusinessResult LoadCredit(EmployeeCreditModel model){
@@ -343,7 +352,7 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         [Route("EditCredit")]
         public BusinessResult EditCredit(EmployeeCreditModel model){
@@ -379,7 +388,7 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}/FileProcess")]
         public IEnumerable<PlantFileProcessModel> GetFileProcessList(int id){
             PlantFileProcessModel[] data = new PlantFileProcessModel[0];
@@ -457,7 +466,7 @@ namespace MachManager.Controllers
         }
 
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         [Route("SaveFileProcess")]
         public BusinessResult PostFileProcess(PlantFileProcessModel model){
@@ -504,7 +513,7 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         [Route("UnloadCredit")]
         public BusinessResult UnloadCredit(int historyId){
@@ -540,7 +549,7 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         [Route("DeleteCredit")]
         public BusinessResult DeleteCredit(int creditId){
@@ -567,7 +576,7 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();

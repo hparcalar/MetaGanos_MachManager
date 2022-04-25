@@ -13,6 +13,7 @@ namespace MachManager.Models{
         public Nullable<int> ItemGroupId { get; set; }
         public Nullable<int> Capacity { get; set; }
         public Nullable<bool> IsEnabled { get; set; }
+        public Nullable<bool> IsInFault { get; set; }
 
         #region VISUAL ELEMENTS
         public string ItemCode { get; set; }

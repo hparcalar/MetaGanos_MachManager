@@ -1,8 +1,11 @@
 namespace MachManager.Models.Parameters{
     public class MachineConsumeFilter{
-        public int[] Machines { get; set; }
+        public int[] MachineId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int[] Plants { get; set; }
+        public int[] PlantId { get; set; }
+        public int[] CategoryId { get; set; }
+        public int[] GroupId { get; set; }
+        public int[] ItemId { get; set; }
     }
 }

@@ -135,6 +135,7 @@ namespace MachManager.Controllers
                         ItemName = d.Item != null ? d.Item.ItemName : "",
                         MachineId = d.MachineId,
                         PosOrders = d.PosOrders,
+                        IsInFault = d.IsInFault,
                         IsEnabled = d.IsEnabled,
                         Capacity = d.Capacity,
                         PosX = d.PosX,
@@ -235,6 +236,7 @@ namespace MachManager.Controllers
                         PosOrders = d.PosOrders,
                         IsEnabled = d.IsEnabled,
                         Capacity = d.Capacity,
+                        IsInFault = d.IsInFault,
                         PosX = d.PosX,
                         PosY = d.PosY,
                     }).FirstOrDefault();
@@ -272,6 +274,7 @@ namespace MachManager.Controllers
                             MachineId = d.MachineId,
                             IsEnabled = d.IsEnabled,
                             PosOrders = d.PosOrders,
+                            IsInFault = d.IsInFault,
                             Capacity = d.Capacity,
                             PosX = d.PosX,
                             PosY = d.PosY,
@@ -328,11 +331,17 @@ namespace MachManager.Controllers
             {
                 data = _context.MachineItemConsume
                     .Where(d =>
-                        (filter == null || filter.Machines == null || filter.Machines.Length == 0 || filter.Machines.Contains(d.MachineId ?? 0))
+                        (filter == null || filter.MachineId == null || filter.MachineId.Length == 0 || filter.MachineId.Contains(d.MachineId ?? 0))
                         &&
-                        (filter == null || filter.Plants == null || filter.Plants.Length == 0 || (d.Machine != null && filter.Plants.Contains(d.Machine.PlantId ?? 0)))
+                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)))
                         &&
                         (filter == null || filter.StartDate == null || (filter.StartDate <= d.ConsumedDate && filter.EndDate >= d.ConsumedDate))
+                        &&
+                        (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
+                        &&
+                        (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
+                        &&
+                        (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                     )
                     .GroupBy(d => new {
                         MachineCode = d.Machine.MachineCode,
@@ -347,6 +356,7 @@ namespace MachManager.Controllers
                         ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
+                        ConsumedDate = d.ConsumedDate.Value.Date,
                     })
                     .Select(d => new MachineConsumeSummary{
                         MachineId = d.Key.MachineId,
@@ -361,8 +371,11 @@ namespace MachManager.Controllers
                         ItemName = d.Key.ItemName,
                         ItemCategoryCode = d.Key.ItemCategoryCode,
                         ItemCategoryName = d.Key.ItemCategoryName,
+                        ConsumedDate = d.Key.ConsumedDate,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
-                    }).ToArray();
+                    })
+                    .OrderBy(d => d.ConsumedDate)
+                    .ToArray();
             }
             catch (System.Exception)
             {
@@ -527,6 +540,72 @@ namespace MachManager.Controllers
             catch (System.Exception ex)
             {
                 result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("{id}/FullAllSpirals")]
+        public BusinessResult FullAllSpirals(int id){
+            ResolveHeaders(Request);
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
+                if (dbMachine == null)
+                    throw new Exception(_translator.Translate(Expressions.MachineNotFound, _userLanguage));
+
+                var spirals = _context.MachineSpiral.Where(d => d.MachineId == id).ToArray();
+                foreach (MachineSpiral item in spirals)
+                {
+                    // if capacity is infinite then go on with next spiral
+                    if ((item.Capacity ?? 0) == 0)
+                        continue;
+
+                    // if spiral is disabled then go on with next spiral
+                    if (!(item.IsEnabled ?? true))
+                        continue;
+
+                    // look for active item of current spiral
+                    var properItemId = item.ItemId;
+
+                    // search last consume history of current spiral
+                    if (properItemId == null)
+                    {
+                        var lastConsumedItemId = _context.MachineItemConsume
+                            .Where(d => d.MachineId == id && d.SpiralNo == item.PosOrders && d.ItemId != null)
+                            .OrderByDescending(d => d.ConsumedDate)
+                            .Select(d => d.ItemId)
+                            .FirstOrDefault();
+                        if (lastConsumedItemId != null)
+                            properItemId = lastConsumedItemId;
+                    }
+
+                    // if proper item is found then load fully current spiral
+                    if (properItemId != null){
+                        var remainingQuantity = item.Capacity - item.ActiveQuantity;
+                        if (remainingQuantity > 0){
+                            var dbItem = _context.Item.FirstOrDefault(d => d.Id == properItemId);
+                            if (dbItem != null){
+                                item.ActiveQuantity = item.Capacity;
+                                item.ItemId = properItemId;
+                                item.ItemCategoryId = dbItem.ItemCategoryId;
+                                item.ItemGroupId = dbItem.ItemGroupId;
+                            }
+                        }
+                    }
+                }
+
+                _context.SaveChanges();
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
                 result.ErrorMessage = ex.Message;
             }
 

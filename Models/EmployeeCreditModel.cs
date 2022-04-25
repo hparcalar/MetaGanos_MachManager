@@ -20,6 +20,9 @@ namespace MachManager.Models{
         public Nullable<DateTime> CreditLoadDate { get; set; }
         public Nullable<DateTime> CreditStartDate { get; set; }
         public Nullable<DateTime> CreditEndDate { get; set; }
+        public Nullable<int> ProductIntervalType { get; set; }
+        public Nullable<int> ProductIntervalTime { get; set; }
+        public string SpecificRangeDates { get; set; }
 
         #region VISUAL ELEMENTS
         public string ItemCategoryCode { get; set; }

@@ -48,6 +48,7 @@ namespace MachManager.i18n{
         Officers=44,
         OfficerDefinitions=45,
         DepartmentNotFound=46,
+        MachineNotFound=47,
     }
 
     public class DefaultEqualResponses{
@@ -98,6 +99,7 @@ namespace MachManager.i18n{
             { Expressions.Officers, "Kullanıcılar" },
             { Expressions.OfficerDefinitions, "Kullanıcı Tanımları" },
             { Expressions.DepartmentNotFound, "Departman bulunamadı" },
+            { Expressions.MachineNotFound, "Otomat tanımı bulunamadı" },
         };
     }
 }

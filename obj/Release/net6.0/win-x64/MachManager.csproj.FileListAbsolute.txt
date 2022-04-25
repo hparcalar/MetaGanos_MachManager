@@ -373,7 +373,6 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/hostfxr.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/hostpolicy.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.322.12309.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordbi.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscorrc.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/msquic.dll
@@ -393,3 +392,4 @@
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/MachManager.pdb
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/MachManager.genruntimeconfig.cache
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/ref/MachManager.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.422.16404.dll

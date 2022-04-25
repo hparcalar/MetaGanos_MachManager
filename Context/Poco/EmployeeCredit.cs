@@ -25,6 +25,9 @@ namespace MachManager.Context {
         public int RangeType { get; set; } = 4;
         public int RangeLength { get; set; } = 1;
         public int CreditByRange { get; set; } = 0;
+        public Nullable<int> ProductIntervalType { get; set; }
+        public Nullable<int> ProductIntervalTime { get; set; }
+        public string SpecificRangeDates { get; set; }
 
         public Nullable<DateTime> CreditLoadDate { get; set; }
         public Nullable<DateTime> CreditStartDate { get; set; }

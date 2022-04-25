@@ -321,6 +321,12 @@ namespace MachManager.Migrations
                     b.Property<int?>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ProductIntervalTime")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProductIntervalType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RangeCredit")
                         .HasColumnType("integer");
 
@@ -332,6 +338,9 @@ namespace MachManager.Migrations
 
                     b.Property<int>("RangeType")
                         .HasColumnType("integer");
+
+                    b.Property<string>("SpecificRangeDates")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -829,6 +838,9 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool?>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsInFault")
                         .HasColumnType("boolean");
 
                     b.Property<int?>("ItemCategoryId")
