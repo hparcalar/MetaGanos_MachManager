@@ -108,7 +108,8 @@ namespace MachManager.Controllers
                     _context.EmployeeCard.Add(dbObj);
                 }
 
-                if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode && d.Id != model.Id))
+                if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode
+                    && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);

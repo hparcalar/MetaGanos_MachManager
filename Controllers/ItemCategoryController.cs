@@ -178,7 +178,8 @@ namespace MachManager.Controllers
                     _context.ItemCategory.Add(dbObj);
                 }
 
-                if (_context.ItemCategory.Any(d => d.ItemCategoryCode == model.ItemCategoryCode && d.Id != model.Id))
+                if (_context.ItemCategory.Any(d => d.ItemCategoryCode == model.ItemCategoryCode 
+                    && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);

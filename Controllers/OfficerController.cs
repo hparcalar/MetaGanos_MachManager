@@ -16,7 +16,7 @@ using MachManager.Business;
 
 namespace MachManager.Controllers
 {
-    [Authorize(Policy = "Dealer")]
+    [Authorize(Policy = "FactoryOfficer")]
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
@@ -42,7 +42,7 @@ namespace MachManager.Controllers
             return data;
         }
 
-        [Authorize(Policy = "Dealer")]
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpGet]
         [Route("Count")]
         public int GetOfficerCount(){

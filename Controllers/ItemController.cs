@@ -181,7 +181,12 @@ namespace MachManager.Controllers
                     _context.Item.Add(dbObj);
                 }
 
-                if (_context.Item.Any(d => d.ItemCode == model.ItemCode && d.Id != model.Id))
+                var dbCategory = _context.ItemCategory.FirstOrDefault(d => d.Id == model.ItemCategoryId);
+                if (dbCategory == null)
+                    throw new Exception(_translator.Translate(Expressions.ItemCategoryNotFound, _userLanguage));
+
+                if (_context.Item.Any(d => d.ItemCode == model.ItemCode 
+                    && d.ItemCategory.PlantId == dbCategory.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);

@@ -399,7 +399,8 @@ namespace MachManager.Controllers
                     _context.Machine.Add(dbObj);
                 }
 
-                if (_context.Machine.Any(d => d.MachineCode == model.MachineCode && d.Id != model.Id))
+                if (_context.Machine.Any(d => d.MachineCode == model.MachineCode 
+                    && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);

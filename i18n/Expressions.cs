@@ -50,6 +50,7 @@ namespace MachManager.i18n{
         DepartmentNotFound=46,
         MachineNotFound=47,
         FileNotFound = 48,
+        ItemCategoryNotFound=49,
     }
 
     public class DefaultEqualResponses{
@@ -102,6 +103,7 @@ namespace MachManager.i18n{
             { Expressions.DepartmentNotFound, "Departman bulunamadı" },
             { Expressions.MachineNotFound, "Otomat tanımı bulunamadı" },
             { Expressions.FileNotFound, "Dosya bulunamadı" },
+            { Expressions.ItemCategoryNotFound, "Kategori bilgisi bulunamadı" }
         };
     }
 }
