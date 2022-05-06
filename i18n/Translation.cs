@@ -73,5 +73,31 @@ namespace MachManager.i18n{
 
             return equalResponse;
         }
+
+        public string Translate(string expressionText, string languageCode){
+            string equalResponse = string.Empty;
+
+            // find related expression object
+            Expressions expression;
+            if (Enum.TryParse(expressionText, out expression)){
+                // search related book
+                var relatedBook = this.LangBooks.FirstOrDefault(d => d.LanguageCode == languageCode);
+                if (relatedBook != null){
+                    equalResponse = relatedBook.GetExpression(expression);
+                }
+
+                // if not found then look for default response
+                if (string.IsNullOrEmpty(equalResponse)){
+                    var defBook = this.LangBooks.FirstOrDefault(d => d.LanguageCode == "default");
+                    if (defBook != null){
+                        equalResponse = defBook.GetExpression(expression);
+                    }
+                }
+            }
+            else
+                equalResponse = expressionText;
+
+            return equalResponse;
+        }
     }
 }

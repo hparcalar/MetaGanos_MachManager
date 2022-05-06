@@ -343,7 +343,8 @@ namespace MachManager.Controllers
                 };
                 _context.CreditLoadHistory.Add(dbLoadHistory);
 
-                _context.SaveChanges();
+                if (!model.CancelSubmit)
+                    _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbCredit.Id;
             }
@@ -378,13 +379,134 @@ namespace MachManager.Controllers
                 model.UpdateLiveRangeData(_context);
                 model.MapTo(dbCredit);
 
-                _context.SaveChanges();
+                if (!model.CancelSubmit)
+                    _context.SaveChanges();
+
                 result.Result=true;
                 result.RecordId = dbCredit.Id;
             }
             catch (System.Exception ex)
             {
                 result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("BulkLoadInfo")]
+        public EmployeeCreditModel GetBulkLoadInfo(RequestBulkLoadModel model){
+            EmployeeCreditModel data = null;
+
+            try
+            {
+                var groupedInfo = _context.EmployeeCredit
+                    .Where(d => model.Employees.Contains(d.EmployeeId ?? 0)
+                        && (model.ItemCategoryId == null || d.ItemCategoryId == model.ItemCategoryId)
+                        && (model.ItemGroupId == null || d.ItemGroupId == model.ItemGroupId)
+                        && (model.ItemId == null || d.ItemId == model.ItemId)
+                    )
+                    .GroupBy(d => new {
+                        d.RangeType,
+                        d.RangeLength,
+                        d.RangeCredit,
+                        d.ProductIntervalType,
+                        d.ProductIntervalTime,
+                        d.CreditLoadDate,
+                        d.CreditEndDate,
+                    })
+                    .Select(d => new {
+                        d.Key.RangeType,
+                        d.Key.RangeLength,
+                        d.Key.RangeCredit,
+                        d.Key.ProductIntervalType,
+                        d.Key.ProductIntervalTime,
+                        d.Key.CreditLoadDate,
+                        d.Key.CreditEndDate,
+                        MemberCount = d.Count(),
+                        Scheduler = d.Select(m => m.SpecificRangeDates).FirstOrDefault(),
+                    })
+                    .ToArray();
+
+                var topMember = groupedInfo
+                    .Where(d => d.MemberCount > 0)
+                    .OrderByDescending(d => d.MemberCount)
+                    .FirstOrDefault();
+                if (topMember != null){
+                    data = new EmployeeCreditModel{
+                        Id = 0,
+                        ActiveCredit = topMember.RangeCredit,
+                        CreditLoadDate = topMember.CreditLoadDate,
+                        CreditEndDate = topMember.CreditEndDate,
+                        CreditByRange = topMember.RangeCredit,
+                        CreditStartDate = topMember.CreditLoadDate,
+                        ItemCategoryId = model.ItemCategoryId,
+                        ItemGroupId = model.ItemGroupId,
+                        ItemId = model.ItemId,
+                        ProductIntervalTime = topMember.ProductIntervalTime,
+                        ProductIntervalType = topMember.ProductIntervalType,
+                        RangeCredit = topMember.RangeCredit,
+                        RangeIndex = 0,
+                        RangeLength = topMember.RangeLength,
+                        RangeType = topMember.RangeType,
+                        SpecificRangeDates = topMember.Scheduler,
+                    };
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("BulkLoad")]
+        public BusinessResult PostBulkLoad(EmployeeCreditModel model){
+            ResolveHeaders(Request);
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                if (model.BulkList == null || model.BulkList.Length == 0)
+                    throw new Exception(_translator.Translate(Expressions.AnyError, _userLanguage));
+
+                var prmModel = new EmployeeCreditModel();
+                model.MapTo(prmModel);
+                prmModel.BulkList = null;
+                prmModel.CancelSubmit = true;
+
+                int successCount=0, errorCount = 0;
+
+                foreach (var item in model.BulkList)
+                {
+                    prmModel.EmployeeId = item;
+                    BusinessResult postResult = null;
+                    if (_context.EmployeeCredit.Any(d => d.EmployeeId == model.EmployeeId &&
+                        d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId
+                            && d.ItemId == model.ItemId))
+                        postResult = this.EditCredit(prmModel);
+                    else
+                        postResult = this.LoadCredit(prmModel);
+                    if (postResult.Result)
+                        successCount++;
+                    else
+                        errorCount++;
+                }
+
+                _context.SaveChanges();
+                result.Result = true;
+                result.InfoMessage = successCount + " adet personele kredi başarıyla yüklendi.";
+                if (errorCount > 0)
+                    result.InfoMessage += " " + errorCount + " adet personele kredi yükleme işlemi başarısız oldu.";
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
                 result.ErrorMessage = ex.Message;
             }
 

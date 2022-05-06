@@ -51,6 +51,9 @@ namespace MachManager.i18n{
         MachineNotFound=47,
         FileNotFound = 48,
         ItemCategoryNotFound=49,
+        LoadCredit = 50,
+        LoadMachine = 51,
+        ConsumptionReport = 52,
     }
 
     public class DefaultEqualResponses{
@@ -103,7 +106,10 @@ namespace MachManager.i18n{
             { Expressions.DepartmentNotFound, "Departman bulunamadı" },
             { Expressions.MachineNotFound, "Otomat tanımı bulunamadı" },
             { Expressions.FileNotFound, "Dosya bulunamadı" },
-            { Expressions.ItemCategoryNotFound, "Kategori bilgisi bulunamadı" }
+            { Expressions.ItemCategoryNotFound, "Kategori bilgisi bulunamadı" },
+            { Expressions.LoadCredit, "Personel kredi yükleme" },
+            { Expressions.LoadMachine, "Makineye stok yükleme" },
+            { Expressions.ConsumptionReport, "Tüketim raporu" },
         };
     }
 }

@@ -31,6 +31,8 @@ namespace MachManager.Models{
         public string ItemGroupName { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
+        public bool CancelSubmit { get; set; } = false;
+        public int[] BulkList { get; set; }
         #endregion
 
         #region BUSINESS LOGIC

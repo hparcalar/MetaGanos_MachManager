@@ -356,7 +356,7 @@ namespace MachManager.Controllers
                         ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
-                        ConsumedDate = d.ConsumedDate.Value.Date,
+                        ConsumedDate = d.ConsumedDate.Value,
                     })
                     .Select(d => new MachineConsumeSummary{
                         MachineId = d.Key.MachineId,
@@ -529,7 +529,7 @@ namespace MachManager.Controllers
                 dbSpiral.ItemCategoryId = model.ItemCategoryId;
 
                 // spiral capacity check
-                if (dbSpiral.ActiveQuantity + model.Quantity > dbSpiral.Capacity)
+                if ((dbSpiral.ActiveQuantity ?? 0) + (model.Quantity ?? 0) > dbSpiral.Capacity)
                     throw new Exception(_translator.Translate(Expressions.SpiralCapacityOverflowed, _userLanguage));
 
                 dbSpiral.ActiveQuantity = (dbSpiral.ActiveQuantity ?? 0) + (model.Quantity ?? 0);

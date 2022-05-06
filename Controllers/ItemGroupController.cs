@@ -93,6 +93,26 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("{id}/Items")]
+        [Authorize("FactoryOfficer")]
+        public ItemModel[] GetItems(int id){
+            ItemModel[] data = new ItemModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItems(groups: new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(ItemGroupModel model){

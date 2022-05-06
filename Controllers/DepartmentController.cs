@@ -144,6 +144,27 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("{id}/Employees")]
+        [Authorize("FactoryOfficer")]
+        public IEnumerable<EmployeeModel> GetEmployees(int id){
+            ResolveHeaders(Request);
+            EmployeeModel[] data = new EmployeeModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetEmployees(departments: new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public DepartmentModel Get(int id)
         {

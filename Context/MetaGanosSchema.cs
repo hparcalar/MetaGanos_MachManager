@@ -34,6 +34,7 @@ namespace MachManager.Context {
         public DbSet<PlantFileProcess> PlantFileProcess { get; set; }
         public DbSet<Officer> Officer { get; set; }
         public DbSet<DepartmentMachine> DepartmentMachine { get; set; }
+        public DbSet<AuthUnit> AuthUnit { get; set; }
 
         public MetaGanosSchema() : base(){}
         public MetaGanosSchema(Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options){}

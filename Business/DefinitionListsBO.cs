@@ -166,13 +166,17 @@ namespace MachManager.Business{
             return data;
         }
 
-        public EmployeeModel[] GetEmployees(int[] plants = null){
+        public EmployeeModel[] GetEmployees(int[] plants = null, int[] departments = null) {
             EmployeeModel[] data = new EmployeeModel[0];
 
             try
             {
                 data = _context.Employee
-                    .Where(d => plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                    .Where(d => 
+                        (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                        &&
+                        (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
+                    )
                     .Select(d => new EmployeeModel{
                         Id = d.Id,
                         ActiveCredit = d.ActiveCredit,
@@ -201,14 +205,17 @@ namespace MachManager.Business{
             return data;
         }
 
-        public ItemModel[] GetItems(int[] plants = null){
+        public ItemModel[] GetItems(int[] plants = null, int[] groups = null){
             ItemModel[] data = new ItemModel[0];
 
             try
             {
                 data = _context.Item
-                    .Where(d => plants == null || plants.Length == 0 || (plants != null && d.ItemCategory != null 
+                    .Where(d => (plants == null || plants.Length == 0 || (plants != null && d.ItemCategory != null 
                         && plants.Contains(d.ItemCategory.PlantId ?? 0)))
+                        &&
+                        (groups == null || groups.Length == 0 || (groups != null && groups.Contains(d.ItemGroupId ?? 0)))
+                        )
                     .Select(d => new ItemModel{
                         Id = d.Id,
                         AlternatingCode1 = d.AlternatingCode1,

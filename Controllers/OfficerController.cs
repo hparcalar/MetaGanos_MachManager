@@ -13,6 +13,7 @@ using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Business;
+using MachManager.Authentication;
 
 namespace MachManager.Controllers
 {
@@ -70,7 +71,6 @@ namespace MachManager.Controllers
             return dataCount;
         }
 
-
         [HttpGet]
         [Route("{id}")]
         public OfficerModel Get(int id)
@@ -88,6 +88,42 @@ namespace MachManager.Controllers
                         PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
                         PlantName = d.Plant != null ? d.Plant.PlantName : "",
                     }).FirstOrDefault();
+
+                if (data == null)
+                    data = new OfficerModel{
+                        AuthUnits = new AuthUnitModel[0],
+                    };
+
+                if (data != null){
+                    data.AuthUnits = _context.AuthUnit
+                        .Where(d => d.OfficerId == data.Id)
+                        .Select(d => new AuthUnitModel{
+                            Id = d.Id,
+                            CanDelete = d.CanDelete,
+                            CanRead = d.CanRead,
+                            CanWrite = d.CanWrite,
+                            OfficerId = d.OfficerId,
+                            Section = d.Section,
+                        }).ToArray();
+
+                    string[] allAuthUnits = Enum.GetNames(typeof(MgAuthUnit));
+                    var nonExistingUnits = allAuthUnits.Where(d => !data.AuthUnits.Any(m => m.Section == d)).ToArray();
+                    if (nonExistingUnits != null && nonExistingUnits.Length > 0){
+                        data.AuthUnits = data.AuthUnits.Concat(nonExistingUnits.Select(d => new AuthUnitModel{
+                            Id = 0,
+                            CanDelete = true,
+                            CanRead = true,
+                            CanWrite = true,
+                            OfficerId = data.Id,
+                            Section = d,
+                        })).ToArray();
+                    }
+
+                    foreach (var item in data.AuthUnits)
+                    {
+                        item.SectionText = _translator.Translate(item.Section, _userLanguage);
+                    }
+                }
             }
             catch
             {
@@ -119,6 +155,24 @@ namespace MachManager.Controllers
 
                 model.MapTo(dbObj);
 
+                // save auth units
+                var oldUnits = _context.AuthUnit.Where(d => d.OfficerId == dbObj.Id).ToArray();
+                foreach (var item in oldUnits)
+                {
+                    _context.AuthUnit.Remove(item);
+                }
+
+                if (model.AuthUnits != null){
+                    foreach (var item in model.AuthUnits)
+                    {
+                        var dbAuthUnit = new AuthUnit();
+                        item.MapTo(dbAuthUnit);
+                        dbAuthUnit.Id = 0;
+                        dbAuthUnit.Officer = dbObj;
+                        _context.AuthUnit.Add(dbAuthUnit);
+                    }
+                }
+
                 _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbObj.Id;
@@ -142,6 +196,13 @@ namespace MachManager.Controllers
                 var dbObj = _context.Officer.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                // clear auth units
+                var authUnits = _context.AuthUnit.Where(d => d.OfficerId == dbObj.Id).ToArray();
+                foreach (var item in authUnits)
+                {
+                    _context.AuthUnit.Remove(item);
+                }
 
                 _context.Officer.Remove(dbObj);
 

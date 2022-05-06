@@ -9,6 +9,7 @@ namespace MachManager.Models{
         public string DefaultLanguage { get; set; }
 
         #region VISUAL ELEMENTS
+        public AuthUnitModel[] AuthUnits { get; set; }
         public string PlantCode { get; set; }
         public string PlantName { get; set; }
         #endregion
