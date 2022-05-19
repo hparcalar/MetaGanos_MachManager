@@ -95,7 +95,7 @@ namespace MachManager.Controllers
 
         [HttpGet]
         [Route("{id}/Items")]
-        [Authorize("FactoryOfficer")]
+        [Authorize("Machine")]
         public ItemModel[] GetItems(int id){
             ItemModel[] data = new ItemModel[0];
 

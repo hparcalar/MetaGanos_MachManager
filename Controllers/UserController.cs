@@ -275,6 +275,7 @@ namespace MachManager.Controllers
                 #endregion
 
                 var dbUser = _context.Employee.Where(d =>
+                    d.Plant.PlantCode == model.PlantCode && d.Plant.Dealer.DealerCode == model.DealerCode &&
                     d.EmployeeCard != null &&
                     possibleKeys.Contains(d.EmployeeCard.CardCode)).FirstOrDefault();
 
@@ -312,11 +313,12 @@ namespace MachManager.Controllers
         {
             try
             {
-                var dbUser = _context.Machine.FirstOrDefault(d => d.MachineCode == model.Login);
+                var dbUser = _context.Machine.FirstOrDefault(d => d.MachineCode == model.Login
+                    && d.Plant.PlantCode == model.PlantCode && d.Plant.Dealer.DealerCode == model.DealerCode);
                 if (dbUser == null)
                     throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
 
-                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Machine);
+                var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.PlantId ?? 0, MgAuthType.Machine);
 
                 return Ok(tokenStr);
             }
@@ -326,6 +328,28 @@ namespace MachManager.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("MachineId")]
+        public int MachineId([FromBody] UserLoginModel model)
+        {
+            try
+            {
+                var dbUser = _context.Machine.FirstOrDefault(d => d.MachineCode == model.Login
+                    && d.Plant.PlantCode == model.PlantCode && d.Plant.Dealer.DealerCode == model.DealerCode);
+                if (dbUser == null)
+                    throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
+
+                return dbUser.Id;
+            }
+            catch (Exception)
+            {
+                
+            }
+
+            return 0;
         }
     
         [Authorize(Policy = "FactoryOfficer")]

@@ -26,8 +26,13 @@ namespace MachManager.Authentication
             // set claim list
             List<Claim> claimList = new List<Claim>();
 
-            if (authType == MgAuthType.Dealer)
+            if (authType == MgAuthType.Dealer){
                 claimList.Add(new Claim(ClaimTypes.Role, "FactoryOfficer"));
+                claimList.Add(new Claim(ClaimTypes.Role, "Machine"));
+            }
+            else if (authType == MgAuthType.FactoryOfficer){
+                claimList.Add(new Claim(ClaimTypes.Role, "Machine"));
+            }
 
             claimList.Add(new Claim(ClaimTypes.UserData, userId.ToString()));
             claimList.Add(new Claim(ClaimTypes.Name, userName));

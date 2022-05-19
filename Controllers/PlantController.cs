@@ -46,6 +46,38 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        [Route("Find/{dealerCode}/{plantCode}")]
+        public PlantModel Find(string dealerCode, string plantCode){
+            PlantModel data = new PlantModel();
+            try
+            {
+                var dbDealer = _context.Dealer.FirstOrDefault(d => d.DealerCode == dealerCode);
+                if (dbDealer == null)
+                    throw new Exception("");
+
+                data = _context.Plant.Where(d => d.PlantCode == plantCode && d.DealerId == dbDealer.Id).Select(d => new PlantModel{
+                        Id = d.Id,
+                        CreatedDate = d.CreatedDate,
+                        DealerCode = d.Dealer != null ? d.Dealer.DealerCode : "",
+                        DealerId = d.DealerId,
+                        DealerName = d.Dealer != null ? d.Dealer.DealerName : "",
+                        Explanation = d.Explanation,
+                        PlantLogo = d.PlantLogo,
+                        IsActive = d.IsActive,
+                        PlantCode = d.PlantCode,
+                        PlantName = d.PlantName,
+                    }).FirstOrDefault();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public PlantModel Get(int id)
         {
@@ -207,7 +239,7 @@ namespace MachManager.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "FactoryOfficer")]
+        [Authorize(Policy = "Machine")]
         [Route("{id}/ItemCategories")]
         public IEnumerable<ItemCategoryModel> GetItemCategories(int id){
             ItemCategoryModel[] data = new ItemCategoryModel[0];

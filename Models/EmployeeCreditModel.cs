@@ -46,6 +46,7 @@ namespace MachManager.Models{
 
                 if (activeEnd != null){
                     var dtNow = DateTime.Now.Date;
+                    this.CreditEndDate = activeEnd;
 
                     var rangeCount = Convert.ToInt32((this.ActiveCredit) / (this.CreditByRange));
                     int rangeIndex = 0;
@@ -63,20 +64,25 @@ namespace MachManager.Models{
                         }
                     }
 
-                    this.RangeIndex = rangeIndex;
-                    this.CreditStartDate = activeStart;
-                    this.CreditEndDate = activeEnd;
+                    if (loopCredit > 0){
+                        this.RangeIndex = rangeIndex;
+                        this.CreditStartDate = activeStart;
+                        this.CreditEndDate = activeEnd;
+                    }
                     
                     if (rangeIndex > -1){
                         var consumedCreditAtCurrentRange = context
                             .EmployeeCreditConsume.Where(d => d.EmployeeId == this.EmployeeId
                                 && d.ItemCategoryId == this.ItemCategoryId
                                 && (d.ItemGroupId == this.ItemGroupId || this.ItemGroupId == null)
+                                && (d.ItemId == this.ItemId || this.ItemId == null)
                                 && d.ConsumedDate >= activeStart
                                 && d.ConsumedDate <= activeEnd)
                                 .Sum(d => d.ConsumedCredit);
 
                         this.RangeCredit = (loopCredit > this.CreditByRange ? this.CreditByRange : loopCredit) - consumedCreditAtCurrentRange;
+                        if (this.RangeCredit < 0)
+                            this.RangeCredit = 0;
                     }
                     else
                         this.RangeCredit = 0;

@@ -290,6 +290,46 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("{id}/MachineSpiralContents")]
+        public IEnumerable<MachineSpiralModel> GetSpiralContentsById(int id){
+            MachineSpiralModel[] data = new MachineSpiralModel[0];
+
+            try
+            {
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
+                if (dbMachine != null){
+                    data = _context.MachineSpiral.Where(d => d.MachineId == dbMachine.Id)
+                        .Select(d => new MachineSpiralModel{
+                            Id = d.Id,
+                            ActiveQuantity = d.ActiveQuantity,
+                            ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                            ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                            ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                            ItemGroupId = d.ItemGroupId,
+                            ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                            ItemId = d.ItemId,
+                            ItemName = d.Item != null ? d.Item.ItemName : "",
+                            MachineId = d.MachineId,
+                            IsEnabled = d.IsEnabled,
+                            PosOrders = d.PosOrders,
+                            IsInFault = d.IsInFault,
+                            Capacity = d.Capacity,
+                            PosX = d.PosX,
+                            PosY = d.PosY,
+                        }).ToArray();
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}/Spirals/{spiralNo}/Consumings")]
         public MachineItemConsumeModel[] GetSpiralConsumings(int id, int spiralNo)
         {
