@@ -282,8 +282,8 @@ namespace MachManager.Controllers
                 if (dbUser == null)
                     throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
 
-                if (!string.Equals(dbUser.EmployeePassword, model.Password))
-                    throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
+                // if (!string.Equals(dbUser.EmployeePassword, model.Password))
+                //     throw new Exception(_translator.Translate(Expressions.WrongPassword, _userLanguage));
 
                 var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.Id, MgAuthType.Employee);
 

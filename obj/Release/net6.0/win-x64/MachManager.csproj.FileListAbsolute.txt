@@ -392,10 +392,10 @@
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/MachManager.pdb
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/MachManager.genruntimeconfig.cache
 /home/hakan/Projects/MetaGanos/MachManager/obj/Release/net6.0/win-x64/ref/MachManager.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.422.16404.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/ClosedXML.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/DocumentFormat.OpenXml.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/ExcelNumberFormat.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/Microsoft.Win32.SystemEvents.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.Drawing.Common.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.IO.Packaging.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.522.21309.dll
