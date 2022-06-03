@@ -251,8 +251,11 @@ namespace MachManager.Controllers
                 {
                     var stdHexKey = Convert.ToInt64(model.Login).ToString("X2");
                     possibleKeys.Add(stdHexKey);
-                    if (stdHexKey.Length > 8)
+                    if (stdHexKey.Length > 8){
                         possibleKeys.Add(stdHexKey.Substring(0, 8));
+                        possibleKeys.Add(stdHexKey.Substring(2, 8));
+                    }
+                        
                     
                     // calc and store reversed version
                     var rawHexKey = stdHexKey.Length >= 10 ? stdHexKey.Substring(2,8) : stdHexKey;
