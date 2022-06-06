@@ -253,7 +253,7 @@ namespace MachManager.Controllers
                     possibleKeys.Add(stdHexKey);
                     if (stdHexKey.Length > 8){
                         possibleKeys.Add(stdHexKey.Substring(0, 8));
-                        possibleKeys.Add(stdHexKey.Substring(2, 8));
+                        // possibleKeys.Add(stdHexKey.Substring(2, 8));
                     }
                         
                     
@@ -268,8 +268,31 @@ namespace MachManager.Controllers
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(reversedHexKey))
+                    if (!string.IsNullOrEmpty(reversedHexKey)){
                         possibleKeys.Add(reversedHexKey);
+                        try
+                        {
+                            var hexToDecKey = Convert.ToInt32(reversedHexKey, 16);
+                            possibleKeys.Add(hexToDecKey.ToString());
+                        }
+                        catch (System.Exception)
+                        {
+                            
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(rawHexKey)){
+                        try
+                        {
+                            var hexToDecKey = Convert.ToInt32(rawHexKey, 16);
+                            possibleKeys.Add(hexToDecKey.ToString());
+                        }
+                        catch (System.Exception)
+                        {
+                            
+                        }
+                    }
+
                 }
                 catch (System.Exception)
                 {
