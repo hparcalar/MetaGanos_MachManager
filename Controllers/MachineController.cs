@@ -547,6 +547,41 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
+        [HttpGet]
+        [Route("{id}/EmptySpiral/{spiralId}")]
+        public BusinessResult EmptySpiral(int id, int spiralId){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.Machine.FirstOrDefault(d => d.Id == id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.PosOrders == spiralId && d.MachineId == id);
+                if (dbSpiral == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                dbSpiral.ItemId = null;
+                dbSpiral.ItemCategoryId = null;
+                dbSpiral.ActiveQuantity = 0;
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbSpiral.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         [Route("{id}/LoadSpiral")]
         public BusinessResult LoadSpiral(int id, LoadSpiralModel model){
