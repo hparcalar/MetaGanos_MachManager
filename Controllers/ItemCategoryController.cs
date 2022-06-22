@@ -184,6 +184,9 @@ namespace MachManager.Controllers
 
                 model.MapTo(dbObj);
 
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbObj.Id;
@@ -210,6 +213,9 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 _context.ItemCategory.Remove(dbObj);
+
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result=true;

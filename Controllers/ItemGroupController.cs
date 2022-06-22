@@ -133,6 +133,12 @@ namespace MachManager.Controllers
 
                 model.MapTo(dbObj);
 
+                if (model.ItemCategoryId > 0){
+                    var dbCat = _context.ItemCategory.FirstOrDefault(d => d.Id == model.ItemCategoryId);
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbCat.PlantId);
+                    dbPlant.LastUpdateDate = DateTime.Now;
+                }
+
                 _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbObj.Id;
@@ -157,6 +163,12 @@ namespace MachManager.Controllers
                 var dbObj = _context.ItemGroup.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (dbObj.ItemCategoryId > 0){
+                    var dbCat = _context.ItemCategory.FirstOrDefault(d => d.Id == dbObj.ItemCategoryId);
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbCat.PlantId);
+                    dbPlant.LastUpdateDate = DateTime.Now;
+                }
 
                 _context.ItemGroup.Remove(dbObj);
 

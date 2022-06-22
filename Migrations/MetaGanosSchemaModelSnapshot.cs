@@ -960,6 +960,9 @@ namespace MachManager.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("LastUpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("PlantCode")
                         .HasColumnType("text");
 

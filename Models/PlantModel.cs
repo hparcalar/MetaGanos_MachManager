@@ -8,6 +8,7 @@ namespace MachManager.Models{
         public string PlantLogo { get; set; } = "";
         public Nullable<int> DealerId { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public DateTime? LastUpdateDate { get; set; }
 
         #region VISUAL ELEMENTS
         public string DealerCode { get; set; }

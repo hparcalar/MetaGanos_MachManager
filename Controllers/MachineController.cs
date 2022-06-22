@@ -17,6 +17,8 @@ using MachManager.Helpers;
 using Microsoft.AspNetCore.StaticFiles;
 using MachManager.Business;
 using MachManager.Models.ReportContainers;
+using ClosedXML;
+using ClosedXML.Excel;
 
 namespace MachManager.Controllers
 {
@@ -397,6 +399,7 @@ namespace MachManager.Controllers
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
                         ConsumedDate = d.ConsumedDate.Value,
+                        SpiralNo = d.SpiralNo,
                     })
                     .Select(d => new MachineConsumeSummary{
                         MachineId = d.Key.MachineId,
@@ -412,6 +415,7 @@ namespace MachManager.Controllers
                         ItemCategoryCode = d.Key.ItemCategoryCode,
                         ItemCategoryName = d.Key.ItemCategoryName,
                         ConsumedDate = d.Key.ConsumedDate,
+                        SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
                     .OrderBy(d => d.ConsumedDate)
@@ -425,6 +429,125 @@ namespace MachManager.Controllers
             return data;
         }
 
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("ExcelConsumeReport")]
+        public IActionResult ExcelConsumeReport(MachineConsumeFilter filter){
+            try
+            {
+            #region PREPARE DATA
+            MachineConsumeAbs[] data = new MachineConsumeAbs[0];
+            try
+            {
+                data = _context.MachineItemConsume
+                    .Where(d =>
+                        (filter == null || filter.MachineId == null || filter.MachineId.Length == 0 || filter.MachineId.Contains(d.MachineId ?? 0))
+                        &&
+                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)))
+                        &&
+                        (filter == null || filter.StartDate == null || (filter.StartDate <= d.ConsumedDate && filter.EndDate >= d.ConsumedDate))
+                        &&
+                        (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
+                        &&
+                        (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
+                        &&
+                        (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
+                    )
+                    .GroupBy(d => new {
+                        MachineCode = d.Machine.MachineCode,
+                        MachineName = d.Machine.MachineName,
+                        ItemCode = d.Item.ItemCode,
+                        ItemName = d.Item.ItemName,
+                        ItemCategoryCode = d.Item.ItemCategory.ItemCategoryCode,
+                        ItemCategoryName = d.Item.ItemCategory.ItemCategoryName,
+                        EmployeeCode = d.Employee.EmployeeCode,
+                        EmployeeName = d.Employee.EmployeeName,
+                        MachineId = d.MachineId,
+                        ItemId = d.ItemId,
+                        EmployeeId = d.EmployeeId,
+                        PlantId = d.Machine.PlantId,
+                        ConsumedDate = d.ConsumedDate.Value,
+                        SpiralNo = d.SpiralNo,
+                    })
+                    .Select(d => new MachineConsumeSummary{
+                        MachineId = d.Key.MachineId,
+                        EmployeeId = d.Key.EmployeeId,
+                        PlantId = d.Key.PlantId,
+                        ItemId = d.Key.ItemId,
+                        MachineCode = d.Key.MachineCode,
+                        MachineName = d.Key.MachineName,
+                        EmployeeCode = d.Key.EmployeeCode,
+                        EmployeeName = d.Key.EmployeeName,
+                        ItemCode = d.Key.ItemCode,
+                        ItemName = d.Key.ItemName,
+                        ItemCategoryCode = d.Key.ItemCategoryCode,
+                        ItemCategoryName = d.Key.ItemCategoryName,
+                        ConsumedDate = d.Key.ConsumedDate,
+                        SpiralNo = d.Key.SpiralNo,
+                        TotalConsumed = d.Sum(m => m.ConsumedCount),
+                    })
+                    .OrderBy(d => d.ConsumedDate)
+                    .ToList()
+                    .Select(d => new MachineConsumeAbs {
+                        ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
+                        ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
+                        EmployeeName = d.EmployeeName,
+                        MachineName = d.MachineName,
+                        ItemCategoryName = d.ItemCategoryName,
+                        ItemName = d.ItemName,
+                        SpiralNo = d.SpiralNo,
+                        TotalConsumed = d.TotalConsumed,
+                    }).ToArray();
+            }
+            catch
+            {
+                
+            }
+            #endregion
+
+            #region PREPARE EXCEL FILE
+            byte[] excelFile = new byte[0];
+
+            using (var workbook = new XLWorkbook()) {
+                var worksheet = workbook.Worksheets.Add("Tüketim Raporu");
+
+                worksheet.Cell(1,1).Value = "Tarih";
+                worksheet.Cell(1,2).Value = "Saat";
+                worksheet.Cell(1,3).Value = "Personel";
+                worksheet.Cell(1,4).Value = "Makine";
+                worksheet.Cell(1,5).Value = "Kategori";
+                worksheet.Cell(1,6).Value = "Stok";
+                worksheet.Cell(1,7).Value = "Spiral No";
+                worksheet.Cell(1,8).Value = "Miktar";
+
+                worksheet.Cell(2,1).InsertData(data);
+
+                worksheet.Columns().AdjustToContents();
+
+                var titlesStyle = workbook.Style;
+                titlesStyle.Font.Bold = true;
+                titlesStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Row(1).Style = titlesStyle;
+
+                using (MemoryStream memoryStream = new MemoryStream()) {
+                    workbook.SaveAs(memoryStream);
+                    excelFile = memoryStream.ToArray();
+                }
+
+                return Ok(excelFile);
+            }
+
+            #endregion
+            
+            }
+            catch (System.Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(MachineModel model){
@@ -433,6 +556,10 @@ namespace MachManager.Controllers
 
             try
             {
+                if ((model.PlantId ?? 0) <= 0){
+                    throw new Exception(_translator.Translate(Expressions.PlantDoesntExists, _userLanguage));
+                }
+
                 var dbObj = _context.Machine.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
                     dbObj = new Machine();
@@ -462,6 +589,9 @@ namespace MachManager.Controllers
                         _context.MachineSpiral.Add(dbSpiral);
                     }
                 }
+
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -504,6 +634,10 @@ namespace MachManager.Controllers
                     }   
 
                     dbMachine.StartVideoPath = fileName;
+                    
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    dbPlant.LastUpdateDate = DateTime.Now;
+
                     _context.SaveChanges();
                 }
 
@@ -564,6 +698,9 @@ namespace MachManager.Controllers
                 if (dbSpiral == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 dbSpiral.ItemId = null;
                 dbSpiral.ItemCategoryId = null;
                 dbSpiral.ActiveQuantity = 0;
@@ -608,6 +745,9 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.SpiralCapacityOverflowed, _userLanguage));
 
                 dbSpiral.ActiveQuantity = (dbSpiral.ActiveQuantity ?? 0) + (model.Quantity ?? 0);
+
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -676,6 +816,9 @@ namespace MachManager.Controllers
                     }
                 }
 
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 _context.SaveChanges();
                 result.Result = true;
             }
@@ -720,7 +863,7 @@ namespace MachManager.Controllers
                 var dbCreditList = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId
                     && d.ItemCategoryId == dbItem.ItemCategoryId).ToArray();
                 var dbCredit = dbCreditList.FirstOrDefault(d => 
-                    (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
+                    (d.ItemId == null || d.ItemId == dbItem.Id) && (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
                 if (dbCredit == null || dbCredit.RangeCredit <= 0)
                     throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
 
@@ -746,6 +889,10 @@ namespace MachManager.Controllers
                     ItemGroupId = dbItem.ItemGroupId,
                     ItemCategoryId = dbItem.ItemCategoryId,
                 });
+
+                var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result = true;

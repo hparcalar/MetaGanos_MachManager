@@ -78,6 +78,32 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        [Route("LastUpdate/{dealerCode}/{plantCode}")]
+        public string GetLastUpdate(string dealerCode, string plantCode){
+            string lastUpdateData = "";
+            try
+            {
+                var dbDealer = _context.Dealer.FirstOrDefault(d => d.DealerCode == dealerCode);
+                if (dbDealer == null)
+                    throw new Exception("");
+
+                var dbPlant = _context.Plant.Where(d => d.PlantCode == plantCode && d.DealerId == dbDealer.Id).Select(d => new PlantModel{
+                        LastUpdateDate = d.LastUpdateDate
+                    }).FirstOrDefault();
+
+                if (dbPlant != null && dbPlant.LastUpdateDate != null){
+                    lastUpdateData = string.Format("{0:yyyy-MM-dd HH:mm:ss}", dbPlant.LastUpdateDate);
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            return lastUpdateData;
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public PlantModel Get(int id)
         {

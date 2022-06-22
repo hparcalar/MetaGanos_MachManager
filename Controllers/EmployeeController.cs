@@ -277,6 +277,9 @@ namespace MachManager.Controllers
 
                 model.MapTo(dbObj);
 
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbObj.Id;
@@ -307,7 +310,7 @@ namespace MachManager.Controllers
                 model.UpdateLiveRangeData(_context);
 
                 var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId);
+                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId && d.ItemId == model.ItemId);
                 if (dbCredit == null){
                     dbCredit = new EmployeeCredit{
                         Employee = dbObj,
@@ -343,6 +346,9 @@ namespace MachManager.Controllers
                 };
                 _context.CreditLoadHistory.Add(dbLoadHistory);
 
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
                 result.Result=true;
@@ -371,13 +377,15 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
                 }
 
-                var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId);
+                var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == model.Id);
                 if (dbCredit == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 model.UpdateLiveRangeData(_context);
                 model.MapTo(dbCredit);
+
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
@@ -701,7 +709,7 @@ namespace MachManager.Controllers
                                     var dbDpt = _context.Department.FirstOrDefault(d => (d.DepartmentCode == dtDpt
                                         || d.DepartmentName == dtDpt) && d.PlantId == model.PlantId);
                                     if (dbDpt == null)
-                                        newDepartmentList.FirstOrDefault(d => (d.DepartmentCode == dtDpt 
+                                        dbDpt = newDepartmentList.FirstOrDefault(d => (d.DepartmentCode == dtDpt 
                                             || d.DepartmentName == dtDpt) && d.PlantId == model.PlantId);
                                     if (dbDpt == null){
                                         dbDpt = new Department{
@@ -719,7 +727,7 @@ namespace MachManager.Controllers
                                     if (!string.IsNullOrEmpty(dtCard)){
                                         dbCard = _context.EmployeeCard.FirstOrDefault(d => d.CardCode == dtCard && d.PlantId == model.PlantId);
                                         if (dbCard == null)
-                                            newCardList.FirstOrDefault(d => d.CardCode == dtCard && d.PlantId == model.PlantId);
+                                            dbCard = newCardList.FirstOrDefault(d => d.CardCode == dtCard && d.PlantId == model.PlantId);
                                         if (dbCard == null){
                                             dbCard = new EmployeeCard{
                                                 CardCode = dtCard,
@@ -806,6 +814,10 @@ namespace MachManager.Controllers
 
                 _context.CreditLoadHistory.Remove(dbObj);
 
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 _context.SaveChanges();
                 result.Result=true;
             }
@@ -833,6 +845,10 @@ namespace MachManager.Controllers
 
                 _context.EmployeeCredit.Remove(dbObj);
 
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
                 _context.SaveChanges();
                 result.Result=true;
             }
@@ -858,6 +874,9 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 _context.Employee.Remove(dbObj);
+
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result=true;

@@ -19,6 +19,7 @@ namespace MachManager.Models.ReportContainers{
         public string PlantName { get; set; }
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
+        public int? SpiralNo { get; set; }
         public DateTime? ConsumedDate { get; set; }
     }
 }
