@@ -249,13 +249,46 @@ namespace MachManager.Controllers
                 // check hex key chars length and store standart version
                 try
                 {
-                    var stdHexKey = Convert.ToInt64(model.Login).ToString("X2");
+                    long tmpInt = 0;
+                    var stdHexKey = Int64.TryParse(model.Login, out tmpInt) ? Convert.ToInt64(model.Login).ToString("X2") : model.Login;
+                    var currentHexKey = model.Login;
+
+                    // if read value is hex string
+                    try
+                    {
+                        possibleKeys.Add(Convert.ToUInt64(model.Login, 16).ToString());
+                    }
+                    catch (System.Exception)
+                    {
+                        
+                    }
+
+                    // if read value is reversed hex string
+                    try
+                    {
+                        var revHex = Convert.ToUInt64(model.Login, 16).ToString();
+                        string trueHex = "";
+                        if (revHex.Length % 2 == 0){
+                            int hexIndex = revHex.Length - 2;
+                            while (hexIndex >= 0){
+                                trueHex += revHex.Substring(hexIndex, 2);
+                                hexIndex -= 2;
+                            }
+                        }
+
+                        var trueHexStr = Convert.ToUInt64(trueHex, 16);
+                        possibleKeys.Add(trueHexStr.ToString());
+                    }
+                    catch (System.Exception)
+                    {
+                        
+                    }
+                    
                     possibleKeys.Add(stdHexKey);
                     if (stdHexKey.Length > 8){
                         possibleKeys.Add(stdHexKey.Substring(0, 8));
                         // possibleKeys.Add(stdHexKey.Substring(2, 8));
                     }
-                        
                     
                     // calc and store reversed version
                     var rawHexKey = stdHexKey.Length >= 10 ? stdHexKey.Substring(2,8) : stdHexKey;
@@ -272,7 +305,7 @@ namespace MachManager.Controllers
                         possibleKeys.Add(reversedHexKey);
                         try
                         {
-                            var hexToDecKey = Convert.ToInt32(reversedHexKey, 16);
+                            var hexToDecKey = Convert.ToUInt32(reversedHexKey, 16);
                             possibleKeys.Add(hexToDecKey.ToString());
                         }
                         catch (System.Exception)
@@ -284,7 +317,7 @@ namespace MachManager.Controllers
                     if (!string.IsNullOrEmpty(rawHexKey)){
                         try
                         {
-                            var hexToDecKey = Convert.ToInt32(rawHexKey, 16);
+                            var hexToDecKey = Convert.ToUInt32(rawHexKey, 16);
                             possibleKeys.Add(hexToDecKey.ToString());
                         }
                         catch (System.Exception)
