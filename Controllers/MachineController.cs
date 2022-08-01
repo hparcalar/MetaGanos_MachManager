@@ -369,6 +369,9 @@ namespace MachManager.Controllers
         public IEnumerable<MachineConsumeSummary> GetConsumeReport(MachineConsumeFilter filter){
             MachineConsumeSummary[] data = new MachineConsumeSummary[0];
 
+            if (filter.PlantId == null || filter.PlantId.Length == 0)
+                return data;
+
             try
             {
                 data = _context.MachineItemConsume
@@ -436,8 +439,11 @@ namespace MachManager.Controllers
         public IActionResult ExcelConsumeReport(MachineConsumeFilter filter){
             try
             {
+                
+
             #region PREPARE DATA
             MachineConsumeAbs[] data = new MachineConsumeAbs[0];
+           
             try
             {
                 data = _context.MachineItemConsume
@@ -499,6 +505,9 @@ namespace MachManager.Controllers
                         SpiralNo = d.SpiralNo,
                         TotalConsumed = d.TotalConsumed,
                     }).ToArray();
+
+                     if (filter.PlantId == null || filter.PlantId.Length == 0)
+                        data = new MachineConsumeAbs[0];
             }
             catch
             {

@@ -398,4 +398,4 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/Microsoft.Win32.SystemEvents.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.Drawing.Common.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.IO.Packaging.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.522.21309.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.722.32202.dll

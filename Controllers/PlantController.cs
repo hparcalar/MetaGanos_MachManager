@@ -67,6 +67,7 @@ namespace MachManager.Controllers
                         IsActive = d.IsActive,
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
+                        Last4CharForCardRead = d.Last4CharForCardRead,
                     }).FirstOrDefault();
             }
             catch
@@ -121,6 +122,7 @@ namespace MachManager.Controllers
                         IsActive = d.IsActive,
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
+                        Last4CharForCardRead = d.Last4CharForCardRead,
                     }).FirstOrDefault();
             }
             catch

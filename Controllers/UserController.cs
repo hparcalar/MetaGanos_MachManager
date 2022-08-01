@@ -244,6 +244,11 @@ namespace MachManager.Controllers
             try
             {
                 List<string> possibleKeys = new List<string>(){ model.Login };
+
+                bool last4Char = false;
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.PlantCode == model.PlantCode);
+                if (dbPlant != null && dbPlant.Last4CharForCardRead == true)
+                    last4Char = true;
                 
                 #region CALCULATE HEX KEY POSSIBILITES
                 // check hex key chars length and store standart version
@@ -256,7 +261,11 @@ namespace MachManager.Controllers
                     // if read value is hex string
                     try
                     {
-                        possibleKeys.Add(Convert.ToUInt64(model.Login, 16).ToString());
+                        string decStr = Convert.ToUInt64(model.Login, 16).ToString();
+                        possibleKeys.Add(decStr);
+
+                        if (last4Char)
+                            possibleKeys.Add(decStr.Substring(decStr.Length - 4));
                     }
                     catch (System.Exception)
                     {
@@ -278,6 +287,9 @@ namespace MachManager.Controllers
 
                         var trueHexStr = Convert.ToUInt64(trueHex, 16);
                         possibleKeys.Add(trueHexStr.ToString());
+
+                        if (last4Char)
+                            possibleKeys.Add(trueHexStr.ToString().Substring(trueHexStr.ToString().Length - 4));
                     }
                     catch (System.Exception)
                     {
@@ -287,6 +299,9 @@ namespace MachManager.Controllers
                     possibleKeys.Add(stdHexKey);
                     if (stdHexKey.Length > 8){
                         possibleKeys.Add(stdHexKey.Substring(0, 8));
+
+                        if (last4Char)
+                            possibleKeys.Add(stdHexKey.Substring(stdHexKey.Length - 4));
                         // possibleKeys.Add(stdHexKey.Substring(2, 8));
                     }
                     
@@ -307,6 +322,9 @@ namespace MachManager.Controllers
                         {
                             var hexToDecKey = Convert.ToUInt32(reversedHexKey, 16);
                             possibleKeys.Add(hexToDecKey.ToString());
+
+                            if (last4Char)
+                                possibleKeys.Add(hexToDecKey.ToString().Substring(hexToDecKey.ToString().Length - 4));
                         }
                         catch (System.Exception)
                         {
@@ -319,6 +337,9 @@ namespace MachManager.Controllers
                         {
                             var hexToDecKey = Convert.ToUInt32(rawHexKey, 16);
                             possibleKeys.Add(hexToDecKey.ToString());
+
+                            if (last4Char)
+                                possibleKeys.Add(hexToDecKey.ToString().Substring(hexToDecKey.ToString().Length - 4));
                         }
                         catch (System.Exception)
                         {

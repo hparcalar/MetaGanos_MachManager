@@ -63,6 +63,7 @@ namespace MachManager.Business{
                         IsActive = d.IsActive,
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
+                        Last4CharForCardRead = d.Last4CharForCardRead,
                     }).OrderBy(d => d.PlantCode).ToArray();
             }
             catch (System.Exception)

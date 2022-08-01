@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "y1qJlPYydD2N/lBCB4/M6niOgqUMnYUN5l0OlFhcFKLLyfW2hzUXvCmdjNUyytA+jKnVH+Xz8JZPJwXib+INDw==",
+  "dgSpecHash": "S/7nUe3x0mkggeOpzkocyV0L0OeyoxyBWHvCahHsVYcC3sUfijyOYiVuGjvx9RMwosJpJV3rB5tNbDzn/mU+jA==",
   "success": true,
   "projectFilePath": "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj",
   "expectedPackageFiles": [
@@ -170,9 +170,9 @@
     "/root/.nuget/packages/system.threading.timer/4.3.0/system.threading.timer.4.3.0.nupkg.sha512",
     "/root/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
     "/root/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
-    "/root/.nuget/packages/microsoft.netcore.app.runtime.win-x64/6.0.5/microsoft.netcore.app.runtime.win-x64.6.0.5.nupkg.sha512",
-    "/root/.nuget/packages/microsoft.aspnetcore.app.runtime.win-x64/6.0.5/microsoft.aspnetcore.app.runtime.win-x64.6.0.5.nupkg.sha512",
-    "/root/.nuget/packages/microsoft.netcore.app.host.win-x64/6.0.5/microsoft.netcore.app.host.win-x64.6.0.5.nupkg.sha512"
+    "/root/.nuget/packages/microsoft.netcore.app.runtime.win-x64/6.0.7/microsoft.netcore.app.runtime.win-x64.6.0.7.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.aspnetcore.app.runtime.win-x64/6.0.7/microsoft.aspnetcore.app.runtime.win-x64.6.0.7.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.netcore.app.host.win-x64/6.0.7/microsoft.netcore.app.host.win-x64.6.0.7.nupkg.sha512"
   ],
   "logs": []
 }
