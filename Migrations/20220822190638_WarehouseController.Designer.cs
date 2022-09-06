@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220822190638_WarehouseController")]
+    partial class WarehouseController
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -524,9 +526,6 @@ namespace MachManager.Migrations
                     b.Property<int?>("ItemGroupId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("ItemImage")
-                        .HasColumnType("text");
-
                     b.Property<string>("ItemName")
                         .HasColumnType("text");
 
@@ -843,9 +842,6 @@ namespace MachManager.Migrations
                     b.Property<int?>("SpiralNo")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
@@ -855,8 +851,6 @@ namespace MachManager.Migrations
                     b.HasIndex("ItemId");
 
                     b.HasIndex("MachineId");
-
-                    b.HasIndex("WarehouseId");
 
                     b.ToTable("MachineItemConsume");
                 });
@@ -1512,10 +1506,6 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("MachineId");
 
-                    b.HasOne("MachManager.Context.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId");
-
                     b.Navigation("Employee");
 
                     b.Navigation("Item");
@@ -1523,8 +1513,6 @@ namespace MachManager.Migrations
                     b.Navigation("ItemGroup");
 
                     b.Navigation("Machine");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("MachManager.Context.MachineSpiral", b =>

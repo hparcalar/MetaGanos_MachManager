@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using MachManager.Context;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using MachManager.Models;
 using MachManager.Models.Operational;
 using MachManager.Helpers;
@@ -36,6 +38,32 @@ namespace MachManager.Business{
                         PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
                         PlantName = d.Plant != null ? d.Plant.PlantName : "",
                     }).OrderBy(d => d.ItemCategoryCode).ToArray();
+
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        public WarehouseModel[] GetWarehouses(int[] plants = null){
+            WarehouseModel[] data = new WarehouseModel[0];
+
+            try
+            {
+                data = _context.Warehouse
+                .Where(d => plants == null || plants.Length == 0 || (plants != null && plants.Contains((d.PlantId ?? 0))))
+                    .Select(d => new WarehouseModel{
+                        Id = d.Id,
+                        DealerId = d.DealerId,
+                        PlantId = d.PlantId,
+                        WarehouseCode = d.WarehouseCode,
+                        WarehouseName = d.WarehouseName,
+                        IsActive = d.IsActive,
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).OrderBy(d => d.WarehouseCode).ToArray();
 
             }
             catch (System.Exception)
@@ -206,7 +234,7 @@ namespace MachManager.Business{
             return data;
         }
 
-        public ItemModel[] GetItems(int[] plants = null, int[] groups = null){
+        public ItemModel[] GetItems(int[] plants = null, int[] groups = null, string search = ""){
             ItemModel[] data = new ItemModel[0];
 
             try
@@ -214,6 +242,13 @@ namespace MachManager.Business{
                 data = _context.Item
                     .Where(d => (plants == null || plants.Length == 0 || (plants != null && d.ItemCategory != null 
                         && plants.Contains(d.ItemCategory.PlantId ?? 0)))
+                        &&
+                        (search.Length == 0 || 
+                            (
+                                EF.Functions.ILike(d.ItemCode, $"%{search}%") || EF.Functions.ILike(d.ItemName, $"%{search}%")
+                                // d.ItemCode.Contains(search) || d.ItemName.Contains(search)
+                            )
+                        )
                         &&
                         (groups == null || groups.Length == 0 || (groups != null && groups.Contains(d.ItemGroupId ?? 0)))
                         )

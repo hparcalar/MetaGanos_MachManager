@@ -4,6 +4,7 @@ namespace MachManager.Models.ReportContainers{
         public string ConsumedTime { get; set; }
         public string EmployeeName { get; set; }
         public string MachineName { get; set; }
+        public string WarehouseName { get; set; }
         public string ItemCategoryName { get; set; }
         public string ItemName { get; set; }
         public int? SpiralNo { get; set; }

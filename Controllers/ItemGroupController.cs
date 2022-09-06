@@ -153,7 +153,8 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [Route("{id}")]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -169,6 +170,12 @@ namespace MachManager.Controllers
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbCat.PlantId);
                     dbPlant.LastUpdateDate = DateTime.Now;
                 }
+
+                if (_context.EmployeeCreditConsume.Any(d => d.ItemGroupId == id))
+                    throw new Exception("Bu gruba ilişkin tüketim kayıtları olduğu için silinemez.");
+
+                if (_context.EmployeeCredit.Any(d => d.ItemGroupId == id))
+                    throw new Exception("Bu gruba ilişkin verilen krediler olduğu için silinemez.");
 
                 _context.ItemGroup.Remove(dbObj);
 

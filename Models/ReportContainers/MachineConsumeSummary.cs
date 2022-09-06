@@ -9,6 +9,8 @@ namespace MachManager.Models.ReportContainers{
         public int? TotalConsumed { get; set; }
         public string MachineCode { get; set; }
         public string MachineName { get; set; }
+        public string WarehouseCode { get; set; }
+        public string WarehouseName { get; set; }
         public string ItemGroupCode { get; set; }
         public string ItemGroupName { get; set; }
         public string ItemCategoryCode { get; set; }

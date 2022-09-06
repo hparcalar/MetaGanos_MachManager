@@ -378,7 +378,8 @@ namespace MachManager.Controllers
                     .Where(d =>
                         (filter == null || filter.MachineId == null || filter.MachineId.Length == 0 || filter.MachineId.Contains(d.MachineId ?? 0))
                         &&
-                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)))
+                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || 
+                            (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)) || (d.Warehouse != null && filter.PlantId.Contains(d.Warehouse.PlantId ?? 0)))
                         &&
                         (filter == null || filter.StartDate == null || (filter.StartDate <= d.ConsumedDate && filter.EndDate >= d.ConsumedDate))
                         &&
@@ -389,8 +390,8 @@ namespace MachManager.Controllers
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                     )
                     .GroupBy(d => new {
-                        MachineCode = d.Machine.MachineCode,
-                        MachineName = d.Machine.MachineName,
+                        MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
+                        MachineName = d.Machine != null ? d.Machine.MachineName : "",
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
                         ItemCategoryCode = d.Item.ItemCategory.ItemCategoryCode,
@@ -398,6 +399,8 @@ namespace MachManager.Controllers
                         EmployeeCode = d.Employee.EmployeeCode,
                         EmployeeName = d.Employee.EmployeeName,
                         MachineId = d.MachineId,
+                        WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
+                        WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
                         ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
@@ -417,6 +420,8 @@ namespace MachManager.Controllers
                         ItemName = d.Key.ItemName,
                         ItemCategoryCode = d.Key.ItemCategoryCode,
                         ItemCategoryName = d.Key.ItemCategoryName,
+                        WarehouseCode = d.Key.WarehouseCode,
+                        WarehouseName = d.Key.WarehouseName,
                         ConsumedDate = d.Key.ConsumedDate,
                         SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
@@ -450,7 +455,8 @@ namespace MachManager.Controllers
                     .Where(d =>
                         (filter == null || filter.MachineId == null || filter.MachineId.Length == 0 || filter.MachineId.Contains(d.MachineId ?? 0))
                         &&
-                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)))
+                        (filter == null || filter.PlantId == null || filter.PlantId.Length == 0 || 
+                            (d.Machine != null && filter.PlantId.Contains(d.Machine.PlantId ?? 0)) || (d.Warehouse != null && filter.PlantId.Contains(d.Warehouse.PlantId ?? 0)))
                         &&
                         (filter == null || filter.StartDate == null || (filter.StartDate <= d.ConsumedDate && filter.EndDate >= d.ConsumedDate))
                         &&
@@ -461,12 +467,14 @@ namespace MachManager.Controllers
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                     )
                     .GroupBy(d => new {
-                        MachineCode = d.Machine.MachineCode,
-                        MachineName = d.Machine.MachineName,
+                        MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
+                        MachineName = d.Machine != null ? d.Machine.MachineName : "",
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
                         ItemCategoryCode = d.Item.ItemCategory.ItemCategoryCode,
                         ItemCategoryName = d.Item.ItemCategory.ItemCategoryName,
+                        WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
+                        WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
                         EmployeeCode = d.Employee.EmployeeCode,
                         EmployeeName = d.Employee.EmployeeName,
                         MachineId = d.MachineId,
@@ -483,6 +491,8 @@ namespace MachManager.Controllers
                         ItemId = d.Key.ItemId,
                         MachineCode = d.Key.MachineCode,
                         MachineName = d.Key.MachineName,
+                        WarehouseCode = d.Key.WarehouseCode,
+                        WarehouseName = d.Key.WarehouseName,
                         EmployeeCode = d.Key.EmployeeCode,
                         EmployeeName = d.Key.EmployeeName,
                         ItemCode = d.Key.ItemCode,
@@ -500,6 +510,7 @@ namespace MachManager.Controllers
                         ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
                         EmployeeName = d.EmployeeName,
                         MachineName = d.MachineName,
+                        WarehouseName = d.WarehouseName,
                         ItemCategoryName = d.ItemCategoryName,
                         ItemName = d.ItemName,
                         SpiralNo = d.SpiralNo,

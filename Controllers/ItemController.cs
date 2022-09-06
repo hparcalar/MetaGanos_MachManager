@@ -52,6 +52,32 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("Search/{query}")]
+        public IEnumerable<ItemModel> Search(string query)
+        {
+            ResolveHeaders(Request);
+            ItemModel[] data = new ItemModel[0];
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItems(plants, null, query);
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
         [Authorize(Policy = "FactoryOfficer")]
         [HttpGet]
         [Route("Count")]
@@ -110,7 +136,8 @@ namespace MachManager.Controllers
                         UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
                         UnitTypeId = d.UnitTypeId,
                         UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
-                        ViewOrder = d.ViewOrder
+                        ViewOrder = d.ViewOrder,
+                        ItemImage = d.ItemImage,
                     }).FirstOrDefault();
             }
             catch
@@ -375,7 +402,8 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [Route("{id}")]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -391,6 +419,15 @@ namespace MachManager.Controllers
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbCat.PlantId);
                     dbPlant.LastUpdateDate = DateTime.Now;
                 }
+
+                if (_context.EmployeeCreditConsume.Any(d => d.ItemId == id))
+                    throw new Exception("Bu stoğa ilişkin tüketim kayıtları olduğu için silinemez.");
+
+                if (_context.EmployeeCredit.Any(d => d.ItemId == id))
+                    throw new Exception("Bu stoğa ilişkin verilen krediler olduğu için silinemez.");
+
+                if (_context.MachineSpiral.Any(d => d.ItemId == id))
+                    throw new Exception("Bu stoğa ilişkin spiral doluluğu olduğu için silinemez.");
 
                 _context.Item.Remove(dbObj);
 

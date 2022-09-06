@@ -3,6 +3,7 @@ namespace MachManager.Models{
         public int Id { get; set; }
         public int ConsumedCount { get; set; } = 0;
         public Nullable<int> MachineId { get; set; }
+        public Nullable<int> WarehouseId { get; set; }
 
         public Nullable<int> SpiralNo { get; set; }
         public Nullable<int> ItemGroupId { get; set; }
@@ -15,6 +16,8 @@ namespace MachManager.Models{
         public string ItemName { get; set; }
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
+        public string WarehouseCode { get; set; }
+        public string WarehouseName { get; set; }  
         #endregion
     }
 }

@@ -22,6 +22,9 @@ namespace MachManager.Context {
         [ForeignKey("Employee")]
         public Nullable<int> EmployeeId { get; set; }
 
+        [ForeignKey("Warehouse")]
+        public Nullable<int> WarehouseId { get; set; }
+
         public Nullable<DateTime> ConsumedDate { get; set; }
 
         // REFERENCES
@@ -29,5 +32,6 @@ namespace MachManager.Context {
         public virtual Employee Employee { get; set; }
         public virtual ItemGroup ItemGroup { get; set; }
         public virtual Item Item { get; set; }
+        public virtual Warehouse Warehouse { get; set; }
     }
 }

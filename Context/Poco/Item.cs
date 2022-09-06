@@ -17,6 +17,7 @@ namespace MachManager.Context {
         public decimal? Price1 { get; set; }
         public decimal? Price2 { get; set; }
         public string Explanation { get; set; } = "";
+        public string ItemImage { get; set; }
         public int ViewOrder { get; set; }
 
         [ForeignKey("ItemGroup")]

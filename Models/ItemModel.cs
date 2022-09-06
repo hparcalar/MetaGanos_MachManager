@@ -13,6 +13,7 @@ namespace MachManager.Models{
         public decimal? Price2 { get; set; }
         public string Explanation { get; set; } = "";
         public int ViewOrder { get; set; }
+        public string ItemImage { get; set; }
         public Nullable<int> ItemGroupId { get; set; }
         public Nullable<int> ItemCategoryId { get; set; }
         public Nullable<int> UnitTypeId { get; set; }

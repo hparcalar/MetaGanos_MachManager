@@ -196,6 +196,8 @@ namespace MachManager.Controllers
 
             try
             {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == id);
+
                 data = _context.EmployeeCredit.Where(d => d.EmployeeId == id)
                     .Select(d => new EmployeeCreditModel{
                         Id = d.Id,
@@ -221,6 +223,51 @@ namespace MachManager.Controllers
                         ProductIntervalType = d.ProductIntervalType,
                         SpecificRangeDates = d.SpecificRangeDates,
                     }).OrderBy(d => d.CreditLoadDate).ToArray();
+
+                bool _creditUpdated = false;
+
+                foreach (var crd in data)
+                {
+                    if (crd.CreditEndDate < DateTime.Now.Date){
+                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                        if (dbCredit != null){
+                            try
+                            {
+                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditStartDate.Value).TotalDays));
+                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value.AddDays(1);
+                                dbCredit.RangeCredit = crd.CreditByRange;
+                                dbCredit.ActiveCredit = crd.CreditByRange;
+                                dbCredit.CreditStartDate = dbCredit.CreditLoadDate.Value.Date;
+                                dbCredit.CreditEndDate = dbCredit.CreditStartDate.Value.AddDays(diffDays);
+
+                                string newRanges = "";                            
+                                DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+
+                                while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                                    newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                                    dtCurrent = dtCurrent.AddDays(1);
+                                }
+
+                                newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                                newRanges = "[" + newRanges + "]";
+                                dbCredit.SpecificRangeDates = newRanges;
+
+                                _creditUpdated = true;
+                            }
+                            catch (System.Exception)
+                            {
+                                
+                            }
+                        }
+                    }
+                }
+
+                if (_creditUpdated){
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                    dbPlant.LastUpdateDate = DateTime.Now;
+
+                    _context.SaveChanges();
+                }
             }
             catch
             {

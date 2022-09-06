@@ -116,6 +116,7 @@ namespace MachManager.Controllers
                 
             }
             
+            
             return data;
         }
 
@@ -201,7 +202,8 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [Route("{id}")]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -211,6 +213,15 @@ namespace MachManager.Controllers
                 var dbObj = _context.ItemCategory.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                 if (_context.EmployeeCreditConsume.Any(d => d.ItemCategoryId == id))
+                    throw new Exception("Bu kategoriye ilişkin tüketim kayıtları olduğu için silinemez.");
+
+                if (_context.EmployeeCredit.Any(d => d.ItemCategoryId == id))
+                    throw new Exception("Bu kategoriye ilişkin verilen krediler olduğu için silinemez.");
+
+                if (_context.ItemGroup.Any(d => d.ItemCategoryId == id))
+                    throw new Exception("Bu kategoriye ait alt gruplar olduğu için silinemez.");
 
                 _context.ItemCategory.Remove(dbObj);
 

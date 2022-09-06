@@ -11,9 +11,13 @@ namespace MachManager.Context {
 
         [ForeignKey("Dealer")]
         public Nullable<int> DealerId { get; set; }
+
+        [ForeignKey("Plant")]
+        public Nullable<int> PlantId { get; set; }
         public bool IsActive { get; set; }
 
         // REFERENCES
         public virtual Dealer Dealer { get; set; }
+        public virtual Plant Plant { get; set; }
     }
 }
