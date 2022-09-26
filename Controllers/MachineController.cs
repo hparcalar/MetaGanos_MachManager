@@ -721,6 +721,26 @@ namespace MachManager.Controllers
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
                 dbPlant.LastUpdateDate = DateTime.Now;
 
+                var qty = dbSpiral.ActiveQuantity ?? 0;
+                if (qty > 0){
+                    // find and delete proper load stamps
+                    var loadHistory = _context.MachineSpiralLoad.Where(d => d.MachineId == id && d.SpiralNo == spiralId)
+                        .OrderByDescending(d => d.LoadDate).ToArray();
+                    
+                    decimal remainingQty = qty;
+                    foreach (var item in loadHistory)
+                    {
+                        var removableQty = remainingQty > item.Quantity ? item.Quantity : remainingQty;
+                        if (removableQty > 0){
+                            _context.MachineSpiralLoad.Remove(item);
+                            remainingQty -= remainingQty;
+                        }
+
+                        if (remainingQty <= 0)
+                            break;
+                    }
+                }
+
                 dbSpiral.ItemId = null;
                 dbSpiral.ItemCategoryId = null;
                 dbSpiral.ActiveQuantity = 0;
@@ -768,6 +788,46 @@ namespace MachManager.Controllers
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
                 dbPlant.LastUpdateDate = DateTime.Now;
+
+                // add load stamp
+                var dbLoad = new MachineSpiralLoad{
+                    ItemId = dbSpiral.ItemId,
+                    LoadDate = DateTime.Now,
+                    MachineId = id,
+                    SpiralNo = model.SpiralNo,
+                    Quantity = model.Quantity,
+                    OfficerId = this._isFactoryOfficer ? this._appUserId : null,
+                };
+                _context.MachineSpiralLoad.Add(dbLoad);
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbObj.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpDelete]
+        [Route("DeleteLoadStamp/{id}")]
+        public BusinessResult DeleteLoadStamp(int id){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.MachineSpiralLoad.FirstOrDefault(d => d.Id == id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                _context.MachineSpiralLoad.Remove(dbObj);
 
                 _context.SaveChanges();
                 result.Result=true;

@@ -7,6 +7,9 @@ namespace MachManager.Models{
         public Nullable<int> PlantId { get; set; }
         public bool IsActive { get; set; }
 
+        #region VISUAL ELEMENTS
         public string PlantName { get; set; }
+        public WarehouseHotSalesCategoryModel[] HotSalesCategories { get; set; }
+        #endregion
     }
 }

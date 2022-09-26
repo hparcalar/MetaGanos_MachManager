@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20220926144528_MachineSpiralLoad")]
+    partial class MachineSpiralLoad
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -935,9 +937,6 @@ namespace MachManager.Migrations
                     b.Property<int?>("OfficerId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric");
-
                     b.Property<int?>("SpiralNo")
                         .HasColumnType("integer");
 
@@ -1241,81 +1240,6 @@ namespace MachManager.Migrations
                     b.HasIndex("PlantId");
 
                     b.ToTable("Warehouse");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseHotSalesCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ItemCategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ItemGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemCategoryId");
-
-                    b.HasIndex("ItemGroupId");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("WarehouseHotSalesCategory");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseLoad", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("LoadDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("LoadType")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("MachineId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("OfficerId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("MachineId");
-
-                    b.HasIndex("OfficerId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("WarehouseLoad");
                 });
 
             modelBuilder.Entity("MachManager.Context.AuthUnit", b =>
@@ -1787,60 +1711,6 @@ namespace MachManager.Migrations
                     b.Navigation("Dealer");
 
                     b.Navigation("Plant");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseHotSalesCategory", b =>
-                {
-                    b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
-                        .WithMany()
-                        .HasForeignKey("ItemCategoryId");
-
-                    b.HasOne("MachManager.Context.ItemGroup", "ItemGroup")
-                        .WithMany()
-                        .HasForeignKey("ItemGroupId");
-
-                    b.HasOne("MachManager.Context.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
-                    b.HasOne("MachManager.Context.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId");
-
-                    b.Navigation("Item");
-
-                    b.Navigation("ItemCategory");
-
-                    b.Navigation("ItemGroup");
-
-                    b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseLoad", b =>
-                {
-                    b.HasOne("MachManager.Context.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
-                    b.HasOne("MachManager.Context.Machine", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineId");
-
-                    b.HasOne("MachManager.Context.Officer", "Officer")
-                        .WithMany()
-                        .HasForeignKey("OfficerId");
-
-                    b.HasOne("MachManager.Context.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId");
-
-                    b.Navigation("Item");
-
-                    b.Navigation("Machine");
-
-                    b.Navigation("Officer");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("MachManager.Context.EmployeeCard", b =>

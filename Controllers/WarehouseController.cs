@@ -67,6 +67,24 @@ namespace MachManager.Controllers
                         WarehouseCode = d.WarehouseCode,
                         WarehouseName = d.WarehouseName,
                     }).FirstOrDefault();
+
+                if (data != null && data.Id > 0){
+                    data.HotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == id)
+                        .Select(d => new WarehouseHotSalesCategoryModel{
+                            Id = d.Id,
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemGroupId = d.ItemGroupId,
+                            ItemId = d.ItemId,
+                            ItemText = d.Item != null ? d.Item.ItemName :
+                                d.ItemGroup != null ? d.ItemGroup.ItemGroupName :
+                                d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        }).ToArray();
+                }
+                else
+                {
+                    data = new WarehouseModel();
+                    data.HotSalesCategories = new WarehouseHotSalesCategoryModel[0];
+                }
             }
             catch
             {
@@ -98,6 +116,24 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
                 model.MapTo(dbObj);
+
+                 // save hot sales categories
+                var oldCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == dbObj.Id).ToArray();
+                foreach (var item in oldCategories)
+                {
+                    _context.WarehouseHotSalesCategory.Remove(item);
+                }
+
+                if (model.HotSalesCategories != null){
+                    foreach (var item in model.HotSalesCategories)
+                    {
+                        var dbCategory = new WarehouseHotSalesCategory();
+                        item.MapTo(dbCategory);
+                        dbCategory.Id = 0;
+                        dbCategory.Warehouse = dbObj;
+                        _context.WarehouseHotSalesCategory.Add(dbCategory);
+                    }
+                }
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -187,6 +223,116 @@ namespace MachManager.Controllers
         }
 
 
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("{warehouseId}/LoadWarehouse")]
+        public BusinessResult LoadWarehouse(int warehouseId, LoadWarehouseModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.Warehouse.FirstOrDefault(d => d.Id == warehouseId);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                // add load stamp
+                var dbLoad = new WarehouseLoad{
+                    ItemId = model.ItemId,
+                    LoadDate = DateTime.Now,
+                    WarehouseId = warehouseId,
+                    LoadType = model.LoadType,
+                    MachineId = model.MachineId,
+                    Quantity = model.Quantity,
+                    OfficerId = this._isFactoryOfficer ? this._appUserId : null,
+                };
+                _context.WarehouseLoad.Add(dbLoad);
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbObj.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpDelete]
+        [Route("DeleteLoadStamp/{id}")]
+        public BusinessResult DeleteLoadStamp(int id){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.WarehouseLoad.FirstOrDefault(d => d.Id == id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                _context.WarehouseLoad.Remove(dbObj);
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbObj.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpGet]
+        [Route("{id}/LoadStampList")]
+        public IEnumerable<WarehouseLoadModel> GetLoadStampList(int id){
+            ResolveHeaders(Request);
+            WarehouseLoadModel[] data = new WarehouseLoadModel[0];
+
+            try
+            {
+                data = _context.WarehouseLoad.Where(d => d.WarehouseId == id)
+                    .Select(d => new WarehouseLoadModel{
+                        Id = d.Id,
+                        ItemCategoryCode = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryName = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryName : "",
+                        ItemGroupCode = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupCode : "",
+                        ItemGroupName = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupName : "",
+                        ItemCode = d.Item.ItemCode,
+                        ItemName = d.Item.ItemName,
+                        ItemId = d.ItemId,
+                        LoadDate = d.LoadDate,
+                        LoadType = d.LoadType,
+                        Quantity = d.Quantity,
+                        WarehouseId = d.WarehouseId,
+                        MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
+                        MachineId = d.MachineId,
+                        MachineName = d.Machine != null ? d.Machine.MachineName : "",
+                        LoadTypeText = d.LoadType == 1 ? "Giriş" : d.LoadType == 2 ? "Çıkış" : "",
+                    })
+                    .OrderByDescending(d => d.LoadDate)
+                    .ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
         [AllowAnonymous]
         [HttpPost]
         [Route("ConsumeReport")]
@@ -260,6 +406,71 @@ namespace MachManager.Controllers
 
             return data;
         }
+
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("ItemStatusReport")]
+        public IEnumerable<WarehouseItemStatusSummary> GetItemStatusReport(WarehouseItemStatusFilter filter){
+            WarehouseItemStatusSummary[] data = new WarehouseItemStatusSummary[0];
+
+            // if (string.IsNullOrEmpty(filter.PlantCode))
+            //     return data;
+
+            if (filter.WarehouseId == null || filter.WarehouseId <= 0)
+                return data;
+                
+            var dbWr = _context.Warehouse.FirstOrDefault(d => d.Id == filter.WarehouseId);
+            var dbPlant = dbWr.Plant;
+
+            try
+            {
+                data = _context.WarehouseLoad
+                    .Where(d =>
+                        d.WarehouseId == dbWr.Id
+                        && 
+                        (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
+                        &&
+                        (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
+                        &&
+                        (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
+                    )
+                    .GroupBy(d => new {
+                        ItemId = d.ItemId,
+                        ItemCode = d.Item.ItemCode,
+                        ItemName = d.Item.ItemName,
+                        ItemCategoryCode = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryName = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryName : "",
+                        ItemGroupCode = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupCode : "",
+                        ItemGroupName = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupName : "",
+                    })
+                    .Select(d => new WarehouseItemStatusSummary{
+                        ItemId = d.Key.ItemId,
+                        ItemCode = d.Key.ItemCode,
+                        ItemName = d.Key.ItemName,
+                        ItemCategoryCode = d.Key.ItemCategoryCode,
+                        ItemCategoryName = d.Key.ItemCategoryName,
+                        ItemGroupCode = d.Key.ItemGroupCode,
+                        ItemGroupName = d.Key.ItemGroupName,
+                        InQuantity = d.Where(m => m.LoadType == 1).Sum(m => m.Quantity) ?? 0,
+                        OutQuantity = d.Where(m => m.LoadType == 2).Sum(m => m.Quantity) ?? 0,
+                    }).ToArray();
+
+                if (data != null){
+                    foreach (var item in data)
+                    {
+                        item.TotalQuantity = item.InQuantity - item.OutQuantity;
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
 
 
         [Authorize(Policy = "FactoryOfficer")]
