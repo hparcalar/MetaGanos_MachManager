@@ -8,6 +8,7 @@ namespace MachManager.Models{
         public Nullable<int> WarehouseId { get; set; }
         public Nullable<int> OfficerId { get; set; }
         public Nullable<int> MachineId { get; set; }
+        public int? WarehouseLoadHeaderId { get; set; }
 
         #region VISUAL ELEMENTS
         public string ItemCode { get; set; }

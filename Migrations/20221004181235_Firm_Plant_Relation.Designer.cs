@@ -3,6 +3,7 @@ using System;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    partial class MetaGanosSchemaModelSnapshot : ModelSnapshot
+    [Migration("20221004181235_Firm_Plant_Relation")]
+    partial class Firm_Plant_Relation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1310,9 +1312,6 @@ namespace MachManager.Migrations
                     b.Property<int?>("WarehouseId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("WarehouseLoadHeaderId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
@@ -1323,57 +1322,7 @@ namespace MachManager.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.HasIndex("WarehouseLoadHeaderId");
-
                     b.ToTable("WarehouseLoad");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseLoadHeader", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DocumentNo")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Explanation")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("FirmId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("LoadDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("LoadOfficerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("LoadType")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("PlantId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReceiptNo")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FirmId");
-
-                    b.HasIndex("LoadOfficerId");
-
-                    b.HasIndex("PlantId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("WarehouseLoadHeader");
                 });
 
             modelBuilder.Entity("MachManager.Context.AuthUnit", b =>
@@ -1901,44 +1850,11 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("WarehouseId");
 
-                    b.HasOne("MachManager.Context.WarehouseLoadHeader", "WarehouseLoadHeader")
-                        .WithMany()
-                        .HasForeignKey("WarehouseLoadHeaderId");
-
                     b.Navigation("Item");
 
                     b.Navigation("Machine");
 
                     b.Navigation("Officer");
-
-                    b.Navigation("Warehouse");
-
-                    b.Navigation("WarehouseLoadHeader");
-                });
-
-            modelBuilder.Entity("MachManager.Context.WarehouseLoadHeader", b =>
-                {
-                    b.HasOne("MachManager.Context.Firm", "Firm")
-                        .WithMany()
-                        .HasForeignKey("FirmId");
-
-                    b.HasOne("MachManager.Context.Officer", "Officer")
-                        .WithMany()
-                        .HasForeignKey("LoadOfficerId");
-
-                    b.HasOne("MachManager.Context.Plant", "Plant")
-                        .WithMany()
-                        .HasForeignKey("PlantId");
-
-                    b.HasOne("MachManager.Context.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId");
-
-                    b.Navigation("Firm");
-
-                    b.Navigation("Officer");
-
-                    b.Navigation("Plant");
 
                     b.Navigation("Warehouse");
                 });

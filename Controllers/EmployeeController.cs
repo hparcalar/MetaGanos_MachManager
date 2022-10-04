@@ -954,7 +954,7 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -964,6 +964,17 @@ namespace MachManager.Controllers
                 var dbObj = _context.Employee.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (_context.EmployeeCreditConsume.Any(d => d.EmployeeId == id) ||
+                    _context.MachineItemConsume.Any(d => d.EmployeeId == id)){
+                        throw new Exception("Bu personele ait tüketim kayıtları bulunduğu için silme işlemi yapılamaz.");
+                    }
+
+                var credits = _context.EmployeeCredit.Where(d => d.EmployeeId == id).ToArray();
+                foreach (var item in credits)
+                {
+                    _context.EmployeeCredit.Remove(item);
+                }
 
                 _context.Employee.Remove(dbObj);
 

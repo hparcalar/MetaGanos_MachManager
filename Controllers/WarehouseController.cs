@@ -16,6 +16,8 @@ using MachManager.Helpers;
 using MachManager.Models.Constants;
 using MachManager.Models.ReportContainers;
 using MachManager.Business;
+using ClosedXML;
+using ClosedXML.Excel;
 
 namespace MachManager.Controllers
 {
@@ -414,21 +416,15 @@ namespace MachManager.Controllers
         public IEnumerable<WarehouseItemStatusSummary> GetItemStatusReport(WarehouseItemStatusFilter filter){
             WarehouseItemStatusSummary[] data = new WarehouseItemStatusSummary[0];
 
-            // if (string.IsNullOrEmpty(filter.PlantCode))
-            //     return data;
-
-            if (filter.WarehouseId == null || filter.WarehouseId <= 0)
+            if (filter.PlantId == null || filter.PlantId.Length == 0)
                 return data;
                 
-            var dbWr = _context.Warehouse.FirstOrDefault(d => d.Id == filter.WarehouseId);
-            var dbPlant = dbWr.Plant;
+            var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == filter.PlantId[0]);
 
             try
             {
                 data = _context.WarehouseLoad
                     .Where(d =>
-                        d.WarehouseId == dbWr.Id
-                        && 
                         (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
                         &&
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
@@ -459,6 +455,8 @@ namespace MachManager.Controllers
                 if (data != null){
                     foreach (var item in data)
                     {
+                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.ItemId == item.ItemId).Sum(d => d.ConsumedCount);
+                        item.OutQuantity += (consumeOuts ?? 0);
                         item.TotalQuantity = item.InQuantity - item.OutQuantity;
                     }
                 }
@@ -472,9 +470,104 @@ namespace MachManager.Controllers
         }
 
 
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("ExcelItemStatusReport")]
+        public IActionResult ExcelItemStatusReport(WarehouseItemStatusFilter filter){
+            try
+            {
+                
+            #region PREPARE DATA
+            ItemConsumeAbs[] data = new ItemConsumeAbs[0];
+                
+            var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == filter.PlantId[0]);
+
+            try
+            {
+                data = _context.WarehouseLoad
+                    .Where(d =>
+                        (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
+                        &&
+                        (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
+                        &&
+                        (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
+                    )
+                    .GroupBy(d => new {
+                        ItemId = d.ItemId,
+                        ItemCode = d.Item.ItemCode,
+                        ItemName = d.Item.ItemName,
+                        ItemCategoryCode = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryName = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryName : "",
+                        ItemGroupCode = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupCode : "",
+                        ItemGroupName = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupName : "",
+                    })
+                    .Select(d => new ItemConsumeAbs{
+                        ItemCode = d.Key.ItemCode,
+                        ItemName = d.Key.ItemName,
+                        Category = d.Key.ItemCategoryName,
+                        Group = d.Key.ItemGroupName,
+                        InQuantity = d.Where(m => m.LoadType == 1).Sum(m => m.Quantity) ?? 0,
+                        OutQuantity = d.Where(m => m.LoadType == 2).Sum(m => m.Quantity) ?? 0,
+                    }).ToArray();
+
+                if (data != null){
+                    foreach (var item in data)
+                    {
+                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.Item.ItemCode == item.ItemCode && d.Item.ItemCategory.PlantId == filter.PlantId[0]).Sum(d => d.ConsumedCount);
+                        item.OutQuantity += (consumeOuts ?? 0);
+                        item.TotalQuantity = item.InQuantity - item.OutQuantity;
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            #endregion
+
+            #region PREPARE EXCEL FILE
+            byte[] excelFile = new byte[0];
+
+            using (var workbook = new XLWorkbook()) {
+                var worksheet = workbook.Worksheets.Add("Tüketim Raporu");
+
+                worksheet.Cell(1,1).Value = "Stok Kodu";
+                worksheet.Cell(1,2).Value = "Stok Adı";
+                worksheet.Cell(1,3).Value = "Kategori";
+                worksheet.Cell(1,4).Value = "Grup";
+                worksheet.Cell(1,5).Value = "Giriş";
+                worksheet.Cell(1,6).Value = "Çıkış";
+                worksheet.Cell(1,7).Value = "Kalan";
+
+                worksheet.Cell(2,1).InsertData(data);
+
+                worksheet.Columns().AdjustToContents();
+
+                var titlesStyle = workbook.Style;
+                titlesStyle.Font.Bold = true;
+                titlesStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Row(1).Style = titlesStyle;
+
+                using (MemoryStream memoryStream = new MemoryStream()) {
+                    workbook.SaveAs(memoryStream);
+                    excelFile = memoryStream.ToArray();
+                }
+
+                return Ok(excelFile);
+            }
+
+            #endregion
+            
+            }
+            catch (System.Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -484,6 +577,9 @@ namespace MachManager.Controllers
                 var dbObj = _context.Warehouse.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (_context.WarehouseLoadHeader.Any(d => d.WarehouseId == id))
+                    throw new Exception("Bu depoya ait hareket kayıtları bulunduğu için silme işlemi yapılamaz.");
 
                 _context.Warehouse.Remove(dbObj);
 

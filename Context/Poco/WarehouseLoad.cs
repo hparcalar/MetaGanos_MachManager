@@ -10,6 +10,9 @@ namespace MachManager.Context{
         public int? LoadType { get; set; }
         public decimal? Quantity { get; set; }
 
+        [ForeignKey("WarehouseLoadHeader")]
+        public int? WarehouseLoadHeaderId { get; set; }
+
         [ForeignKey("Item")]
         public Nullable<int> ItemId { get; set; }
 
@@ -27,5 +30,6 @@ namespace MachManager.Context{
         public virtual Officer Officer { get; set; }
         public virtual Warehouse Warehouse { get; set; }
         public virtual Machine Machine { get; set; }
+        public virtual WarehouseLoadHeader WarehouseLoadHeader { get; set; }
     }
 }

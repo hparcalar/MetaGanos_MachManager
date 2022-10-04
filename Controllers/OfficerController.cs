@@ -186,7 +186,8 @@ namespace MachManager.Controllers
             return result;
         }
 
-        [HttpDelete]
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
