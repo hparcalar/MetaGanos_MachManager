@@ -7,11 +7,17 @@ using MachManager.Authentication;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+#region PGSQL
+// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
+// builder.Services.AddDbContext<MetaGanosSchema>(options =>
+//                 options.UseNpgsql(builder.Configuration.GetConnectionString("GanosData")));
+#endregion
+#region MSSQL
 builder.Services.AddDbContext<MetaGanosSchema>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("GanosData")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("GanosData")));
+#endregion
 
 // AUTO-MIGRATE ON STARTUP
 SchemaFactory.ConnectionString = builder.Configuration.GetConnectionString("GanosData");

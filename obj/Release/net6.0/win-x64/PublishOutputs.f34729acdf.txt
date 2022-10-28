@@ -352,7 +352,7 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/hostfxr.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/hostpolicy.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore_amd64_amd64_6.0.722.32202.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore_amd64_amd64_6.0.1022.47605.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordbi.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscorrc.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/msquic.dll
@@ -363,9 +363,12 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/DocumentFormat.OpenXml.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/ExcelNumberFormat.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.Data.SqlClient.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.EntityFrameworkCore.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.EntityFrameworkCore.Abstractions.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.EntityFrameworkCore.Relational.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.EntityFrameworkCore.SqlServer.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.Identity.Client.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.IdentityModel.JsonWebTokens.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.IdentityModel.Logging.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.IdentityModel.Protocols.dll
@@ -378,8 +381,13 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Swashbuckle.AspNetCore.Swagger.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Swashbuckle.AspNetCore.SwaggerGen.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Swashbuckle.AspNetCore.SwaggerUI.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Configuration.ConfigurationManager.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Drawing.Common.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.IdentityModel.Tokens.Jwt.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.IO.Packaging.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Runtime.Caching.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Security.Cryptography.ProtectedData.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Security.Permissions.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/System.Windows.Extensions.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.Data.SqlClient.SNI.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/MachManager.deps.json

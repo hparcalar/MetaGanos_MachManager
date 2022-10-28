@@ -6,7 +6,12 @@ public static class SchemaFactory {
     public static string ConnectionString { get; set; } = "";
     public static MetaGanosSchema CreateContext() {
         var optionsBuilder = new DbContextOptionsBuilder();
-        optionsBuilder.UseNpgsql(ConnectionString);
+        #region PGSQL
+        // optionsBuilder.UseNpgsql(ConnectionString);
+        #endregion
+        #region MSSQL
+        optionsBuilder.UseSqlServer(ConnectionString);
+        #endregion
         MetaGanosSchema nodeContext = new MetaGanosSchema(optionsBuilder.Options);
         return nodeContext;
     }
