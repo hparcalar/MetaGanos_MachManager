@@ -796,7 +796,7 @@ namespace MachManager.Controllers
                     MachineId = id,
                     SpiralNo = model.SpiralNo,
                     Quantity = model.Quantity,
-                    OfficerId = this._isFactoryOfficer ? this._appUserId : null,
+                    // OfficerId = this._isFactoryOfficer ? this._appUserId : null,
                 };
                 _context.MachineSpiralLoad.Add(dbLoad);
 
