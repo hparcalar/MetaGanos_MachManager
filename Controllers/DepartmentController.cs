@@ -261,7 +261,7 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
@@ -272,10 +272,19 @@ namespace MachManager.Controllers
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
+                if (_context.Employee.Any(d => d.DepartmentId == id))
+                    throw new Exception("Bu departmana ait personeller bulunduğu için silinemez.");
+
                 var categories = _context.DepartmentItemCategory.Where(d => d.DepartmentId == dbObj.Id).ToArray();
                 foreach (var item in categories)
                 {
                     _context.DepartmentItemCategory.Remove(item);
+                }
+
+                var machines = _context.DepartmentMachine.Where(d => d.DepartmentId == dbObj.Id).ToArray();
+                foreach (var item in machines)
+                {
+                    _context.DepartmentMachine.Remove(item);
                 }
 
                 _context.Department.Remove(dbObj);

@@ -304,6 +304,11 @@ namespace MachManager.Controllers
                             possibleKeys.Add(stdHexKey.Substring(stdHexKey.Length - 4));
                         // possibleKeys.Add(stdHexKey.Substring(2, 8));
                     }
+                    else
+                    {
+                        if (last4Char)
+                            possibleKeys.Add(stdHexKey.Substring(stdHexKey.Length - 4));
+                    }
                     
                     // calc and store reversed version
                     var rawHexKey = stdHexKey.Length >= 10 ? stdHexKey.Substring(2,8) : stdHexKey;

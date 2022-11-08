@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using MachManager.Context;
 using MachManager.Models;
 using MachManager.Models.Operational;
+using MachManager.Models.Parameters;
 using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
@@ -133,6 +134,27 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpPost]
+        [Route("SetPassword")]
+        public BusinessResult SetPassword(OfficerPasswordModel model){
+            BusinessResult result = new BusinessResult();
+            try
+            {
+                var dbOfc = _context.Officer.FirstOrDefault(d => d.Id == model.Id);
+                dbOfc.OfficerPassword = model.OfficerPassword;
+
+                _context.SaveChanges();
+
+                result.Result = true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result = false;
+                result.ErrorMessage = ex.Message;
+            }
+            return result;
+        }
+        
         [HttpPost]
         public BusinessResult Post(OfficerModel model){
             BusinessResult result = new BusinessResult();

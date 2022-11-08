@@ -8,15 +8,15 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 #region PGSQL
-// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Add services to the container.
-// builder.Services.AddDbContext<MetaGanosSchema>(options =>
-//                 options.UseNpgsql(builder.Configuration.GetConnectionString("GanosData")));
+//Add services to the container.
+builder.Services.AddDbContext<MetaGanosSchema>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("GanosData")));
 #endregion
 #region MSSQL
-builder.Services.AddDbContext<MetaGanosSchema>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("GanosData")));
+// builder.Services.AddDbContext<MetaGanosSchema>(options =>
+//                 options.UseSqlServer(builder.Configuration.GetConnectionString("GanosData")));
 #endregion
 
 // AUTO-MIGRATE ON STARTUP

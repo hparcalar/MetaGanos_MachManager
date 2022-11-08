@@ -7,5 +7,9 @@ namespace MachManager.Models{
         public Nullable<int> ItemId { get; set; }
         public Nullable<int> EmployeeId { get; set; }
         public Nullable<DateTime> ConsumedDate { get; set; }
+
+        #region VISUAL ELEMENTS
+        public int MakeDelete { get; set; }
+        #endregion
     }
 }

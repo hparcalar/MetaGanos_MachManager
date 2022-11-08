@@ -204,6 +204,8 @@ namespace MachManager.Business{
                     .Where(d => 
                         (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
                         &&
+                        (d.EmployeeStatus ?? 0) == 0
+                        &&
                         (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
                     )
                     .Select(d => new EmployeeModel{
@@ -356,7 +358,11 @@ namespace MachManager.Business{
             try
             {
                 dataCount = _context.Employee
-                    .Where(d => plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                    .Where(d => 
+                        (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                        &&
+                        (d.EmployeeStatus ?? 0) == 0
+                        )
                     .Count();
             }
             catch (System.Exception)

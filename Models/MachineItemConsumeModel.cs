@@ -12,12 +12,15 @@ namespace MachManager.Models{
         public Nullable<DateTime> ConsumedDate { get; set; }
 
         #region VISUAL ELEMENTS
+        public int? ItemCategoryId { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
         public string WarehouseCode { get; set; }
         public string WarehouseName { get; set; }  
+        public string ConsumeDateStr { get; set; }
+        public int MakeDelete { get; set; }
         #endregion
     }
 }

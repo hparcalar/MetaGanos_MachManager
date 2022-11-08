@@ -144,6 +144,9 @@ namespace MachManager.Controllers
                 // if (_context.ItemGroup.Any(d => d.ItemCategoryId == id))
                 //     throw new Exception("Bu kategoriye ait alt gruplar olduğu için silinemez.");
 
+                if (_context.WarehouseLoadHeader.Any(d => d.FirmId == id))
+                    throw new Exception("Bu firmaya ait stok hareket kayıtları olduğu için silinemez.");
+
                 _context.Firm.Remove(dbObj);
 
                 _context.SaveChanges();

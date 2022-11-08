@@ -387,6 +387,68 @@ namespace MachManager.Controllers
 
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
+        [Route("EditConsume")]
+        public BusinessResult EditConsume(MachineItemConsumeModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbEmp == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+
+                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == model.Id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                // update or delete related employeecreditconsume
+                var dbEmpConsume = _context.EmployeeCreditConsume.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
+                    && d.ConsumedDate == dbObj.ConsumedDate && d.ItemId == dbObj.ItemId);
+                if (dbEmpConsume != null){
+                    if (model.MakeDelete == 1){
+                        _context.EmployeeCreditConsume.Remove(dbEmpConsume);
+                    }
+                    else{
+                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
+                        if (dbItem != null){
+                            dbEmpConsume.ItemCategoryId = dbItem.ItemCategoryId;
+                            dbEmpConsume.ItemGroupId = dbItem.ItemGroupId;
+                            dbEmpConsume.ItemId = dbItem.Id;
+                        }
+                    }
+                }
+
+                // update or delete machineitemconsume
+                if (model.MakeDelete == 1){
+                    _context.MachineItemConsume.Remove(dbObj);
+                }
+                else{
+                    model.MapTo(dbObj);
+                }
+
+                // update plant data for machines shall be updated
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now;
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbObj.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
         [Route("LoadCredit")]
         public BusinessResult LoadCredit(EmployeeCreditModel model){
             BusinessResult result = new BusinessResult();

@@ -363,6 +363,49 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("GetConsume/{id}")]
+        public MachineItemConsumeModel GetConsume(int id){
+            MachineItemConsumeModel model = new MachineItemConsumeModel();
+            try
+            {
+                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == id);
+                if (dbObj != null){
+                    dbObj.MapTo(model);
+
+                    if (dbObj.EmployeeId != null){
+                        var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
+                        model.EmployeeCode = dbEmp.EmployeeCode;
+                        model.EmployeeName = dbEmp.EmployeeName;
+                    }
+
+                    if (dbObj.ConsumedDate != null)
+                        model.ConsumeDateStr = string.Format("{0:dd.MM.yyyy HH:mm}", dbObj.ConsumedDate);
+
+                    if (dbObj.ItemId != null){
+                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == dbObj.ItemId);
+                        model.ItemCategoryId = dbItem.ItemCategoryId;
+                    }
+
+                    if (dbObj.MachineId != null){
+                        var dbMac = _context.Machine.FirstOrDefault(d => d.Id == dbObj.MachineId);
+                        model.WarehouseName = dbMac.MachineName;
+                    }
+                    else if (dbObj.WarehouseId != null){
+                        var dbWr = _context.Warehouse.FirstOrDefault(d => d.Id == dbObj.WarehouseId);
+                        model.WarehouseName = dbWr.WarehouseName;
+                    }
+                }
+
+                model.MakeDelete = 0;
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            return model;
+        }
+
         [AllowAnonymous]
         [HttpPost]
         [Route("ConsumeReport")]
@@ -390,6 +433,7 @@ namespace MachManager.Controllers
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                     )
                     .GroupBy(d => new {
+                        Id = d.Id,
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
                         MachineName = d.Machine != null ? d.Machine.MachineName : "",
                         ItemCode = d.Item.ItemCode,
@@ -401,6 +445,8 @@ namespace MachManager.Controllers
                         MachineId = d.MachineId,
                         WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
+                        DepartmentCode = d.Employee.Department != null ? d.Employee.Department.DepartmentCode : "",
+                        DepartmentName = d.Employee.Department != null ? d.Employee.Department.DepartmentName : "",
                         ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
@@ -408,6 +454,7 @@ namespace MachManager.Controllers
                         SpiralNo = d.SpiralNo,
                     })
                     .Select(d => new MachineConsumeSummary{
+                        Id = d.Key.Id,
                         MachineId = d.Key.MachineId,
                         EmployeeId = d.Key.EmployeeId,
                         PlantId = d.Key.PlantId,
@@ -420,13 +467,15 @@ namespace MachManager.Controllers
                         ItemName = d.Key.ItemName,
                         ItemCategoryCode = d.Key.ItemCategoryCode,
                         ItemCategoryName = d.Key.ItemCategoryName,
+                        DepartmentCode = d.Key.DepartmentCode,
+                        DepartmentName = d.Key.DepartmentName,
                         WarehouseCode = d.Key.WarehouseCode,
                         WarehouseName = d.Key.WarehouseName,
                         ConsumedDate = d.Key.ConsumedDate,
                         SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
-                    .OrderBy(d => d.ConsumedDate)
+                    .OrderByDescending(d => d.ConsumedDate)
                     .ToArray();
             }
             catch (System.Exception)
@@ -503,7 +552,7 @@ namespace MachManager.Controllers
                         SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
-                    .OrderBy(d => d.ConsumedDate)
+                    .OrderByDescending(d => d.ConsumedDate)
                     .ToList()
                     .Select(d => new MachineConsumeAbs {
                         ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
@@ -796,7 +845,7 @@ namespace MachManager.Controllers
                     MachineId = id,
                     SpiralNo = model.SpiralNo,
                     Quantity = model.Quantity,
-                    OfficerId = this._isFactoryOfficer ? this._appUserId : null,
+                    //OfficerId = this._isFactoryOfficer ? this._appUserId : null,
                 };
                 _context.MachineSpiralLoad.Add(dbLoad);
 

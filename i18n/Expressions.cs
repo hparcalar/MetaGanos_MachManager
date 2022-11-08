@@ -177,6 +177,7 @@ namespace MachManager.i18n{
         FaultyMotors=172,
         UserInformation=173,
         ConsumptionsBasedCategory=174,
+        EmployeeCards=175,
 
     }
 
@@ -355,6 +356,7 @@ namespace MachManager.i18n{
             { Expressions.ActiveAutomats, "Aktif Otomatlar" },
             { Expressions.UserInformation, "Kullanıcı Bilgileri" },
             { Expressions.ConsumptionsBasedCategory, "Kategori Bazlı Tüketimler" },
+            { Expressions.EmployeeCards, "Personel Kartları" },
         };
     }
 }

@@ -22,6 +22,7 @@ namespace MachManager.Context {
         [ForeignKey("EmployeeCard")]
         public Nullable<int> EmployeeCardId { get; set; }
         public bool IsActive { get; set; }
+        public int? EmployeeStatus { get; set; }
 
         // REFERENCES
         public virtual Department Department { get; set; }
