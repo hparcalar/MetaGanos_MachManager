@@ -660,7 +660,7 @@ namespace MachManager.Controllers
                 }
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -705,7 +705,7 @@ namespace MachManager.Controllers
                     dbMachine.StartVideoPath = fileName;
                     
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
@@ -768,7 +768,7 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 var qty = dbSpiral.ActiveQuantity ?? 0;
                 if (qty > 0){
@@ -836,7 +836,7 @@ namespace MachManager.Controllers
                 dbSpiral.ActiveQuantity = (dbSpiral.ActiveQuantity ?? 0) + (model.Quantity ?? 0);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 // add load stamp
                 var dbLoad = new MachineSpiralLoad{
@@ -946,7 +946,7 @@ namespace MachManager.Controllers
                 }
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result = true;
@@ -1021,7 +1021,7 @@ namespace MachManager.Controllers
 
                 var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result = true;

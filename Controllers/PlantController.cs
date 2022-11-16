@@ -268,6 +268,26 @@ namespace MachManager.Controllers
 
         [HttpGet]
         [Authorize(Policy = "Machine")]
+        [Route("{id}/ItemCategoriesNonWr")]
+        public IEnumerable<ItemCategoryModel> GetItemCategoriesNonWr(int id){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItemCategories(new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Machine")]
         [Route("{id}/ItemCategories")]
         public IEnumerable<ItemCategoryModel> GetItemCategories(int id){
             ItemCategoryModel[] data = new ItemCategoryModel[0];
@@ -285,6 +305,7 @@ namespace MachManager.Controllers
 
             return data;
         }
+
 
         [HttpGet]
         [Authorize(Policy = "FactoryOfficer")]

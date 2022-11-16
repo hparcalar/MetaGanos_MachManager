@@ -41,6 +41,8 @@ namespace MachManager.Controllers
                     plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
                 else if (_isFactoryOfficer)
                     plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+                else if (_isMachine)
+                    plants = new int[]{ _appUserId };
 
                 using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
                     data = bObj.GetEmployees(plants);
@@ -157,6 +159,9 @@ namespace MachManager.Controllers
                                 while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
                                     newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
                                     dtCurrent = dtCurrent.AddDays(1);
+
+                                    if (dtCurrent == dbCredit.CreditEndDate.Value.Date)
+                                        break;
                                 }
 
                                 newRanges = newRanges.Substring(0, newRanges.Length - 1);
@@ -175,7 +180,7 @@ namespace MachManager.Controllers
 
                 if (_creditUpdated){
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == data.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
@@ -264,7 +269,7 @@ namespace MachManager.Controllers
 
                 if (_creditUpdated){
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
@@ -370,7 +375,7 @@ namespace MachManager.Controllers
                 model.MapTo(dbObj);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -431,7 +436,7 @@ namespace MachManager.Controllers
 
                 // update plant data for machines shall be updated
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -501,7 +506,7 @@ namespace MachManager.Controllers
                 _context.CreditLoadHistory.Add(dbLoadHistory);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
@@ -539,7 +544,7 @@ namespace MachManager.Controllers
                 model.MapTo(dbCredit);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
@@ -970,7 +975,7 @@ namespace MachManager.Controllers
 
                 var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -1001,7 +1006,7 @@ namespace MachManager.Controllers
 
                 var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -1041,7 +1046,7 @@ namespace MachManager.Controllers
                 _context.Employee.Remove(dbObj);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;

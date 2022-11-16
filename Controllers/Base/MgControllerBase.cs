@@ -38,6 +38,7 @@ namespace MachManager.Controllers.Base{
         protected string _userLanguage = "default";
         protected bool _isFactoryOfficer = false;
         protected bool _isDealer = false;
+        protected bool _isMachine = false;
         protected int _appUserId = 0;
 
         protected void ResolveHeaders(HttpRequest request){
@@ -56,6 +57,7 @@ namespace MachManager.Controllers.Base{
                     IEnumerable<Claim> claims = identity.Claims; 
                     this._isDealer = claims.Any(d => d.Type == ClaimTypes.Role && d.Value == "Dealer");
                     this._isFactoryOfficer = claims.Any(d => d.Type == ClaimTypes.Role && d.Value == "FactoryOfficer");
+                    this._isMachine = claims.Any(d => d.Type == ClaimTypes.Role && d.Value == "Machine");
                     
                     if (claims.Any(d => d.Type == ClaimTypes.UserData)){
                         this._appUserId = Convert.ToInt32(
