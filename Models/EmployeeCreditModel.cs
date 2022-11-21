@@ -86,6 +86,9 @@ namespace MachManager.Models{
                     }
                     else
                         this.RangeCredit = 0;
+
+                    if (this.ActiveCredit == 0)
+                        this.RangeCredit = 0;
                 }
             }
             catch (System.Exception)

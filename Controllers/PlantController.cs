@@ -267,6 +267,29 @@ namespace MachManager.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
+        [Route("{id}/Employees")]
+        public IEnumerable<EmployeeModel> GetEmployees(int id)
+        {
+            ResolveHeaders(Request);
+
+            EmployeeModel[] data = new EmployeeModel[0];
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetEmployees(new int[]{ id });
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
+        [HttpGet]
         [Authorize(Policy = "Machine")]
         [Route("{id}/ItemCategoriesNonWr")]
         public IEnumerable<ItemCategoryModel> GetItemCategoriesNonWr(int id){

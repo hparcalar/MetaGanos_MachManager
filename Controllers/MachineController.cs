@@ -451,6 +451,7 @@ namespace MachManager.Controllers
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
                         ConsumedDate = d.ConsumedDate.Value,
+                        EmployeeCardCode = d.Employee.EmployeeCard != null ? d.Employee.EmployeeCard.CardCode : "",
                         SpiralNo = d.SpiralNo,
                     })
                     .Select(d => new MachineConsumeSummary{
@@ -473,6 +474,7 @@ namespace MachManager.Controllers
                         WarehouseName = d.Key.WarehouseName,
                         ConsumedDate = d.Key.ConsumedDate,
                         SpiralNo = d.Key.SpiralNo,
+                        EmployeeCardCode = d.Key.EmployeeCardCode,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
                     .OrderByDescending(d => d.ConsumedDate)

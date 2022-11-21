@@ -543,6 +543,9 @@ namespace MachManager.Controllers
                 model.UpdateLiveRangeData(_context);
                 model.MapTo(dbCredit);
 
+                if (dbCredit.ActiveCredit == 0)
+                    dbCredit.RangeCredit = 0;
+
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
                 dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 

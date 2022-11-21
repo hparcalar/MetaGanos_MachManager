@@ -21,6 +21,7 @@ namespace MachManager.Models.ReportContainers{
         public string PlantCode { get; set; }
         public string PlantName { get; set; }
         public string EmployeeCode { get; set; }
+        public string EmployeeCardCode { get; set; }
         public string EmployeeName { get; set; }
         public string DepartmentCode { get; set; }
         public string DepartmentName { get; set; }
