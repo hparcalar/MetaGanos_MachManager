@@ -10,6 +10,7 @@ namespace MachManager.Models{
         public Nullable<DateTime> CreatedDate { get; set; }
         public DateTime? LastUpdateDate { get; set; }
         public bool? Last4CharForCardRead { get; set; }
+        public bool? AutoSpiralLoading { get; set; }
 
         #region VISUAL ELEMENTS
         public string DealerCode { get; set; }

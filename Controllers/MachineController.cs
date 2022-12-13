@@ -281,6 +281,19 @@ namespace MachManager.Controllers
                             PosX = d.PosX,
                             PosY = d.PosY,
                         }).ToArray();
+
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    if ((dbPlant.AutoSpiralLoading ?? false) == true){
+                        foreach (var item in data)
+                        {
+                            var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
+                            if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
+                                dbSpiral.ActiveQuantity = dbSpiral.Capacity;
+                            }
+                        }
+
+                        _context.SaveChanges();
+                    }
                 }
             }
             catch (System.Exception)
@@ -321,6 +334,19 @@ namespace MachManager.Controllers
                             PosX = d.PosX,
                             PosY = d.PosY,
                         }).ToArray();
+
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    if ((dbPlant.AutoSpiralLoading ?? false) == true){
+                        foreach (var item in data)
+                        {
+                            var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
+                            if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
+                                dbSpiral.ActiveQuantity = dbSpiral.Capacity;
+                            }
+                        }
+
+                        _context.SaveChanges();
+                    }
                 }
             }
             catch (System.Exception)
@@ -962,6 +988,51 @@ namespace MachManager.Controllers
             return result;
         }
 
+        [HttpPost]
+        [Route("{id}/CheckCreditsForDelivery")]
+        public BusinessResult CheckCreditsForDelivery(int id, DeliverProductModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+            try
+            {
+                // check machine spiral stock state
+                var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.MachineId == id 
+                    && d.PosOrders == model.SpiralNo);
+                if (dbSpiral == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (dbSpiral.ItemId != model.ItemId)
+                    throw new Exception(_translator.Translate(Expressions.DemandedItemIsDifferentThanExistingOne, _userLanguage));
+
+                if (dbSpiral.ActiveQuantity <= 0)
+                    throw new Exception(_translator.Translate(Expressions.SpiralIsOutOfStock, _userLanguage));
+
+                // check employee credit state
+                var dbEmployee = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbEmployee == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                
+                var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
+                if (dbItem == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                
+                var dbCreditList = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId
+                    && d.ItemCategoryId == dbItem.ItemCategoryId).ToArray();
+                var dbCredit = dbCreditList.FirstOrDefault(d => 
+                    (d.ItemId == null || d.ItemId == dbItem.Id) && (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
+                if (dbCredit == null || dbCredit.RangeCredit <= 0)
+                    throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
+
+                result.Result=true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+            return result;
+        }
+        
         [HttpPost]
         [Route("{id}/DeliverProduct")]
         public BusinessResult DeliverProduct(int id, DeliverProductModel model){

@@ -152,6 +152,60 @@ namespace MachManager.Controllers
             return result;
         }
 
+        [HttpGet]
+        [Route("{id}/ItemsNonWr")]
+        public IEnumerable<ItemModel> GetItemsNonWr(int id)
+        {
+            ItemModel[] data = new ItemModel[0];
+            try
+            {
+                List<ItemModel> properData = new List<ItemModel>();
+
+                var allData = _context.Item.Where(d => d.ItemGroupId == id).Select(d => new ItemModel{
+                        Id = d.Id,
+                        AlternatingCode1 = d.AlternatingCode1,
+                        AlternatingCode2 = d.AlternatingCode2,
+                        Barcode1 = d.Barcode1,
+                        Barcode2 = d.Barcode2,
+                        CreatedDate = d.CreatedDate,
+                        CriticalMax = d.CriticalMax,
+                        CriticalMin = d.CriticalMin,
+                        Explanation = d.Explanation,
+                        IsActive = d.IsActive,
+                        ItemImage = d.ItemImage,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.ItemCode,
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemName = d.ItemName,
+                        Price1 = d.Price1,
+                        Price2 = d.Price2,
+                        UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                        UnitTypeId = d.UnitTypeId,
+                        UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                        ViewOrder = d.ViewOrder
+                    }).OrderBy(d => d.ItemCode).ToArray();
+
+                foreach (var item in allData)
+                {
+                    if (!_context.WarehouseHotSalesCategory.Any(d => d.ItemId == item.Id))
+                        properData.Add(item);
+                }
+
+                data = properData.ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
         [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}")]
         [HttpDelete("{id}")]

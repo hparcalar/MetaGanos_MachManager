@@ -17,6 +17,7 @@ namespace MachManager.Context {
         [ForeignKey("Dealer")]
         public Nullable<int> DealerId { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public bool? AutoSpiralLoading { get; set; }
 
         // REFERENCES
         public virtual Dealer Dealer { get; set; }

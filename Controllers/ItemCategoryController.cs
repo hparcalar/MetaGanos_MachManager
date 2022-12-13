@@ -136,6 +136,7 @@ namespace MachManager.Controllers
                         Id = d.Id,
                         ItemGroupCode = d.ItemGroupCode,
                         ItemGroupName = d.ItemGroupName,
+                        GroupImage = d.GroupImage,
                     }).OrderBy(d => d.ItemGroupCode).ToArray();
 
                 foreach (var item in allData)
@@ -217,6 +218,7 @@ namespace MachManager.Controllers
                         CriticalMin = d.CriticalMin,
                         Explanation = d.Explanation,
                         IsActive = d.IsActive,
+                        ItemImage = d.ItemImage,
                         ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryId = d.ItemCategoryId,
                         ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",

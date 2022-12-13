@@ -1006,6 +1006,9 @@ namespace MachManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool?>("AutoSpiralLoading")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
 

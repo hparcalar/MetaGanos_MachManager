@@ -282,6 +282,51 @@ namespace MachManager.Controllers
             return data;
         }
 
+
+        [HttpGet]
+        [Route("{id}/FetchCredits")]
+        public IEnumerable<EmployeeCreditModel> FetchCredits(int id)
+        {
+            EmployeeCreditModel[] data = new EmployeeCreditModel[0];
+
+            try
+            {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == id);
+
+                data = _context.EmployeeCredit.Where(d => d.EmployeeId == id)
+                    .Select(d => new EmployeeCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        EmployeeId = d.EmployeeId,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                        ItemId = d.ItemId,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        CreditByRange = d.CreditByRange,
+                        RangeLength = d.RangeLength,
+                        RangeCredit = d.RangeCredit,
+                        RangeIndex = d.RangeIndex,
+                        RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
+                    }).OrderBy(d => d.CreditLoadDate).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+        
         [HttpGet]
         [Route("{id}/Credits/{creditId}")]
         public EmployeeCreditModel GetCreditInfo(int id, int creditId)
@@ -371,6 +416,42 @@ namespace MachManager.Controllers
                 if (_context.Employee.Any(d => d.EmployeeCode == model.EmployeeCode
                     && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
+
+                // detect change of department and update new credits template
+                if (model.DepartmentId != dbObj.DepartmentId){
+                    var currentCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == dbObj.Id).ToArray();
+                    foreach (var item in currentCredits)
+                    {
+                        _context.EmployeeCredit.Remove(item);
+                    }
+
+                    var sampleEmployee = _context.Employee.FirstOrDefault(d => d.DepartmentId == model.DepartmentId);
+                    if (sampleEmployee != null){
+                        var sampleCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == sampleEmployee.Id).ToArray();
+                        foreach (var item in sampleCredits)
+                        {
+                            var newCredit = new EmployeeCredit{
+                                Employee = dbObj,
+                                ActiveCredit = item.ActiveCredit,
+                                CreditByRange = item.CreditByRange,
+                                CreditEndDate = item.CreditEndDate,
+                                CreditLoadDate = item.CreditLoadDate,
+                                CreditStartDate = item.CreditStartDate,
+                                ItemId = item.ItemId,
+                                ItemCategoryId = item.ItemCategoryId,
+                                ItemGroupId = item.ItemGroupId,
+                                ProductIntervalTime = item.ProductIntervalTime,
+                                ProductIntervalType = item.ProductIntervalType,
+                                RangeCredit = item.ActiveCredit,
+                                RangeIndex = item.RangeIndex,
+                                RangeLength = item.RangeLength,
+                                RangeType = item.RangeType,
+                                SpecificRangeDates = item.SpecificRangeDates,
+                            };
+                            _context.EmployeeCredit.Add(newCredit);
+                        }
+                    }
+                }
 
                 model.MapTo(dbObj);
 

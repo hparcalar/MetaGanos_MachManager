@@ -210,7 +210,7 @@ namespace MachManager.Controllers
                     EmployeeCreditModel creditModelDomain = new EmployeeCreditModel();
                     var checkDbCredit = checkContext.EmployeeCredit.FirstOrDefault(d => d.Id == dbCredit.Id);
                     checkDbCredit.MapTo(creditModelDomain);
-                    creditModelDomain.UpdateLiveRangeData(_context);
+                    creditModelDomain.UpdateLiveRangeData(checkContext);
                     creditModelDomain.MapTo(checkDbCredit);
                     checkContext.SaveChanges();
                 }

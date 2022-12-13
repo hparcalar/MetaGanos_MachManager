@@ -68,6 +68,7 @@ namespace MachManager.Controllers
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
+                        AutoSpiralLoading = d.AutoSpiralLoading,
                     }).FirstOrDefault();
             }
             catch
@@ -123,6 +124,7 @@ namespace MachManager.Controllers
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
+                        AutoSpiralLoading = d.AutoSpiralLoading,
                     }).FirstOrDefault();
             }
             catch
@@ -298,7 +300,7 @@ namespace MachManager.Controllers
             try
             {
                 using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
-                    data = bObj.GetItemCategories(new int[]{ id });
+                    data = bObj.GetItemCategoriesNonWr(new int[]{ id });
                 }
             }
             catch (System.Exception)

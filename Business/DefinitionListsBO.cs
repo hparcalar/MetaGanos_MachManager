@@ -65,6 +65,7 @@ namespace MachManager.Business{
                         ItemCategoryCode = d.ItemCategoryCode,
                         ItemCategoryName = d.ItemCategoryName,
                         ItemChangeTime = d.ItemChangeTime,
+                        CategoryImage = d.CategoryImage,
                         ViewOrder = d.ViewOrder,
                         CreditRangeType = d.CreditRangeType,
                         CreditByRange = d.CreditByRange,
@@ -135,6 +136,7 @@ namespace MachManager.Business{
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
+                        AutoSpiralLoading = d.AutoSpiralLoading,
                     }).OrderBy(d => d.PlantCode).ToArray();
             }
             catch (System.Exception)
