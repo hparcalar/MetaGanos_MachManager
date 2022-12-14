@@ -48,6 +48,50 @@ namespace MachManager.Business{
             return data;
         }
 
+        public ItemCategoryModel[] GetItemCategoriesNonWr(int[] plants = null){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                List<ItemCategoryModel> properData = new List<ItemCategoryModel>();
+
+                var allData = _context.ItemCategory
+                .Where(d => plants == null || plants.Length == 0 || (plants != null && plants.Contains((d.PlantId ?? 0))))
+                    .Select(d => new ItemCategoryModel{
+                        Id = d.Id,
+                        ControlTimeType = d.ControlTimeType,
+                        CreatedDate = d.CreatedDate,
+                        IsActive = d.IsActive,
+                        ItemCategoryCode = d.ItemCategoryCode,
+                        ItemCategoryName = d.ItemCategoryName,
+                        ItemChangeTime = d.ItemChangeTime,
+                        ViewOrder = d.ViewOrder,
+                        CategoryImage = d.CategoryImage,
+                        CreditRangeType = d.CreditRangeType,
+                        CreditByRange = d.CreditByRange,
+                        CreditRangeLength = d.CreditRangeLength,
+                        PlantId = d.PlantId,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
+
+                foreach (var item in allData)
+                {
+                    if (!_context.WarehouseHotSalesCategory.Any(d => d.ItemCategoryId == item.Id))
+                        properData.Add(item);
+                }
+
+                data = properData.ToArray();
+
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
         public WarehouseModel[] GetWarehouses(int[] plants = null){
             WarehouseModel[] data = new WarehouseModel[0];
 
@@ -204,6 +248,8 @@ namespace MachManager.Business{
                     .Where(d => 
                         (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
                         &&
+                        (d.EmployeeStatus ?? 0) == 0
+                        &&
                         (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
                     )
                     .Select(d => new EmployeeModel{
@@ -356,7 +402,11 @@ namespace MachManager.Business{
             try
             {
                 dataCount = _context.Employee
-                    .Where(d => plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                    .Where(d => 
+                        (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                        &&
+                        (d.EmployeeStatus ?? 0) == 0
+                        )
                     .Count();
             }
             catch (System.Exception)

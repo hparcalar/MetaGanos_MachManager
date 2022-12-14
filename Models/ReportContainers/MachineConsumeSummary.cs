@@ -15,6 +15,10 @@ namespace MachManager.Models.ReportContainers{
         public string ItemGroupName { get; set; }
         public string ItemCategoryCode { get; set; }
         public string ItemCategoryName { get; set; }
+        public string EmployeeCardCode { get; set; }
+        public string DepartmentCode { get; set; }
+        public string DepartmentName { get; set; }
+        public int Id { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string PlantCode { get; set; }

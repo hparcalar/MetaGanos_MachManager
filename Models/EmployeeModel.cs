@@ -10,6 +10,7 @@ namespace MachManager.Models{
         public Nullable<int> PlantId { get; set; }
         public Nullable<int> DepartmentId { get; set; }
         public Nullable<int> EmployeeCardId { get; set; }
+        public int? EmployeeStatus { get; set; }
         public bool IsActive { get; set; }
 
         #region VISUAL ELEMENTS

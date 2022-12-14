@@ -281,6 +281,19 @@ namespace MachManager.Controllers
                             PosX = d.PosX,
                             PosY = d.PosY,
                         }).ToArray();
+
+                    // var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    // if ((dbPlant.AutoSpiralLoading ?? false) == true){
+                    //     foreach (var item in data)
+                    //     {
+                    //         var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
+                    //         if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
+                    //             dbSpiral.ActiveQuantity = dbSpiral.Capacity;
+                    //         }
+                    //     }
+
+                    //     _context.SaveChanges();
+                    // }
                 }
             }
             catch (System.Exception)
@@ -363,6 +376,49 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("GetConsume/{id}")]
+        public MachineItemConsumeModel GetConsume(int id){
+            MachineItemConsumeModel model = new MachineItemConsumeModel();
+            try
+            {
+                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == id);
+                if (dbObj != null){
+                    dbObj.MapTo(model);
+
+                    if (dbObj.EmployeeId != null){
+                        var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
+                        model.EmployeeCode = dbEmp.EmployeeCode;
+                        model.EmployeeName = dbEmp.EmployeeName;
+                    }
+
+                    if (dbObj.ConsumedDate != null)
+                        model.ConsumeDateStr = string.Format("{0:dd.MM.yyyy HH:mm}", dbObj.ConsumedDate);
+
+                    if (dbObj.ItemId != null){
+                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == dbObj.ItemId);
+                        model.ItemCategoryId = dbItem.ItemCategoryId;
+                    }
+
+                    if (dbObj.MachineId != null){
+                        var dbMac = _context.Machine.FirstOrDefault(d => d.Id == dbObj.MachineId);
+                        model.WarehouseName = dbMac.MachineName;
+                    }
+                    else if (dbObj.WarehouseId != null){
+                        var dbWr = _context.Warehouse.FirstOrDefault(d => d.Id == dbObj.WarehouseId);
+                        model.WarehouseName = dbWr.WarehouseName;
+                    }
+                }
+
+                model.MakeDelete = 0;
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            return model;
+        }
+
         [AllowAnonymous]
         [HttpPost]
         [Route("ConsumeReport")]
@@ -390,6 +446,7 @@ namespace MachManager.Controllers
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                     )
                     .GroupBy(d => new {
+                        Id = d.Id,
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
                         MachineName = d.Machine != null ? d.Machine.MachineName : "",
                         ItemCode = d.Item.ItemCode,
@@ -401,13 +458,17 @@ namespace MachManager.Controllers
                         MachineId = d.MachineId,
                         WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
+                        DepartmentCode = d.Employee.Department != null ? d.Employee.Department.DepartmentCode : "",
+                        DepartmentName = d.Employee.Department != null ? d.Employee.Department.DepartmentName : "",
                         ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
                         ConsumedDate = d.ConsumedDate.Value,
+                        EmployeeCardCode = d.Employee.EmployeeCard != null ? d.Employee.EmployeeCard.CardCode : "",
                         SpiralNo = d.SpiralNo,
                     })
                     .Select(d => new MachineConsumeSummary{
+                        Id = d.Key.Id,
                         MachineId = d.Key.MachineId,
                         EmployeeId = d.Key.EmployeeId,
                         PlantId = d.Key.PlantId,
@@ -420,13 +481,16 @@ namespace MachManager.Controllers
                         ItemName = d.Key.ItemName,
                         ItemCategoryCode = d.Key.ItemCategoryCode,
                         ItemCategoryName = d.Key.ItemCategoryName,
+                        DepartmentCode = d.Key.DepartmentCode,
+                        DepartmentName = d.Key.DepartmentName,
                         WarehouseCode = d.Key.WarehouseCode,
                         WarehouseName = d.Key.WarehouseName,
                         ConsumedDate = d.Key.ConsumedDate,
                         SpiralNo = d.Key.SpiralNo,
+                        EmployeeCardCode = d.Key.EmployeeCardCode,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
-                    .OrderBy(d => d.ConsumedDate)
+                    .OrderByDescending(d => d.ConsumedDate)
                     .ToArray();
             }
             catch (System.Exception)
@@ -503,7 +567,7 @@ namespace MachManager.Controllers
                         SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
-                    .OrderBy(d => d.ConsumedDate)
+                    .OrderByDescending(d => d.ConsumedDate)
                     .ToList()
                     .Select(d => new MachineConsumeAbs {
                         ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
@@ -568,6 +632,7 @@ namespace MachManager.Controllers
         }
 
 
+
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(MachineModel model){
@@ -611,7 +676,7 @@ namespace MachManager.Controllers
                 }
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -656,7 +721,7 @@ namespace MachManager.Controllers
                     dbMachine.StartVideoPath = fileName;
                     
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
@@ -719,7 +784,7 @@ namespace MachManager.Controllers
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 var qty = dbSpiral.ActiveQuantity ?? 0;
                 if (qty > 0){
@@ -787,7 +852,7 @@ namespace MachManager.Controllers
                 dbSpiral.ActiveQuantity = (dbSpiral.ActiveQuantity ?? 0) + (model.Quantity ?? 0);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 // add load stamp
                 var dbLoad = new MachineSpiralLoad{
@@ -897,7 +962,7 @@ namespace MachManager.Controllers
                 }
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result = true;
@@ -908,6 +973,51 @@ namespace MachManager.Controllers
                 result.ErrorMessage = ex.Message;
             }
 
+            return result;
+        }
+
+        [HttpPost]
+        [Route("{id}/CheckCreditsForDelivery")]
+        public BusinessResult CheckCreditsForDelivery(int id, DeliverProductModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+            try
+            {
+                // check machine spiral stock state
+                var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.MachineId == id 
+                    && d.PosOrders == model.SpiralNo);
+                if (dbSpiral == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                if (dbSpiral.ItemId != model.ItemId)
+                    throw new Exception(_translator.Translate(Expressions.DemandedItemIsDifferentThanExistingOne, _userLanguage));
+
+                if (dbSpiral.ActiveQuantity <= 0)
+                    throw new Exception(_translator.Translate(Expressions.SpiralIsOutOfStock, _userLanguage));
+
+                // check employee credit state
+                var dbEmployee = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbEmployee == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                
+                var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
+                if (dbItem == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                
+                var dbCreditList = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId
+                    && d.ItemCategoryId == dbItem.ItemCategoryId).ToArray();
+                var dbCredit = dbCreditList.FirstOrDefault(d => 
+                    (d.ItemId == null || d.ItemId == dbItem.Id) && (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
+                if (dbCredit == null || dbCredit.RangeCredit <= 0)
+                    throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
+
+                result.Result=true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
             return result;
         }
 
@@ -972,7 +1082,7 @@ namespace MachManager.Controllers
 
                 var dbMachine = _context.Machine.FirstOrDefault(d => d.Id == id);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result = true;
@@ -997,7 +1107,7 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);

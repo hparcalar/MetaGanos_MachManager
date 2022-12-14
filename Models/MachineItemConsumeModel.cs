@@ -10,8 +10,11 @@ namespace MachManager.Models{
         public Nullable<int> ItemId { get; set; }
         public Nullable<int> EmployeeId { get; set; }
         public Nullable<DateTime> ConsumedDate { get; set; }
+        public int? ItemCategoryId { get; set; }
 
         #region VISUAL ELEMENTS
+        public int MakeDelete { get; set; } = 0;
+        public string ConsumeDateStr { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string EmployeeCode { get; set; }

@@ -41,6 +41,8 @@ namespace MachManager.Controllers
                     plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
                 else if (_isFactoryOfficer)
                     plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+                else if (_isMachine)
+                    plants = new int[]{ _appUserId };
 
                 using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
                     data = bObj.GetEmployees(plants);
@@ -157,6 +159,9 @@ namespace MachManager.Controllers
                                 while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
                                     newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
                                     dtCurrent = dtCurrent.AddDays(1);
+
+                                    if (dtCurrent == dbCredit.CreditEndDate.Value.Date)
+                                        break;
                                 }
 
                                 newRanges = newRanges.Substring(0, newRanges.Length - 1);
@@ -175,7 +180,7 @@ namespace MachManager.Controllers
 
                 if (_creditUpdated){
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == data.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
@@ -264,10 +269,54 @@ namespace MachManager.Controllers
 
                 if (_creditUpdated){
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                    dbPlant.LastUpdateDate = DateTime.Now;
+                    dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
                 }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/FetchCredits")]
+        public IEnumerable<EmployeeCreditModel> FetchCredits(int id)
+        {
+            EmployeeCreditModel[] data = new EmployeeCreditModel[0];
+
+            try
+            {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == id);
+
+                data = _context.EmployeeCredit.Where(d => d.EmployeeId == id)
+                    .Select(d => new EmployeeCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        EmployeeId = d.EmployeeId,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                        ItemId = d.ItemId,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        CreditByRange = d.CreditByRange,
+                        RangeLength = d.RangeLength,
+                        RangeCredit = d.RangeCredit,
+                        RangeIndex = d.RangeIndex,
+                        RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
+                    }).OrderBy(d => d.CreditLoadDate).ToArray();
             }
             catch
             {
@@ -367,10 +416,46 @@ namespace MachManager.Controllers
                     && d.PlantId == model.PlantId && d.Id != model.Id))
                     throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
 
+                // detect change of department and update new credits template
+                if (model.DepartmentId != dbObj.DepartmentId){
+                    var currentCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == dbObj.Id).ToArray();
+                    foreach (var item in currentCredits)
+                    {
+                        _context.EmployeeCredit.Remove(item);
+                    }
+
+                    var sampleEmployee = _context.Employee.FirstOrDefault(d => d.DepartmentId == model.DepartmentId);
+                    if (sampleEmployee != null){
+                        var sampleCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == sampleEmployee.Id).ToArray();
+                        foreach (var item in sampleCredits)
+                        {
+                            var newCredit = new EmployeeCredit{
+                                Employee = dbObj,
+                                ActiveCredit = item.ActiveCredit,
+                                CreditByRange = item.CreditByRange,
+                                CreditEndDate = item.CreditEndDate,
+                                CreditLoadDate = item.CreditLoadDate,
+                                CreditStartDate = item.CreditStartDate,
+                                ItemId = item.ItemId,
+                                ItemCategoryId = item.ItemCategoryId,
+                                ItemGroupId = item.ItemGroupId,
+                                ProductIntervalTime = item.ProductIntervalTime,
+                                ProductIntervalType = item.ProductIntervalType,
+                                RangeCredit = item.ActiveCredit,
+                                RangeIndex = item.RangeIndex,
+                                RangeLength = item.RangeLength,
+                                RangeType = item.RangeType,
+                                SpecificRangeDates = item.SpecificRangeDates,
+                            };
+                            _context.EmployeeCredit.Add(newCredit);
+                        }
+                    }
+                }
+
                 model.MapTo(dbObj);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -439,7 +524,7 @@ namespace MachManager.Controllers
                 _context.CreditLoadHistory.Add(dbLoadHistory);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
@@ -476,8 +561,11 @@ namespace MachManager.Controllers
                 model.UpdateLiveRangeData(_context);
                 model.MapTo(dbCredit);
 
+                if (dbCredit.ActiveCredit == 0)
+                    dbCredit.RangeCredit = 0;
+
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 if (!model.CancelSubmit)
                     _context.SaveChanges();
@@ -908,7 +996,7 @@ namespace MachManager.Controllers
 
                 var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;
@@ -939,10 +1027,71 @@ namespace MachManager.Controllers
 
                 var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == dbObj.EmployeeId);
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
+
+                _context.SaveChanges();
+                result.Result=true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("EditConsume")]
+        public BusinessResult EditConsume(MachineItemConsumeModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbEmp == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+
+                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == model.Id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                // update or delete related employeecreditconsume
+                var dbEmpConsume = _context.EmployeeCreditConsume.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
+                    && d.ConsumedDate == dbObj.ConsumedDate && d.ItemId == dbObj.ItemId);
+                if (dbEmpConsume != null){
+                    if (model.MakeDelete == 1){
+                        _context.EmployeeCreditConsume.Remove(dbEmpConsume);
+                    }
+                    else{
+                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
+                        if (dbItem != null){
+                            dbEmpConsume.ItemCategoryId = dbItem.ItemCategoryId;
+                            dbEmpConsume.ItemGroupId = dbItem.ItemGroupId;
+                            dbEmpConsume.ItemId = dbItem.Id;
+                        }
+                    }
+                }
+
+                // update or delete machineitemconsume
+                if (model.MakeDelete == 1){
+                    _context.MachineItemConsume.Remove(dbObj);
+                }
+                else{
+                    model.MapTo(dbObj);
+                }
+
+                // update plant data for machines shall be updated
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
                 dbPlant.LastUpdateDate = DateTime.Now;
 
                 _context.SaveChanges();
                 result.Result=true;
+                result.RecordId = dbObj.Id;
             }
             catch (System.Exception ex)
             {
@@ -979,7 +1128,7 @@ namespace MachManager.Controllers
                 _context.Employee.Remove(dbObj);
 
                 var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbObj.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                 _context.SaveChanges();
                 result.Result=true;

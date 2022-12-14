@@ -135,6 +135,9 @@ namespace MachManager.Controllers
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
+                 if (_context.WarehouseLoadHeader.Any(d => d.FirmId == id))
+                    throw new Exception("Bu firmaya ait stok hareket kayıtları olduğu için silinemez.");
+
                 // if (_context.EmployeeCreditConsume.Any(d => d.ItemCategoryId == id))
                 //     throw new Exception("Bu kategoriye ilişkin tüketim kayıtları olduğu için silinemez.");
 
