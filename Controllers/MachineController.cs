@@ -333,7 +333,10 @@ namespace MachManager.Controllers
                             Capacity = d.Capacity,
                             PosX = d.PosX,
                             PosY = d.PosY,
-                        }).ToArray();
+                        })
+                        // .OrderBy(d => d.PosOrders)
+                        .OrderByDescending(d => (d.PosOrders / 10) + (-0.01 * (d.PosOrders%10)))
+                        .ToArray();
 
                     var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
                     if ((dbPlant.AutoSpiralLoading ?? false) == true){

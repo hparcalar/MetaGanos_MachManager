@@ -170,12 +170,12 @@ namespace MachManager.Controllers
                 var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
                 if (dbItem == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
-                
+
                 var dbCreditList = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId
                     && d.ItemCategoryId == dbItem.ItemCategoryId).ToArray();
                 var dbCredit = dbCreditList.FirstOrDefault(d => 
                     (d.ItemId == null || d.ItemId == dbItem.Id) && (d.ItemGroupId == null || d.ItemGroupId == dbItem.ItemGroupId));
-                if (dbCredit == null || (dbCredit.RangeCredit - (model.Quantity ?? 1)) <= 0)
+                if (dbCredit == null || dbCredit.RangeCredit <= 0 || model.Quantity > dbCredit.RangeCredit)
                     throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
 
                 // start delivery operation

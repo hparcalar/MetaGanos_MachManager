@@ -55,6 +55,10 @@ namespace MachManager.Models{
                     while (!(dtNow >= activeStart && dtNow <= activeEnd)){
                         activeStart = GetRangedDate(activeStart);
                         activeEnd = GetRangedDate(activeEnd);
+                        if (activeEnd != null){
+                            activeEnd = activeEnd.Value.Add(new TimeSpan(23,59,59));
+                        }
+
                         rangeIndex++;
                         loopCredit -= this.CreditByRange;
 

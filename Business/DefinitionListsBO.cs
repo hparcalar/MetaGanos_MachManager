@@ -8,6 +8,7 @@ using MachManager.Models;
 using MachManager.Models.Operational;
 using MachManager.Helpers;
 using MachManager.Business.Base;
+using MachManager.Models.PagedModels;
 
 namespace MachManager.Business{
     public class DefinitionListsBO : IBusinessObject {
@@ -280,6 +281,119 @@ namespace MachManager.Business{
 
             return data;
         }
+
+
+        public EmployeeModel[] GetNonActiveEmployees(int[] plants = null, int[] departments = null) {
+            EmployeeModel[] data = new EmployeeModel[0];
+
+            try
+            {
+                data = _context.Employee
+                    .Where(d => 
+                        (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                        &&
+                        (d.EmployeeStatus ?? 0) == 2
+                        &&
+                        (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
+                    )
+                    .Select(d => new EmployeeModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        DepartmentCode = d.Department != null ? d.Department.DepartmentCode : "",
+                        DepartmentId = d.DepartmentId,
+                        DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
+                        Email = d.Email,
+                        EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
+                        EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
+                        EmployeeCardId = d.EmployeeCardId,
+                        EmployeeCode = d.EmployeeCode,
+                        EmployeeName = d.EmployeeName,
+                        EmployeePassword = "",
+                        Gsm = d.Gsm,
+                        IsActive = d.IsActive,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantId = d.PlantId,
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).OrderBy(d => d.EmployeeCode).ToArray();
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        public PagedEmployeeModel GetEmployeesByPage(int[] plants = null, int[] departments = null, int? page = null, string search = null) {
+            PagedEmployeeModel resData = new PagedEmployeeModel();
+            EmployeeModel[] data = new EmployeeModel[0];
+
+            var recordsPerPage = 10;
+
+            try
+            {
+                var rawData = _context.Employee
+                    .Where(d => 
+                        (
+                            search == null || search.Length == 0
+                            ||
+                            (d.Department != null && EF.Functions.ILike(d.Department.DepartmentCode, "%"+ search +"%"))
+                            ||
+                            (d.Department != null && EF.Functions.ILike(d.Department.DepartmentName, "%"+ search +"%"))
+                            ||
+                            (d.EmployeeCard != null && EF.Functions.ILike(d.EmployeeCard.CardCode, "%"+ search +"%"))
+                            ||
+                            (EF.Functions.ILike(d.EmployeeCode, "%"+ search +"%"))
+                            ||
+                            (EF.Functions.ILike(d.EmployeeName, "%"+ search +"%"))
+                            ||
+                            (d.Plant != null && EF.Functions.ILike(d.Plant.PlantCode, "%"+ search +"%"))
+                            ||
+                            (d.Plant != null && EF.Functions.ILike(d.Plant.PlantName, "%"+ search +"%"))
+                        )
+                        &&
+                        (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                        &&
+                        (d.EmployeeStatus ?? 0) == 0
+                        &&
+                        (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
+                    );
+                
+                resData.TotalRecords = rawData.Count();
+                resData.CurrentPage = page ?? 0;
+                resData.TotalPages = resData.TotalRecords / recordsPerPage + 1;
+
+                data = rawData
+                    .Select(d => new EmployeeModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        DepartmentCode = d.Department != null ? d.Department.DepartmentCode : "",
+                        DepartmentId = d.DepartmentId,
+                        DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
+                        Email = d.Email,
+                        EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
+                        EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
+                        EmployeeCardId = d.EmployeeCardId,
+                        EmployeeCode = d.EmployeeCode,
+                        EmployeeName = d.EmployeeName,
+                        EmployeePassword = "",
+                        Gsm = d.Gsm,
+                        IsActive = d.IsActive,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantId = d.PlantId,
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).Skip((page ?? 0) * recordsPerPage).Take(recordsPerPage).OrderBy(d => d.EmployeeCode).ToArray();
+
+                resData.Data = data;
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return resData;
+        }
+
 
         public ItemModel[] GetItems(int[] plants = null, int[] groups = null, string search = ""){
             ItemModel[] data = new ItemModel[0];
