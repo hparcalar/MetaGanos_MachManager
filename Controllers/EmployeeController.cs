@@ -15,8 +15,10 @@ using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Business;
 using MachManager.Models.Parameters;
+using MachManager.Models.PagedModels;
 using ClosedXML;
 using ClosedXML.Excel;
+using System.Text.RegularExpressions;
 
 namespace MachManager.Controllers
 {
@@ -46,6 +48,64 @@ namespace MachManager.Controllers
 
                 using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
                     data = bObj.GetEmployees(plants);
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet("ListByPage/{page}")]
+        public PagedEmployeeModel GetListByPage(int? page, string search)
+        {
+            PagedEmployeeModel resData = new PagedEmployeeModel();
+
+            ResolveHeaders(Request);
+
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+                else if (_isMachine)
+                    plants = new int[]{ _appUserId };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    resData = bObj.GetEmployeesByPage(plants, null, page, search);
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return resData;
+        }
+
+        [HttpGet]
+        [Route("NonActive")]
+        public IEnumerable<EmployeeModel> GetNonActive()
+        {
+            ResolveHeaders(Request);
+
+            EmployeeModel[] data = new EmployeeModel[0];
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+                else if (_isMachine)
+                    plants = new int[]{ _appUserId };
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetNonActiveEmployees(plants);
                 }
             }
             catch
@@ -141,17 +201,63 @@ namespace MachManager.Controllers
 
                 foreach (var crd in data.Credits)
                 {
-                    if (crd.CreditEndDate < DateTime.Now.Date){
+                    if (crd.CreditStartDate < DateTime.Now.Date && crd.RangeType == 1){
                         var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                         if (dbCredit != null){
                             try
                             {
-                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditStartDate.Value).TotalDays));
-                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value.AddDays(1);
+                                dbCredit.CreditLoadDate = DateTime.Now.Date;
                                 dbCredit.RangeCredit = crd.CreditByRange;
                                 dbCredit.ActiveCredit = crd.CreditByRange;
-                                dbCredit.CreditStartDate = dbCredit.CreditLoadDate.Value.Date;
-                                dbCredit.CreditEndDate = dbCredit.CreditStartDate.Value.AddDays(diffDays);
+                                dbCredit.CreditStartDate = DateTime.Now.Date;
+                                dbCredit.CreditEndDate = DateTime.Now.Date;
+                                dbCredit.SpecificRangeDates = "";
+
+                                dbCredit.MapTo(crd);
+
+                                crd.UpdateLiveRangeData(_context);
+
+                                dbCredit.CreditLoadDate = DateTime.Now.Date;
+                                dbCredit.CreditStartDate = DateTime.Now.Date;
+                                // dbCredit.CreditEndDate = DateTime.Now.Date;
+
+                                string newRanges = "";                            
+                                DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+
+                                while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                                    newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                                    dtCurrent = dtCurrent.AddDays(1);
+
+                                    if (dtCurrent == dbCredit.CreditEndDate.Value.Date)
+                                        break;
+                                }
+
+                                newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                                newRanges = "[" + newRanges + "]";
+                                dbCredit.SpecificRangeDates = newRanges;
+                            }
+                            catch (System.Exception ex)
+                            {
+                                
+                            }
+
+                            _creditUpdated = true;
+                        }
+                    }
+                    else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
+                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                        if (dbCredit != null){
+                            try
+                            {
+                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditLoadDate.Value).TotalDays));
+                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value;
+                                dbCredit.RangeCredit = crd.CreditByRange;
+                                dbCredit.ActiveCredit = crd.CreditByRange;
+                                dbCredit.CreditStartDate = dbCredit.CreditEndDate.Value;
+                                dbCredit.CreditEndDate = dbCredit.CreditEndDate.Value.AddDays(diffDays);
+
+                                dbCredit.MapTo(crd);
+                                crd.UpdateLiveRangeData(_context);
 
                                 string newRanges = "";                            
                                 DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
@@ -233,17 +339,63 @@ namespace MachManager.Controllers
 
                 foreach (var crd in data)
                 {
-                    if (crd.CreditEndDate < DateTime.Now.Date){
+                    if (crd.CreditStartDate < DateTime.Now.Date && crd.RangeType == 1){
                         var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                         if (dbCredit != null){
                             try
                             {
-                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditStartDate.Value).TotalDays));
-                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value.AddDays(1);
+                                dbCredit.CreditLoadDate = DateTime.Now.Date;
                                 dbCredit.RangeCredit = crd.CreditByRange;
                                 dbCredit.ActiveCredit = crd.CreditByRange;
-                                dbCredit.CreditStartDate = dbCredit.CreditLoadDate.Value.Date;
-                                dbCredit.CreditEndDate = dbCredit.CreditStartDate.Value.AddDays(diffDays);
+                                dbCredit.CreditStartDate = DateTime.Now.Date;
+                                dbCredit.CreditEndDate = DateTime.Now.Date;
+                                dbCredit.SpecificRangeDates = "";
+
+                                dbCredit.MapTo(crd);
+
+                                crd.UpdateLiveRangeData(_context);
+
+                                dbCredit.CreditLoadDate = DateTime.Now.Date;
+                                dbCredit.CreditStartDate = DateTime.Now.Date;
+                                // dbCredit.CreditEndDate = DateTime.Now.Date;
+
+                                string newRanges = "";                            
+                                DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+
+                                while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                                    newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                                    dtCurrent = dtCurrent.AddDays(1);
+
+                                    if (dtCurrent == dbCredit.CreditEndDate.Value.Date)
+                                        break;
+                                }
+
+                                newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                                newRanges = "[" + newRanges + "]";
+                                dbCredit.SpecificRangeDates = newRanges;
+                            }
+                            catch (System.Exception)
+                            {
+                                
+                            }
+
+                            _creditUpdated = true;
+                        }
+                    }
+                    else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
+                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                        if (dbCredit != null){
+                            try
+                            {
+                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditLoadDate.Value).TotalDays));
+                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value;
+                                dbCredit.RangeCredit = crd.CreditByRange;
+                                dbCredit.ActiveCredit = crd.CreditByRange;
+                                dbCredit.CreditStartDate = dbCredit.CreditEndDate.Value;
+                                dbCredit.CreditEndDate = dbCredit.CreditEndDate.Value.AddDays(diffDays);
+
+                                dbCredit.MapTo(crd);
+                                crd.UpdateLiveRangeData(_context);
 
                                 string newRanges = "";                            
                                 DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
@@ -281,6 +433,7 @@ namespace MachManager.Controllers
             
             return data;
         }
+
 
         [HttpGet]
         [Route("{id}/FetchCredits")]
@@ -325,7 +478,7 @@ namespace MachManager.Controllers
             
             return data;
         }
-
+        
         [HttpGet]
         [Route("{id}/Credits/{creditId}")]
         public EmployeeCreditModel GetCreditInfo(int id, int creditId)
@@ -470,6 +623,68 @@ namespace MachManager.Controllers
             return result;
         }
 
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("EditConsume")]
+        public BusinessResult EditConsume(MachineItemConsumeModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
+                if (dbEmp == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+
+                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == model.Id);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                // update or delete related employeecreditconsume
+                var dbEmpConsume = _context.EmployeeCreditConsume.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
+                    && d.ConsumedDate == dbObj.ConsumedDate && d.ItemId == dbObj.ItemId);
+                if (dbEmpConsume != null){
+                    if (model.MakeDelete == 1){
+                        _context.EmployeeCreditConsume.Remove(dbEmpConsume);
+                    }
+                    else{
+                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
+                        if (dbItem != null){
+                            dbEmpConsume.ItemCategoryId = dbItem.ItemCategoryId;
+                            dbEmpConsume.ItemGroupId = dbItem.ItemGroupId;
+                            dbEmpConsume.ItemId = dbItem.Id;
+                        }
+                    }
+                }
+
+                // update or delete machineitemconsume
+                if (model.MakeDelete == 1){
+                    _context.MachineItemConsume.Remove(dbObj);
+                }
+                else{
+                    model.MapTo(dbObj);
+                }
+
+                // update plant data for machines shall be updated
+                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
+                dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbObj.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         [Route("LoadCredit")]
@@ -847,6 +1062,8 @@ namespace MachManager.Controllers
                 List<Department> newDepartmentList = new List<Department>();
                 List<EmployeeCard> newCardList = new List<EmployeeCard>();
 
+                Dictionary<string, int> columnItemList = new Dictionary<string, int>();
+
                 int insertedCount = 0;
                 int updatedCount = 0;
 
@@ -858,6 +1075,19 @@ namespace MachManager.Controllers
                     foreach (var row in sheetRows)
                     {
                         if (rowIndex == 0){
+                            // map item codes to column indexes
+                            int colHeaderIndex = 5;
+                            string readColHeader = string.Empty;
+
+                            do {
+                                readColHeader = row.Cell(colHeaderIndex).GetValue<string>();
+
+                                if (!string.IsNullOrEmpty(readColHeader))
+                                    columnItemList.Add(readColHeader, colHeaderIndex);
+
+                                colHeaderIndex++;
+                            } while(!string.IsNullOrEmpty(readColHeader));
+
                             rowIndex++;
                             continue;
                         }
@@ -866,15 +1096,15 @@ namespace MachManager.Controllers
                         var clName = row.Cell(2);
                         var clDpt = row.Cell(3);
                         var clCard = row.Cell(4);
-                        var clGsm = row.Cell(5);
-                        var clEmail = row.Cell(6);
+                        // var clGsm = row.Cell(5);
+                        // var clEmail = row.Cell(6);
 
                         string dtCode = clCode.GetValue<string>();
                         string dtName = clName.GetValue<string>();
                         string dtDpt = clDpt.GetValue<string>();
                         string dtCard = clCard.GetValue<string>();
-                        string dtGsm = clGsm.GetValue<string>();
-                        string dtEmail = clGsm.GetValue<string>();
+                        // string dtGsm = clGsm.GetValue<string>();
+                        // string dtEmail = clGsm.GetValue<string>();
 
                         if (!string.IsNullOrEmpty(dtCode)){
                             if (!newEmployeeList.Any(d => d.EmployeeCode == dtCode)){
@@ -928,8 +1158,8 @@ namespace MachManager.Controllers
                                         dbEmployee = new Employee{
                                             EmployeeCode = dtCode,
                                             EmployeeName = dtName,
-                                            Gsm = dtGsm,
-                                            Email = dtEmail,
+                                            // Gsm = dtGsm,
+                                            // Email = dtEmail,
                                             PlantId = model.PlantId,
                                             Department = dbDpt,
                                             EmployeeCard = dbCard,
@@ -941,15 +1171,137 @@ namespace MachManager.Controllers
                                     }
                                     else{
                                         dbEmployee.EmployeeName = dtName;
-                                        dbEmployee.Gsm = dtGsm;
-                                        dbEmployee.Email = dtEmail;
+                                        // dbEmployee.Gsm = dtGsm;
+                                        // dbEmployee.Email = dtEmail;
                                         dbEmployee.Department = dbDpt;
                                         dbEmployee.EmployeeCard = dbCard;
                                         updatedCount++;
                                     }
+
+                                    // remove old employeeCredits of current employee
+                                    if (dbEmployee.Id > 0){
+                                        var currentCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == dbEmployee.Id).ToArray();
+                                        foreach (var exCrItem in currentCredits)
+                                        {
+                                            _context.EmployeeCredit.Remove(exCrItem);
+                                        }
+                                    }
+
+                                    // update credits
+                                    foreach (var creditColumn in columnItemList)
+                                    {
+                                        string crCreditValue = row.Cell(creditColumn.Value).GetValue<string>();
+                                        string crItemCode = creditColumn.Key;
+
+                                        if (!string.IsNullOrEmpty(crItemCode) && !string.IsNullOrEmpty(crCreditValue)){
+                                            var dbItem = _context.Item.FirstOrDefault(d => d.ItemCode == crItemCode && d.ItemCategory != null && d.ItemCategory.PlantId == model.PlantId);
+                                            if (dbItem != null){
+                                                EmployeeCreditModel creditModel = new EmployeeCreditModel();
+
+                                                // resolve credit values from string data
+                                                var matches = Regex.Matches(crCreditValue, "[0-9]+", RegexOptions.IgnoreCase);
+                                                
+                                                var rangeLength = 1;
+                                                var rangeCredit = 0;
+                                                var rangeType = 0;
+                                                DateTime rangeLoadDate = DateTime.Now.Date;
+
+                                                if (matches.Count > 1)
+                                                {
+                                                    rangeLength = Convert.ToInt32(matches[0].Value);
+                                                    rangeCredit = Convert.ToInt32(matches[1].Value);
+                                                }
+                                                else if (matches.Count == 1){
+                                                    rangeLength = 1;
+                                                    rangeCredit = Convert.ToInt32(matches[0].Value);
+                                                }
+
+                                                var periodStr = Regex.Match(crCreditValue, "[A-Za-z]+", RegexOptions.IgnoreCase);
+                                                if (periodStr != null && !string.IsNullOrEmpty(periodStr.Value)){
+                                                    switch (periodStr.Value)
+                                                    {
+                                                        case "GUN":
+                                                            rangeType = 1;
+                                                            rangeLoadDate = DateTime.Now.Date;
+
+                                                            break;
+                                                        case "HAFTA":
+                                                            rangeType = 2;
+                                                            
+                                                            var dayIndex = rangeLoadDate.DayOfWeek;
+                                                            while (dayIndex != DayOfWeek.Monday){
+                                                                rangeLoadDate = rangeLoadDate.AddDays(-1);
+                                                                dayIndex = rangeLoadDate.DayOfWeek;
+                                                            }
+
+                                                            break;
+                                                        case "AY":
+                                                            rangeType = 3;
+                                                            rangeLoadDate = DateTime.ParseExact("01." 
+                                                                + string.Format("{0:MM}", rangeLoadDate) + "." + 
+                                                                string.Format("{0:yyyy}", rangeLoadDate), "dd.MM.yyyy",
+                                                                    System.Globalization.CultureInfo.GetCultureInfo("tr"));
+
+                                                            break;
+                                                        case "SINIRSIZ":
+                                                            rangeType = 4;
+                                                            break;
+                                                        default:
+                                                            rangeType = 0;
+                                                            break;
+                                                    }
+                                                }
+
+                                                if (rangeCredit > 0 && rangeType > 0){
+                                                    EmployeeCredit dbCredit = null;//_context.EmployeeCredit.FirstOrDefault(d => d.ItemId == dbItem.Id);
+                                                    if (dbCredit == null)
+                                                    {
+                                                        dbCredit = new EmployeeCredit{
+                                                            ItemId = dbItem.Id,
+                                                            ItemCategoryId = dbItem.ItemCategoryId,
+                                                            ItemGroupId = dbItem.ItemGroupId,
+                                                        };
+                                                        dbCredit.Employee = dbEmployee;
+                                                        _context.EmployeeCredit.Add(dbCredit);
+                                                    }
+
+                                                    // set credit attributes
+                                                    dbCredit.RangeCredit = rangeCredit;
+                                                    dbCredit.ActiveCredit = rangeCredit;
+                                                    dbCredit.CreditByRange = rangeCredit;
+                                                    dbCredit.RangeIndex = 0;
+                                                    dbCredit.RangeType = rangeType;
+                                                    dbCredit.RangeLength = rangeLength;
+                                                    dbCredit.CreditLoadDate = rangeLoadDate;
+                                                    dbCredit.CreditStartDate = rangeLoadDate;
+
+                                                    dbCredit.MapTo(creditModel);
+                                                    creditModel.UpdateLiveRangeData(_context);
+                                                    creditModel.MapTo(dbCredit);
+
+                                                    string newRanges = "";
+                                                    DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+
+                                                    while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                                                        newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                                                        dtCurrent = dtCurrent.AddDays(1);
+                                                    }
+
+                                                    newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                                                    newRanges = "[" + newRanges + "]";
+                                                    dbCredit.SpecificRangeDates = newRanges;
+
+                                                    if (dbCredit.ActiveCredit == 0)
+                                                        dbCredit.RangeCredit = 0;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
+                        else
+                            break;
 
                         rowIndex++;
                     }
@@ -968,6 +1320,138 @@ namespace MachManager.Controllers
             }
 
             return result;
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("Export/{plantId}")]
+        public IActionResult ExportData(int plantId){
+            try
+            {
+                
+
+            #region PREPARE DATA
+            EmployeeModel[] data = new EmployeeModel[0];
+            string[] itemCodes = new string[0];
+           
+            try
+            {
+                data = _context.Employee
+                    .Where(d =>
+                       d.PlantId == plantId && (d.EmployeeStatus ?? 0) == 0
+                    )
+                    .Select(d => new EmployeeModel{
+                        Id = d.Id,
+                        EmployeeCode = d.EmployeeCode,
+                        EmployeeName = d.EmployeeName,
+                        EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
+                        DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
+                    })
+                    .ToArray();
+                
+                var empIds = data.Select(d => d.Id).ToArray();
+
+                itemCodes = _context.EmployeeCredit.Where(d => empIds.Contains(d.EmployeeId ?? 0) && d.Item != null)
+                    .Select(d => d.Item.ItemCode).Distinct().ToArray();
+            }
+            catch
+            {
+                
+            }
+            #endregion
+
+            #region PREPARE EXCEL FILE
+            byte[] excelFile = new byte[0];
+
+            using (var workbook = new XLWorkbook()) {
+                var worksheet = workbook.Worksheets.Add("Personel ve İstihkaklar");
+
+                worksheet.Cell(1,1).Value = "SICIL";
+                worksheet.Cell(1,2).Value = "ADSOYAD";
+                worksheet.Cell(1,3).Value = "KISIM";
+                worksheet.Cell(1,4).Value = "KART NO";
+
+                int itemColIndex = 5;
+                foreach (var iCode in itemCodes)
+                {
+                    worksheet.Cell(1,itemColIndex).Value = iCode;
+                    itemColIndex++;
+                }
+
+                int rowIndex = 2;
+                foreach (var emp in data)
+                {
+                    // worksheet.Cell(rowIndex, 1).DataType = XLDataType.Blank;
+                    
+                    worksheet.Cell(rowIndex, 1).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(rowIndex, 1).SetValue(emp.EmployeeCode).SetDataType(XLDataType.Text);
+                    worksheet.Cell(rowIndex, 2).Value = emp.EmployeeName;
+                    worksheet.Cell(rowIndex, 3).Value = emp.DepartmentName;
+
+                    worksheet.Cell(rowIndex, 4).Style.NumberFormat.Format = "@";
+                    worksheet.Cell(rowIndex, 4).SetValue(emp.EmployeeCardCode).SetDataType(XLDataType.Text);
+
+                    int itemIndex = 5;
+                    foreach (var iCode in itemCodes)
+                    {
+                        string creditText = "";
+                        var itemCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Item != null && d.Item.ItemCode == iCode && d.EmployeeId == emp.Id);
+                        if (itemCredit != null){
+                            if (itemCredit.RangeLength > 1)
+                                creditText += itemCredit.RangeLength.ToString();
+
+                            switch (itemCredit.RangeType)
+                            {
+                                case 1:
+                                    creditText += "GUN";
+                                    break;
+                                case 2:
+                                    creditText += "HAFTA";
+                                    break;
+                                case 3:
+                                    creditText += "AY";
+                                    break;
+                                case 4:
+                                    creditText += "SINIRSIZ";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            creditText += (itemCredit.CreditByRange).ToString();
+                        }
+
+                        worksheet.Cell(rowIndex, itemIndex).Value = creditText;
+                        itemIndex++;
+                    }
+
+                    rowIndex++;
+                }
+
+                // worksheet.Cell(2,1).InsertData(data);
+
+                worksheet.Columns().AdjustToContents();
+
+                var titlesStyle = workbook.Style;
+                titlesStyle.Font.Bold = true;
+                titlesStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Row(1).Style = titlesStyle;
+
+                using (MemoryStream memoryStream = new MemoryStream()) {
+                    workbook.SaveAs(memoryStream);
+                    excelFile = memoryStream.ToArray();
+                }
+
+                return Ok(excelFile);
+            }
+
+            #endregion
+            
+            }
+            catch (System.Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Policy = "FactoryOfficer")]
@@ -1031,67 +1515,6 @@ namespace MachManager.Controllers
 
                 _context.SaveChanges();
                 result.Result=true;
-            }
-            catch (System.Exception ex)
-            {
-                result.Result=false;
-                result.ErrorMessage = ex.Message;
-            }
-
-            return result;
-        }
-
-        [Authorize(Policy = "FactoryOfficer")]
-        [HttpPost]
-        [Route("EditConsume")]
-        public BusinessResult EditConsume(MachineItemConsumeModel model){
-            BusinessResult result = new BusinessResult();
-            ResolveHeaders(Request);
-
-            try
-            {
-                var dbEmp = _context.Employee.FirstOrDefault(d => d.Id == model.EmployeeId);
-                if (dbEmp == null)
-                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
-
-
-                var dbObj = _context.MachineItemConsume.FirstOrDefault(d => d.Id == model.Id);
-                if (dbObj == null){
-                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
-                }
-
-                // update or delete related employeecreditconsume
-                var dbEmpConsume = _context.EmployeeCreditConsume.FirstOrDefault(d => d.EmployeeId == model.EmployeeId
-                    && d.ConsumedDate == dbObj.ConsumedDate && d.ItemId == dbObj.ItemId);
-                if (dbEmpConsume != null){
-                    if (model.MakeDelete == 1){
-                        _context.EmployeeCreditConsume.Remove(dbEmpConsume);
-                    }
-                    else{
-                        var dbItem = _context.Item.FirstOrDefault(d => d.Id == model.ItemId);
-                        if (dbItem != null){
-                            dbEmpConsume.ItemCategoryId = dbItem.ItemCategoryId;
-                            dbEmpConsume.ItemGroupId = dbItem.ItemGroupId;
-                            dbEmpConsume.ItemId = dbItem.Id;
-                        }
-                    }
-                }
-
-                // update or delete machineitemconsume
-                if (model.MakeDelete == 1){
-                    _context.MachineItemConsume.Remove(dbObj);
-                }
-                else{
-                    model.MapTo(dbObj);
-                }
-
-                // update plant data for machines shall be updated
-                var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbEmp.PlantId);
-                dbPlant.LastUpdateDate = DateTime.Now;
-
-                _context.SaveChanges();
-                result.Result=true;
-                result.RecordId = dbObj.Id;
             }
             catch (System.Exception ex)
             {

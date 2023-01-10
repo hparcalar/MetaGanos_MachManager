@@ -13,6 +13,7 @@ namespace MachManager.Context {
         public bool IsActive { get; set; }
         public bool? Last4CharForCardRead { get; set; }
         public DateTime? LastUpdateDate { get; set; }
+        public bool? AutoSpiralLoading { get; set; }
 
         [ForeignKey("Dealer")]
         public Nullable<int> DealerId { get; set; }

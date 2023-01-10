@@ -46,26 +46,6 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Machine")]
-        [Route("{id}/ItemCategoriesNonWr")]
-        public IEnumerable<ItemCategoryModel> GetItemCategoriesNonWr(int id){
-            ItemCategoryModel[] data = new ItemCategoryModel[0];
-
-            try
-            {
-                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
-                    data = bObj.GetItemCategoriesNonWr(new int[]{ id });
-                }
-            }
-            catch (System.Exception)
-            {
-                
-            }
-
-            return data;
-        }
-
-        [HttpGet]
         [AllowAnonymous]
         [Route("Find/{dealerCode}/{plantCode}")]
         public PlantModel Find(string dealerCode, string plantCode){
@@ -88,6 +68,7 @@ namespace MachManager.Controllers
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
+                        AutoSpiralLoading = d.AutoSpiralLoading,
                     }).FirstOrDefault();
             }
             catch
@@ -143,6 +124,7 @@ namespace MachManager.Controllers
                         PlantCode = d.PlantCode,
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
+                        AutoSpiralLoading = d.AutoSpiralLoading,
                     }).FirstOrDefault();
             }
             catch
@@ -287,6 +269,49 @@ namespace MachManager.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = "FactoryOfficer")]
+        [Route("{id}/Employees")]
+        public IEnumerable<EmployeeModel> GetEmployees(int id)
+        {
+            ResolveHeaders(Request);
+
+            EmployeeModel[] data = new EmployeeModel[0];
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetEmployees(new int[]{ id });
+                }
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
+        [HttpGet]
+        [Authorize(Policy = "Machine")]
+        [Route("{id}/ItemCategoriesNonWr")]
+        public IEnumerable<ItemCategoryModel> GetItemCategoriesNonWr(int id){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItemCategoriesNonWr(new int[]{ id });
+                }
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        [HttpGet]
         [Authorize(Policy = "Machine")]
         [Route("{id}/ItemCategories")]
         public IEnumerable<ItemCategoryModel> GetItemCategories(int id){
@@ -305,6 +330,7 @@ namespace MachManager.Controllers
 
             return data;
         }
+
 
         [HttpGet]
         [Authorize(Policy = "FactoryOfficer")]
@@ -417,28 +443,6 @@ namespace MachManager.Controllers
             catch (System.Exception)
             {
                 
-            }
-
-            return data;
-        }
-
-        [HttpGet]
-        [Authorize(Policy = "FactoryOfficer")]
-        [Route("{id}/Employees")]
-        public IEnumerable<EmployeeModel> GetEmployees(int id)
-        {
-            ResolveHeaders(Request);
-
-            EmployeeModel[] data = new EmployeeModel[0];
-            try
-            {
-                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
-                    data = bObj.GetEmployees(new int[]{ id });
-                }
-            }
-            catch
-            {
-
             }
 
             return data;

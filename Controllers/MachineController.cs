@@ -282,18 +282,18 @@ namespace MachManager.Controllers
                             PosY = d.PosY,
                         }).ToArray();
 
-                    // var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
-                    // if ((dbPlant.AutoSpiralLoading ?? false) == true){
-                    //     foreach (var item in data)
-                    //     {
-                    //         var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
-                    //         if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
-                    //             dbSpiral.ActiveQuantity = dbSpiral.Capacity;
-                    //         }
-                    //     }
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    if ((dbPlant.AutoSpiralLoading ?? false) == true){
+                        foreach (var item in data)
+                        {
+                            var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
+                            if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
+                                dbSpiral.ActiveQuantity = dbSpiral.Capacity;
+                            }
+                        }
 
-                    //     _context.SaveChanges();
-                    // }
+                        _context.SaveChanges();
+                    }
                 }
             }
             catch (System.Exception)
@@ -333,7 +333,23 @@ namespace MachManager.Controllers
                             Capacity = d.Capacity,
                             PosX = d.PosX,
                             PosY = d.PosY,
-                        }).ToArray();
+                        })
+                        // .OrderBy(d => d.PosOrders)
+                        .OrderByDescending(d => (d.PosOrders / 10) + (-0.01 * (d.PosOrders%10)))
+                        .ToArray();
+
+                    var dbPlant = _context.Plant.FirstOrDefault(d => d.Id == dbMachine.PlantId);
+                    if ((dbPlant.AutoSpiralLoading ?? false) == true){
+                        foreach (var item in data)
+                        {
+                            var dbSpiral = _context.MachineSpiral.FirstOrDefault(d => d.Id == item.Id);
+                            if (dbSpiral != null && dbSpiral.ActiveQuantity <= 0 && dbSpiral.Capacity > 0){
+                                dbSpiral.ActiveQuantity = dbSpiral.Capacity;
+                            }
+                        }
+
+                        _context.SaveChanges();
+                    }
                 }
             }
             catch (System.Exception)
@@ -632,7 +648,6 @@ namespace MachManager.Controllers
         }
 
 
-
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(MachineModel model){
@@ -861,7 +876,7 @@ namespace MachManager.Controllers
                     MachineId = id,
                     SpiralNo = model.SpiralNo,
                     Quantity = model.Quantity,
-                    // OfficerId = this._isFactoryOfficer ? this._appUserId : null,
+                    //OfficerId = this._isFactoryOfficer ? this._appUserId : null,
                 };
                 _context.MachineSpiralLoad.Add(dbLoad);
 
@@ -1020,7 +1035,7 @@ namespace MachManager.Controllers
             }
             return result;
         }
-
+        
         [HttpPost]
         [Route("{id}/DeliverProduct")]
         public BusinessResult DeliverProduct(int id, DeliverProductModel model){
@@ -1107,7 +1122,7 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "FactoryOfficer")]
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
