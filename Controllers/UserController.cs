@@ -304,6 +304,11 @@ namespace MachManager.Controllers
                             possibleKeys.Add(stdHexKey.Substring(stdHexKey.Length - 4));
                         // possibleKeys.Add(stdHexKey.Substring(2, 8));
                     }
+                    else
+                    {
+                        if (last4Char)
+                            possibleKeys.Add(stdHexKey.Substring(stdHexKey.Length - 4));
+                    }
                     
                     // calc and store reversed version
                     var rawHexKey = stdHexKey.Length >= 10 ? stdHexKey.Substring(2,8) : stdHexKey;
@@ -399,6 +404,31 @@ namespace MachManager.Controllers
                     throw new Exception(model.Login + ": " + _translator.Translate(Expressions.UserNotFound, _userLanguage));
 
                 var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.PlantId ?? 0, MgAuthType.Machine);
+
+                try
+                {
+                    // review machine spiral item informations
+                    bool isSpiralsUpdated = false;
+                    var spirals = _context.MachineSpiral.Where(d => d.MachineId == dbUser.Id).ToArray();
+                    foreach (var spr in spirals)
+                    {
+                        if (spr.ItemId != null && (spr.ItemGroupId == null || spr.ItemCategoryId == null)){
+                            var dbItem = _context.Item.FirstOrDefault(d => d.Id == spr.ItemId);
+                            if (dbItem != null){
+                                spr.ItemGroupId = dbItem.ItemGroupId;
+                                spr.ItemCategoryId = dbItem.ItemCategoryId;
+                                isSpiralsUpdated = true;
+                            }
+                        }
+                    }
+
+                    if (isSpiralsUpdated)
+                        _context.SaveChanges();
+                }
+                catch (System.Exception)
+                {
+                    
+                }
 
                 return Ok(tokenStr);
             }

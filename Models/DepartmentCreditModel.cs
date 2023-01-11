@@ -1,24 +1,11 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace MachManager.Context {
-    public class EmployeeCredit{
+namespace MachManager.Models{
+    public class DepartmentCreditModel{
         public int Id { get; set; }
         public int ActiveCredit { get; set; } = 0;
-
-        [ForeignKey("ItemCategory")]
         public Nullable<int> ItemCategoryId { get; set; }
-
-        [ForeignKey("ItemGroup")]
         public Nullable<int> ItemGroupId { get; set; }
-
-        [ForeignKey("Item")]
         public Nullable<int> ItemId { get; set; }
-
-        [ForeignKey("Employee")]
-        public Nullable<int> EmployeeId { get; set; }
+        public Nullable<int> DepartmentId { get; set; }
 
         public int RangeCredit { get; set; } = 0;
         public int RangeIndex { get; set; } = 0;
@@ -33,10 +20,12 @@ namespace MachManager.Context {
         public Nullable<DateTime> CreditStartDate { get; set; }
         public Nullable<DateTime> CreditEndDate { get; set; }
 
-        // REFERENCES
-        public virtual Employee Employee { get; set; }
-        public virtual ItemCategory ItemCategory { get; set; }
-        public virtual ItemGroup ItemGroup { get; set; }
-        public virtual Item Item { get; set; }
+        public string ItemName { get; set; }
+        public string ItemGroupName { get; set; }
+        public string ItemCategoryName { get; set; }
+
+        public string ItemCode { get; set; }
+        public string ItemGroupCode { get; set; }
+        public string ItemCategoryCode { get; set; }
     }
 }

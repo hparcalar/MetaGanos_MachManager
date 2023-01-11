@@ -103,6 +103,50 @@ namespace MachManager.Controllers
             return data;
         }
 
+
+        [HttpGet]
+        [Route("{id}/Credits/{creditId}")]
+        public DepartmentCreditModel GetCreditInfo(int id, int creditId)
+        {
+            DepartmentCreditModel data = new DepartmentCreditModel();
+
+            try
+            {
+                data = _context.DepartmentCredit.Where(d => d.Id == creditId)
+                    .Select(d => new DepartmentCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        DepartmentId = d.DepartmentId,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                        ItemId = d.ItemId,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        RangeCredit = d.RangeCredit,
+                        CreditByRange = d.CreditByRange,
+                        RangeIndex = d.RangeIndex,
+                        RangeLength = d.RangeLength,
+                        RangeType = d.RangeType,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        SpecificRangeDates = d.SpecificRangeDates,
+                    }).FirstOrDefault();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+
         [HttpPost]
         [Route("{id}/Machines")]
         [Authorize(Policy = "FactoryOfficer")]
@@ -200,6 +244,92 @@ namespace MachManager.Controllers
                         _userLanguage
                     );
                 }
+
+                bool sampleCreditsUpdated = false;
+                data.Credits = _context.DepartmentCredit.Where(d => d.DepartmentId == data.Id)
+                    .Select(d => new DepartmentCreditModel{
+                        Id = d.Id,
+                        ActiveCredit = d.ActiveCredit,
+                        CreditByRange = d.CreditByRange,
+                        CreditEndDate = d.CreditEndDate,
+                        CreditLoadDate = d.CreditLoadDate,
+                        CreditStartDate = d.CreditStartDate,
+                        DepartmentId = d.DepartmentId,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemId = d.ItemId,
+                        ProductIntervalTime = d.ProductIntervalTime,
+                        ProductIntervalType = d.ProductIntervalType,
+                        RangeCredit = d.RangeCredit,
+                        RangeIndex = d.RangeIndex,
+                        RangeLength = d.RangeLength,
+                        RangeType = d.RangeType,
+                        SpecificRangeDates = d.SpecificRangeDates,
+                        ItemName = d.Item != null ? d.Item.ItemName : "",
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                    })
+                    .ToArray();
+                if (data.Credits == null || data.Credits.Length == 0){
+                    var sampleEmployee = _context.Employee.Where(d => d.DepartmentId == data.Id).FirstOrDefault();
+                    if (sampleEmployee != null){
+
+                        List<DepartmentCreditModel> newCredits = new List<DepartmentCreditModel>();
+                        var empCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == sampleEmployee.Id).ToArray();
+                        foreach (var crd in empCredits)
+                        {
+                            var newDepCrd = new DepartmentCredit{
+                                DepartmentId = data.Id,
+                                ItemId = crd.ItemId,
+                                ItemCategoryId = crd.ItemCategoryId,
+                                ItemGroupId = crd.ItemGroupId,
+                                ActiveCredit = crd.ActiveCredit,
+                                RangeCredit = crd.RangeCredit,
+                                CreditByRange = crd.CreditByRange,
+                                CreditEndDate = crd.CreditEndDate,
+                                CreditLoadDate = crd.CreditLoadDate,
+                                CreditStartDate = crd.CreditStartDate,
+                                RangeIndex = crd.RangeIndex,
+                                RangeLength = crd.RangeLength,
+                                RangeType = crd.RangeType,
+                                ProductIntervalTime = crd.ProductIntervalTime,
+                                ProductIntervalType = crd.ProductIntervalType,
+                            };
+                            _context.DepartmentCredit.Add(newDepCrd);
+
+                            DepartmentCreditModel crdContainer = new DepartmentCreditModel();
+                            newDepCrd.MapTo(crdContainer);
+                            newCredits.Add(crdContainer);
+
+                            if (crd.ItemId != null){
+                                var dbItem = _context.Item.FirstOrDefault(d => d.Id == crd.ItemId);
+                                if (dbItem != null)
+                                    crdContainer.ItemName = dbItem.ItemName;
+                            }
+
+                            if (crd.ItemGroupId != null){
+                                var dbItemGr = _context.ItemGroup.FirstOrDefault(d => d.Id == crd.ItemGroupId);
+                                if (dbItemGr != null)
+                                    crdContainer.ItemGroupName = dbItemGr.ItemGroupName;
+                            }
+
+                            if (crd.ItemCategoryId != null){
+                                var dbItemCt = _context.ItemCategory.FirstOrDefault(d => d.Id == crd.ItemCategoryId);
+                                if (dbItemCt != null)
+                                    crdContainer.ItemCategoryName = dbItemCt.ItemCategoryName;
+                            }
+
+
+                            sampleCreditsUpdated = true;
+                        }
+
+                        data.Credits = newCredits.ToArray();
+                    }
+                }
+
+                if (sampleCreditsUpdated){
+                    _context.SaveChanges();
+                }
             }
             catch
             {
@@ -208,6 +338,116 @@ namespace MachManager.Controllers
             
             return data;
         }
+
+
+        [HttpGet]
+        [Route("ApplyCreditsForEveryone/{id}")]
+        public BusinessResult ApplyCreditsForEveryone(int id)
+        {
+            BusinessResult result = new BusinessResult();
+
+            try
+            {
+                var depCredits = _context.DepartmentCredit.Where(d => d.DepartmentId == id).ToArray();
+                
+                var employees = _context.Employee.Where(d => d.DepartmentId == id).ToArray();
+                foreach (var dbEmployee in employees)
+                {
+                    // remove old credits of current employee
+                    var oldCredits = _context.EmployeeCredit.Where(d => d.EmployeeId == dbEmployee.Id).ToArray();
+                    foreach (var item in oldCredits)
+                    {
+                        _context.EmployeeCredit.Remove(item);
+                    }
+
+                    // loop into dep credits to give new permissions
+                    foreach (var depCrd in depCredits)
+                    {
+                        DateTime rangeLoadDate = DateTime.Now.Date;
+                        switch (depCrd.RangeType)
+                        {
+                            case 1:
+                                rangeLoadDate = DateTime.Now.Date;
+
+                                break;
+                            case 2:
+                                var dayIndex = rangeLoadDate.DayOfWeek;
+                                while (dayIndex != DayOfWeek.Monday){
+                                    rangeLoadDate = rangeLoadDate.AddDays(-1);
+                                    dayIndex = rangeLoadDate.DayOfWeek;
+                                }
+
+                                break;
+                            case 3:
+                                rangeLoadDate = DateTime.ParseExact("01." 
+                                    + string.Format("{0:MM}", rangeLoadDate) + "." + 
+                                    string.Format("{0:yyyy}", rangeLoadDate), "dd.MM.yyyy",
+                                        System.Globalization.CultureInfo.GetCultureInfo("tr"));
+
+                                break;
+                            default:
+                                rangeLoadDate = DateTime.MinValue;
+                                break;
+                        }
+
+                        if (rangeLoadDate == DateTime.MinValue)
+                            continue;
+
+                        var rangeCredit = depCrd.CreditByRange;
+
+                        EmployeeCredit dbCredit = new EmployeeCredit{
+                            ItemId = depCrd.ItemId,
+                            ItemCategoryId = depCrd.ItemCategoryId,
+                            ItemGroupId = depCrd.ItemGroupId,
+                        };
+                        dbCredit.Employee = dbEmployee;
+                        _context.EmployeeCredit.Add(dbCredit);
+
+                        // set credit attributes
+                        dbCredit.RangeCredit = rangeCredit;
+                        dbCredit.ActiveCredit = rangeCredit;
+                        dbCredit.CreditByRange = rangeCredit;
+                        dbCredit.RangeIndex = 0;
+                        dbCredit.RangeType = depCrd.RangeType;
+                        dbCredit.RangeLength = depCrd.RangeLength;
+                        dbCredit.CreditLoadDate = rangeLoadDate;
+                        dbCredit.CreditStartDate = rangeLoadDate;
+
+                        EmployeeCreditModel creditModel = new EmployeeCreditModel();
+                        dbCredit.MapTo(creditModel);
+                        creditModel.UpdateLiveRangeData(_context);
+                        creditModel.MapTo(dbCredit);
+
+                        string newRanges = "";
+                        DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+
+                        while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                            newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                            dtCurrent = dtCurrent.AddDays(1);
+                        }
+
+                        newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                        newRanges = "[" + newRanges + "]";
+                        dbCredit.SpecificRangeDates = newRanges;
+
+                        if (dbCredit.ActiveCredit == 0)
+                            dbCredit.RangeCredit = 0;
+                    }
+                }
+
+                _context.SaveChanges();
+
+                result.Result=true;
+            }
+            catch (Exception ex)
+            {
+                result.Result =false;
+                result.ErrorMessage = ex.Message;
+            }
+            
+            return result;
+        }
+
 
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
@@ -260,6 +500,129 @@ namespace MachManager.Controllers
             return result;
         }
 
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("LoadCredit")]
+        public BusinessResult LoadCredit(DepartmentCreditModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.Department.FirstOrDefault(d => d.Id == model.DepartmentId);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                // model.UpdateLiveRangeData(_context);
+
+                var dbCredit = _context.DepartmentCredit.FirstOrDefault(d => d.DepartmentId == model.DepartmentId
+                    && d.ItemCategoryId == model.ItemCategoryId && d.ItemGroupId == model.ItemGroupId && d.ItemId == model.ItemId);
+                if (dbCredit == null){
+                    dbCredit = new DepartmentCredit{
+                        Department = dbObj,
+                        ItemCategoryId = model.ItemCategoryId,
+                        ItemGroupId = model.ItemGroupId,
+                        ItemId = model.ItemId,
+                        ActiveCredit = 0,
+                    };
+                    model.MapTo(dbCredit);
+                    dbCredit.ActiveCredit = 0;
+                    dbCredit.Department = dbObj;
+
+                    _context.DepartmentCredit.Add(dbCredit);
+                }
+                else
+                {
+                    int currentId = dbCredit.Id;
+                    model.MapTo(dbCredit);
+                    dbCredit.Id = currentId;
+                    dbCredit.Department = dbObj;
+                }
+
+                _context.SaveChanges();
+                result.Result=true;
+                result.RecordId = dbCredit.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpPost]
+        [Route("EditCredit")]
+        public BusinessResult EditCredit(DepartmentCreditModel model){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.Department.FirstOrDefault(d => d.Id == model.DepartmentId);
+                if (dbObj == null){
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+                }
+
+                var dbCredit = _context.DepartmentCredit.FirstOrDefault(d => d.Id == model.Id);
+                if (dbCredit == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                // model.UpdateLiveRangeData(_context);
+                model.MapTo(dbCredit);
+
+                // if (dbCredit.ActiveCredit == 0)
+                //     dbCredit.RangeCredit = 0;
+
+                // if (!model.CancelSubmit)
+                _context.SaveChanges();
+
+                result.Result=true;
+                result.RecordId = dbCredit.Id;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+
+
+        [Authorize(Policy = "FactoryOfficer")]
+        [HttpDelete]
+        [Route("DeleteCredit")]
+        public BusinessResult DeleteCredit(int creditId){
+            BusinessResult result = new BusinessResult();
+            ResolveHeaders(Request);
+
+            try
+            {
+                var dbObj = _context.DepartmentCredit.FirstOrDefault(d => d.Id == creditId);
+                if (dbObj == null)
+                    throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                _context.DepartmentCredit.Remove(dbObj);
+
+                _context.SaveChanges();
+                result.Result=true;
+            }
+            catch (System.Exception ex)
+            {
+                result.Result=false;
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
+        }
+
+
         [Authorize(Policy = "FactoryOfficer")]
         [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
@@ -272,10 +635,25 @@ namespace MachManager.Controllers
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
 
+                if (_context.Employee.Any(d => d.DepartmentId == id))
+                    throw new Exception("Bu departmana ait personeller bulunduğu için silinemez.");
+
                 var categories = _context.DepartmentItemCategory.Where(d => d.DepartmentId == dbObj.Id).ToArray();
                 foreach (var item in categories)
                 {
                     _context.DepartmentItemCategory.Remove(item);
+                }
+
+                var machines = _context.DepartmentMachine.Where(d => d.DepartmentId == dbObj.Id).ToArray();
+                foreach (var item in machines)
+                {
+                    _context.DepartmentMachine.Remove(item);
+                }
+
+                var credits = _context.DepartmentCredit.Where(d => d.DepartmentId == dbObj.Id).ToArray();
+                foreach (var item in credits)
+                {
+                    _context.DepartmentCredit.Remove(item);
                 }
 
                 _context.Department.Remove(dbObj);

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MachManager.Context {
-    public class EmployeeCredit{
+namespace MachManager.Context{
+    public class DepartmentCredit{
         public int Id { get; set; }
         public int ActiveCredit { get; set; } = 0;
 
@@ -17,8 +17,8 @@ namespace MachManager.Context {
         [ForeignKey("Item")]
         public Nullable<int> ItemId { get; set; }
 
-        [ForeignKey("Employee")]
-        public Nullable<int> EmployeeId { get; set; }
+        [ForeignKey("Department")]
+        public Nullable<int> DepartmentId { get; set; }
 
         public int RangeCredit { get; set; } = 0;
         public int RangeIndex { get; set; } = 0;
@@ -34,7 +34,7 @@ namespace MachManager.Context {
         public Nullable<DateTime> CreditEndDate { get; set; }
 
         // REFERENCES
-        public virtual Employee Employee { get; set; }
+        public virtual Department Department { get; set; }
         public virtual ItemCategory ItemCategory { get; set; }
         public virtual ItemGroup ItemGroup { get; set; }
         public virtual Item Item { get; set; }

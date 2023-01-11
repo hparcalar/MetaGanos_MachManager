@@ -201,7 +201,7 @@ namespace MachManager.Controllers
 
                 foreach (var crd in data.Credits)
                 {
-                    if (crd.CreditStartDate < DateTime.Now.Date && crd.RangeType == 1){
+                    if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
                         var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                         if (dbCredit != null){
                             try
@@ -216,6 +216,7 @@ namespace MachManager.Controllers
                                 dbCredit.MapTo(crd);
 
                                 crd.UpdateLiveRangeData(_context);
+                                crd.MapTo(dbCredit);
 
                                 dbCredit.CreditLoadDate = DateTime.Now.Date;
                                 dbCredit.CreditStartDate = DateTime.Now.Date;
@@ -258,6 +259,7 @@ namespace MachManager.Controllers
 
                                 dbCredit.MapTo(crd);
                                 crd.UpdateLiveRangeData(_context);
+                                crd.MapTo(dbCredit);
 
                                 string newRanges = "";                            
                                 DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
@@ -339,7 +341,7 @@ namespace MachManager.Controllers
 
                 foreach (var crd in data)
                 {
-                    if (crd.CreditStartDate < DateTime.Now.Date && crd.RangeType == 1){
+                    if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
                         var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                         if (dbCredit != null){
                             try
@@ -352,8 +354,8 @@ namespace MachManager.Controllers
                                 dbCredit.SpecificRangeDates = "";
 
                                 dbCredit.MapTo(crd);
-
                                 crd.UpdateLiveRangeData(_context);
+                                crd.MapTo(dbCredit);
 
                                 dbCredit.CreditLoadDate = DateTime.Now.Date;
                                 dbCredit.CreditStartDate = DateTime.Now.Date;
@@ -396,6 +398,7 @@ namespace MachManager.Controllers
 
                                 dbCredit.MapTo(crd);
                                 crd.UpdateLiveRangeData(_context);
+                                crd.MapTo(dbCredit);
 
                                 string newRanges = "";                            
                                 DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;

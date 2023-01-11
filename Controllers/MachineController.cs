@@ -527,7 +527,7 @@ namespace MachManager.Controllers
                 
 
             #region PREPARE DATA
-            MachineConsumeAbs[] data = new MachineConsumeAbs[0];
+            MachineConsumeAbsExcel[] data = new MachineConsumeAbsExcel[0];
            
             try
             {
@@ -585,12 +585,11 @@ namespace MachManager.Controllers
                     })
                     .OrderByDescending(d => d.ConsumedDate)
                     .ToList()
-                    .Select(d => new MachineConsumeAbs {
+                    .Select(d => new MachineConsumeAbsExcel {
                         ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
                         ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
                         EmployeeName = d.EmployeeName,
-                        MachineName = d.MachineName,
-                        WarehouseName = d.WarehouseName,
+                        MachineName = d.MachineName ?? d.WarehouseName,
                         ItemCategoryName = d.ItemCategoryName,
                         ItemName = d.ItemName,
                         SpiralNo = d.SpiralNo,
@@ -598,7 +597,7 @@ namespace MachManager.Controllers
                     }).ToArray();
 
                      if (filter.PlantId == null || filter.PlantId.Length == 0)
-                        data = new MachineConsumeAbs[0];
+                        data = new MachineConsumeAbsExcel[0];
             }
             catch
             {
@@ -1076,7 +1075,7 @@ namespace MachManager.Controllers
                 //// create machine item consume
                 _context.MachineItemConsume.Add(new MachineItemConsume{
                     ConsumedCount = 1,
-                    ConsumedDate = model.DeliverDate,
+                    ConsumedDate = DateTime.Now,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,
@@ -1088,7 +1087,7 @@ namespace MachManager.Controllers
                 //// create employee credit consume
                 _context.EmployeeCreditConsume.Add(new EmployeeCreditConsume{
                     ConsumedCredit = 1,
-                    ConsumedDate = model.DeliverDate,
+                    ConsumedDate = DateTime.Now,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,
@@ -1107,7 +1106,7 @@ namespace MachManager.Controllers
                     EmployeeCreditModel creditModelDomain = new EmployeeCreditModel();
                     var checkDbCredit = checkContext.EmployeeCredit.FirstOrDefault(d => d.Id == dbCredit.Id);
                     checkDbCredit.MapTo(creditModelDomain);
-                    creditModelDomain.UpdateLiveRangeData(_context);
+                    creditModelDomain.UpdateLiveRangeData(checkContext);
                     creditModelDomain.MapTo(checkDbCredit);
                     checkContext.SaveChanges();
                 }
