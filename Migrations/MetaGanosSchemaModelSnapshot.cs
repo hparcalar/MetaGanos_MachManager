@@ -159,6 +159,75 @@ namespace MachManager.Migrations
                     b.ToTable("Department");
                 });
 
+            modelBuilder.Entity("MachManager.Context.DepartmentCredit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActiveCredit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CreditByRange")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CreditEndDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("CreditLoadDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("CreditStartDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProductIntervalTime")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProductIntervalType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RangeCredit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RangeIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RangeLength")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RangeType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SpecificRangeDates")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ItemCategoryId");
+
+                    b.HasIndex("ItemGroupId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("DepartmentCredit");
+                });
+
             modelBuilder.Entity("MachManager.Context.DepartmentItemCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -1442,6 +1511,33 @@ namespace MachManager.Migrations
                     b.Navigation("Plant");
 
                     b.Navigation("PlantPrintFile");
+                });
+
+            modelBuilder.Entity("MachManager.Context.DepartmentCredit", b =>
+                {
+                    b.HasOne("MachManager.Context.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
+                    b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
+                        .WithMany()
+                        .HasForeignKey("ItemCategoryId");
+
+                    b.HasOne("MachManager.Context.ItemGroup", "ItemGroup")
+                        .WithMany()
+                        .HasForeignKey("ItemGroupId");
+
+                    b.HasOne("MachManager.Context.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("ItemCategory");
+
+                    b.Navigation("ItemGroup");
                 });
 
             modelBuilder.Entity("MachManager.Context.DepartmentItemCategory", b =>

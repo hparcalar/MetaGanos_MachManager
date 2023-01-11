@@ -405,6 +405,31 @@ namespace MachManager.Controllers
 
                 var tokenStr = _authObject.Authenticate(true, model.Login, dbUser.PlantId ?? 0, MgAuthType.Machine);
 
+                try
+                {
+                    // review machine spiral item informations
+                    bool isSpiralsUpdated = false;
+                    var spirals = _context.MachineSpiral.Where(d => d.MachineId == dbUser.Id).ToArray();
+                    foreach (var spr in spirals)
+                    {
+                        if (spr.ItemId != null && (spr.ItemGroupId == null || spr.ItemCategoryId == null)){
+                            var dbItem = _context.Item.FirstOrDefault(d => d.Id == spr.ItemId);
+                            if (dbItem != null){
+                                spr.ItemGroupId = dbItem.ItemGroupId;
+                                spr.ItemCategoryId = dbItem.ItemCategoryId;
+                                isSpiralsUpdated = true;
+                            }
+                        }
+                    }
+
+                    if (isSpiralsUpdated)
+                        _context.SaveChanges();
+                }
+                catch (System.Exception)
+                {
+                    
+                }
+
                 return Ok(tokenStr);
             }
             catch (Exception)

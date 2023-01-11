@@ -39,6 +39,7 @@ namespace MachManager.Context {
         public DbSet<WarehouseLoad> WarehouseLoad { get; set; }
         public DbSet<WarehouseHotSalesCategory> WarehouseHotSalesCategory { get; set; }
         public DbSet<WarehouseLoadHeader> WarehouseLoadHeader { get; set; }
+        public DbSet<DepartmentCredit> DepartmentCredit { get; set; }
 
         public MetaGanosSchema() : base(){}
         public MetaGanosSchema(Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options){}

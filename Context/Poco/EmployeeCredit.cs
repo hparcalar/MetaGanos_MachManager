@@ -17,7 +17,7 @@ namespace MachManager.Context {
         [ForeignKey("Item")]
         public Nullable<int> ItemId { get; set; }
 
-        [ForeignKey("Department")]
+        [ForeignKey("Employee")]
         public Nullable<int> EmployeeId { get; set; }
 
         public int RangeCredit { get; set; } = 0;

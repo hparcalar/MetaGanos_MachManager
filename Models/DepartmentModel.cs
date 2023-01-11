@@ -10,6 +10,7 @@ namespace MachManager.Models{
         #region VISUAL ELEMENTS
         public DepartmentItemCategoryModel[] ItemCategories { get; set; }
         public DepartmentMachineModel[] Machines { get; set; }
+        public DepartmentCreditModel[] Credits { get; set; }
         public string PlantCode { get; set; }
         public string PlantName { get; set; }
         #endregion
