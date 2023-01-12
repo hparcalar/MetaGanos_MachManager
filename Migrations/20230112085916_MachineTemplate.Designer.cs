@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachManager.Migrations
 {
     [DbContext(typeof(MetaGanosSchema))]
-    [Migration("20230110145923_DepartmentCredit")]
-    partial class DepartmentCredit
+    [Migration("20230112085916_MachineTemplate")]
+    partial class MachineTemplate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1034,6 +1034,34 @@ namespace MachManager.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("MachineSpiralLoad");
+                });
+
+            modelBuilder.Entity("MachManager.Context.MachineTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BrandModel")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Cols")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DealerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Rows")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SpiralConf")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MachineTemplate");
                 });
 
             modelBuilder.Entity("MachManager.Context.Officer", b =>

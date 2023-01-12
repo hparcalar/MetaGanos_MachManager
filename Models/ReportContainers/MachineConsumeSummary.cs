@@ -26,6 +26,7 @@ namespace MachManager.Models.ReportContainers{
         public string DepartmentCode { get; set; }
         public string DepartmentName { get; set; }
         public int? SpiralNo { get; set; }
+        public int? ActiveCredit { get; set; }
         public DateTime? ConsumedDate { get; set; }
     }
 }

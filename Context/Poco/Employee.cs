@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MachManager.Context {
     public class Employee{
+        public Employee(){
+            this.EmployeeCredit = new HashSet<EmployeeCredit>();
+        }
         public int Id { get; set; }
         public string EmployeeCode { get; set; } = "";
         public string EmployeeName { get; set; } = "";
@@ -28,5 +31,8 @@ namespace MachManager.Context {
         public virtual Department Department { get; set; }
         public virtual EmployeeCard EmployeeCard { get; set; }
         public virtual Plant Plant { get; set; }
+
+        [InverseProperty("Employee")]
+        public virtual ICollection<EmployeeCredit> EmployeeCredit { get; set; }
     }
 }

@@ -99,7 +99,7 @@ namespace MachManager.Controllers
         }
 
         [Authorize(Policy = "Dealer")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public BusinessResult Delete(int id){
             BusinessResult result = new BusinessResult();
             ResolveHeaders(Request);
