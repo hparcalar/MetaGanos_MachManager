@@ -178,6 +178,7 @@ namespace MachManager.i18n{
         UserInformation=173,
         ConsumptionsBasedCategory=174,
         EmployeeCards=175,
+        Firms=176,
 
     }
 
@@ -357,6 +358,7 @@ namespace MachManager.i18n{
             { Expressions.UserInformation, "Kullanıcı Bilgileri" },
             { Expressions.ConsumptionsBasedCategory, "Kategori Bazlı Tüketimler" },
             { Expressions.EmployeeCards, "Personel Kartları" },
+            { Expressions.Firms, "Firmalar" },
         };
     }
 }

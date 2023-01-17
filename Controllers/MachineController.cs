@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using Microsoft.AspNetCore.StaticFiles;
 using MachManager.Business;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using MachManager.Models.ReportContainers;
 using ClosedXML;
 using ClosedXML.Excel;
@@ -122,6 +124,26 @@ namespace MachManager.Controllers
                         StartVideoPath = d.StartVideoPath,
                     }).FirstOrDefault();
 
+                if (data == null || data.Id == 0){
+                    int? plantId = null;
+                    if (_isDealer){
+                        var dbDealer = _context.Dealer.FirstOrDefault(d => d.Id == _appUserId);
+                        if (dbDealer != null){
+                            plantId = _context.Plant.Where(d => d.DealerId == dbDealer.Id).Select(d => d.Id).FirstOrDefault();
+                        }
+                    }
+                    else if (_isFactoryOfficer){
+                        var dbOfficer = _context.Officer.FirstOrDefault(d => d.Id == _appUserId);
+                        if (dbOfficer != null)
+                            plantId = dbOfficer.PlantId;
+                    }
+
+                    data = new MachineModel();
+                    data.PlantId = plantId;
+                    if (plantId != null)
+                        data.MachineCode = GenerateMachineCode(plantId);
+                }
+
                 data.Spirals = _context.MachineSpiral.Where(d => d.MachineId == data.Id)
                     .Select(d => new MachineSpiralModel{
                         Id = d.Id,
@@ -150,6 +172,50 @@ namespace MachManager.Controllers
             }
             
             return data;
+        }
+
+        private string GenerateMachineCode(int? plantId){
+            if (plantId != null){
+                try
+                {
+                    int nextNumber = 1000;
+                    var lastRecord = _context.Machine
+                        .OrderBy(d => d.MachineCode)
+                        .FirstOrDefault();
+
+                    if (lastRecord != null){
+                        int macCode = 1000;
+                        var convertResult = Int32.TryParse(lastRecord.MachineCode, out macCode);
+                        if (convertResult && macCode < 1000)
+                            macCode = 1000;
+                        
+                        macCode++;
+                        string dbMacCode = string.Format("{0:0000}", macCode);
+                        var existingMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == dbMacCode);
+
+                        while (existingMachine != null){
+                            macCode++;
+                            dbMacCode = string.Format("{0:0000}", macCode);
+                            existingMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == dbMacCode);
+
+                            if (macCode == 9999)
+                                break;
+                        }
+
+                        if (existingMachine == null){
+                            nextNumber = macCode;
+                        }
+                    }
+
+                    return string.Format("{0:0000}", nextNumber);
+                }
+                catch (System.Exception)
+                {
+                    
+                }
+            }
+            
+            return string.Empty;
         }
 
         [HttpGet]
