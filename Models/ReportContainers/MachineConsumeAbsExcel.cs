@@ -8,5 +8,6 @@ namespace MachManager.Models.ReportContainers{
         public string ItemName { get; set; }
         public int? SpiralNo { get; set; }
         public int? TotalConsumed { get; set; }
+        public int? ActiveCredit { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using MachManager.Context;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using MachManager.Models;
 using MachManager.Models.Operational;
 using MachManager.Helpers;
@@ -40,6 +40,42 @@ namespace MachManager.Business{
                         PlantName = d.Plant != null ? d.Plant.PlantName : "",
                     }).OrderBy(d => d.ItemCategoryCode).ToArray();
 
+            }
+            catch (System.Exception)
+            {
+                
+            }
+
+            return data;
+        }
+
+        public ItemCategoryModel[] GetItemCategoriesAboutWr(int warehouseId){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                var hotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId)
+                    .Select(d => d.ItemCategoryId).Distinct().ToArray();
+
+                data = _context.ItemCategory
+                .Where(d => hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id))
+                    .Select(d => new ItemCategoryModel{
+                        Id = d.Id,
+                        ControlTimeType = d.ControlTimeType,
+                        CreatedDate = d.CreatedDate,
+                        IsActive = d.IsActive,
+                        ItemCategoryCode = d.ItemCategoryCode,
+                        ItemCategoryName = d.ItemCategoryName,
+                        ItemChangeTime = d.ItemChangeTime,
+                        CategoryImage = d.CategoryImage,
+                        ViewOrder = d.ViewOrder,
+                        CreditRangeType = d.CreditRangeType,
+                        CreditByRange = d.CreditByRange,
+                        CreditRangeLength = d.CreditRangeLength,
+                        PlantId = d.PlantId,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
             }
             catch (System.Exception)
             {
@@ -337,19 +373,19 @@ namespace MachManager.Business{
                         (
                             search == null || search.Length == 0
                             ||
-                            (d.Department != null && EF.Functions.ILike(d.Department.DepartmentCode, "%"+ search +"%"))
+                            (d.Department != null && EF.Functions.Like(d.Department.DepartmentCode, "%"+ search +"%"))
                             ||
-                            (d.Department != null && EF.Functions.ILike(d.Department.DepartmentName, "%"+ search +"%"))
+                            (d.Department != null && EF.Functions.Like(d.Department.DepartmentName, "%"+ search +"%"))
                             ||
-                            (d.EmployeeCard != null && EF.Functions.ILike(d.EmployeeCard.CardCode, "%"+ search +"%"))
+                            (d.EmployeeCard != null && EF.Functions.Like(d.EmployeeCard.CardCode, "%"+ search +"%"))
                             ||
-                            (EF.Functions.ILike(d.EmployeeCode, "%"+ search +"%"))
+                            (EF.Functions.Like(d.EmployeeCode, "%"+ search +"%"))
                             ||
-                            (EF.Functions.ILike(d.EmployeeName, "%"+ search +"%"))
+                            (EF.Functions.Like(d.EmployeeName, "%"+ search +"%"))
                             ||
-                            (d.Plant != null && EF.Functions.ILike(d.Plant.PlantCode, "%"+ search +"%"))
+                            (d.Plant != null && EF.Functions.Like(d.Plant.PlantCode, "%"+ search +"%"))
                             ||
-                            (d.Plant != null && EF.Functions.ILike(d.Plant.PlantName, "%"+ search +"%"))
+                            (d.Plant != null && EF.Functions.Like(d.Plant.PlantName, "%"+ search +"%"))
                         )
                         &&
                         (plants == null || plants.Length == 0 || (plants != null && plants.Contains(d.PlantId ?? 0)))
@@ -386,7 +422,7 @@ namespace MachManager.Business{
 
                 resData.Data = data;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
                 
             }
@@ -406,7 +442,7 @@ namespace MachManager.Business{
                         &&
                         (search.Length == 0 || 
                             (
-                                EF.Functions.ILike(d.ItemCode, $"%{search}%") || EF.Functions.ILike(d.ItemName, $"%{search}%")
+                                EF.Functions.Like(d.ItemCode, $"%{search}%") || EF.Functions.Like(d.ItemName, $"%{search}%")
                                 // d.ItemCode.Contains(search) || d.ItemName.Contains(search)
                             )
                         )

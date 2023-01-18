@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using Microsoft.AspNetCore.StaticFiles;
 using MachManager.Business;
+using Microsoft.EntityFrameworkCore;
 using MachManager.Models.ReportContainers;
 using ClosedXML;
 using ClosedXML.Excel;
@@ -122,6 +123,26 @@ namespace MachManager.Controllers
                         StartVideoPath = d.StartVideoPath,
                     }).FirstOrDefault();
 
+                if (data == null || data.Id == 0){
+                    int? plantId = null;
+                    if (_isDealer){
+                        var dbDealer = _context.Dealer.FirstOrDefault(d => d.Id == _appUserId);
+                        if (dbDealer != null){
+                            plantId = _context.Plant.Where(d => d.DealerId == dbDealer.Id).Select(d => d.Id).FirstOrDefault();
+                        }
+                    }
+                    else if (_isFactoryOfficer){
+                        var dbOfficer = _context.Officer.FirstOrDefault(d => d.Id == _appUserId);
+                        if (dbOfficer != null)
+                            plantId = dbOfficer.PlantId;
+                    }
+
+                    data = new MachineModel();
+                    data.PlantId = plantId;
+                    if (plantId != null)
+                        data.MachineCode = GenerateMachineCode(plantId);
+                }
+
                 data.Spirals = _context.MachineSpiral.Where(d => d.MachineId == data.Id)
                     .Select(d => new MachineSpiralModel{
                         Id = d.Id,
@@ -150,6 +171,50 @@ namespace MachManager.Controllers
             }
             
             return data;
+        }
+
+        private string GenerateMachineCode(int? plantId){
+            if (plantId != null){
+                try
+                {
+                    int nextNumber = 1000;
+                    var lastRecord = _context.Machine
+                        .OrderBy(d => d.MachineCode)
+                        .FirstOrDefault();
+
+                    if (lastRecord != null){
+                        int macCode = 1000;
+                        var convertResult = Int32.TryParse(lastRecord.MachineCode, out macCode);
+                        if (convertResult && macCode < 1000)
+                            macCode = 1000;
+                        
+                        macCode++;
+                        string dbMacCode = string.Format("{0:0000}", macCode);
+                        var existingMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == dbMacCode);
+
+                        while (existingMachine != null){
+                            macCode++;
+                            dbMacCode = string.Format("{0:0000}", macCode);
+                            existingMachine = _context.Machine.FirstOrDefault(d => d.MachineCode == dbMacCode);
+
+                            if (macCode == 9999)
+                                break;
+                        }
+
+                        if (existingMachine == null){
+                            nextNumber = macCode;
+                        }
+                    }
+
+                    return string.Format("{0:0000}", nextNumber);
+                }
+                catch (System.Exception)
+                {
+                    
+                }
+            }
+            
+            return string.Empty;
         }
 
         [HttpGet]
@@ -467,6 +532,9 @@ namespace MachManager.Controllers
                         MachineName = d.Machine != null ? d.Machine.MachineName : "",
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
+                        ItemGroupId = d.Item.ItemGroupId,
+                        ItemCategoryId = d.Item.ItemCategoryId,
+                        ItemId = d.Item.Id,
                         ItemCategoryCode = d.Item.ItemCategory.ItemCategoryCode,
                         ItemCategoryName = d.Item.ItemCategory.ItemCategoryName,
                         EmployeeCode = d.Employee.EmployeeCode,
@@ -476,7 +544,6 @@ namespace MachManager.Controllers
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
                         DepartmentCode = d.Employee.Department != null ? d.Employee.Department.DepartmentCode : "",
                         DepartmentName = d.Employee.Department != null ? d.Employee.Department.DepartmentName : "",
-                        ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
                         ConsumedDate = d.ConsumedDate.Value,
@@ -489,6 +556,8 @@ namespace MachManager.Controllers
                         EmployeeId = d.Key.EmployeeId,
                         PlantId = d.Key.PlantId,
                         ItemId = d.Key.ItemId,
+                        ItemCategoryId = d.Key.ItemCategoryId,
+                        ItemGroupId = d.Key.ItemGroupId,
                         MachineCode = d.Key.MachineCode,
                         MachineName = d.Key.MachineName,
                         EmployeeCode = d.Key.EmployeeCode,
@@ -505,9 +574,51 @@ namespace MachManager.Controllers
                         SpiralNo = d.Key.SpiralNo,
                         EmployeeCardCode = d.Key.EmployeeCardCode,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
+                        ActiveCredit = 0,
                     })
                     .OrderByDescending(d => d.ConsumedDate)
                     .ToArray();
+
+                var employees = data.Select(d => d.EmployeeId).Distinct().ToArray();
+
+                var credits = _context.EmployeeCredit.Where(d => 
+                    employees.Contains(d.EmployeeId)
+                ).ToArray();
+
+                data = data.Select(d => new MachineConsumeSummary{
+                    Id = d.Id,
+                    MachineId = d.MachineId,
+                    EmployeeId = d.EmployeeId,
+                    PlantId = d.PlantId,
+                    ItemCategoryId = d.ItemCategoryId,
+                    ItemGroupId = d.ItemGroupId,
+                    ItemId = d.ItemId,
+                    MachineCode = d.MachineCode,
+                    MachineName = d.MachineName,
+                    EmployeeCode = d.EmployeeCode,
+                    EmployeeName = d.EmployeeName,
+                    ItemCode = d.ItemCode,
+                    ItemName = d.ItemName,
+                    ItemCategoryCode = d.ItemCategoryCode,
+                    ItemCategoryName = d.ItemCategoryName,
+                    DepartmentCode = d.DepartmentCode,
+                    DepartmentName = d.DepartmentName,
+                    WarehouseCode = d.WarehouseCode,
+                    WarehouseName = d.WarehouseName,
+                    ConsumedDate = d.ConsumedDate,
+                    SpiralNo = d.SpiralNo,
+                    EmployeeCardCode = d.EmployeeCardCode,
+                    TotalConsumed = d.TotalConsumed,
+                    ActiveCredit = credits.Where(m => m.EmployeeId == d.EmployeeId && 
+                        (
+                            (m.ItemCategoryId == d.ItemCategoryId && d.ItemGroupId == null && d.ItemId == null)
+                            ||
+                            (m.ItemGroupId == d.ItemGroupId && d.ItemId == null)
+                            ||
+                            (m.ItemId == d.ItemId)
+                        )
+                    ).Select(m => m.RangeCredit).FirstOrDefault(),
+                }).ToArray();
             }
             catch (System.Exception)
             {
@@ -531,7 +642,7 @@ namespace MachManager.Controllers
            
             try
             {
-                data = _context.MachineItemConsume
+                var rawData = _context.MachineItemConsume
                     .Where(d =>
                         (filter == null || filter.MachineId == null || filter.MachineId.Length == 0 || filter.MachineId.Contains(d.MachineId ?? 0))
                         &&
@@ -549,6 +660,9 @@ namespace MachManager.Controllers
                     .GroupBy(d => new {
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
                         MachineName = d.Machine != null ? d.Machine.MachineName : "",
+                        ItemId = d.ItemId,
+                        ItemGroupId = d.Item.ItemGroupId,
+                        ItemCategoryId = d.Item.ItemCategoryId,
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
                         ItemCategoryCode = d.Item.ItemCategory.ItemCategoryCode,
@@ -558,7 +672,6 @@ namespace MachManager.Controllers
                         EmployeeCode = d.Employee.EmployeeCode,
                         EmployeeName = d.Employee.EmployeeName,
                         MachineId = d.MachineId,
-                        ItemId = d.ItemId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
                         ConsumedDate = d.ConsumedDate.Value,
@@ -569,6 +682,8 @@ namespace MachManager.Controllers
                         EmployeeId = d.Key.EmployeeId,
                         PlantId = d.Key.PlantId,
                         ItemId = d.Key.ItemId,
+                        ItemGroupId = d.Key.ItemGroupId,
+                        ItemCategoryId = d.Key.ItemCategoryId,
                         MachineCode = d.Key.MachineCode,
                         MachineName = d.Key.MachineName,
                         WarehouseCode = d.Key.WarehouseCode,
@@ -584,20 +699,37 @@ namespace MachManager.Controllers
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
                     .OrderByDescending(d => d.ConsumedDate)
-                    .ToList()
-                    .Select(d => new MachineConsumeAbsExcel {
-                        ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
-                        ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
-                        EmployeeName = d.EmployeeName,
-                        MachineName = d.MachineName ?? d.WarehouseName,
-                        ItemCategoryName = d.ItemCategoryName,
-                        ItemName = d.ItemName,
-                        SpiralNo = d.SpiralNo,
-                        TotalConsumed = d.TotalConsumed,
-                    }).ToArray();
+                    .ToList();
 
-                     if (filter.PlantId == null || filter.PlantId.Length == 0)
-                        data = new MachineConsumeAbsExcel[0];
+                var employees = rawData.Select(d => d.EmployeeId).Distinct().ToArray();
+
+                var credits = _context.EmployeeCredit.Where(d => 
+                    employees.Contains(d.EmployeeId)
+                ).ToArray();
+
+                data = rawData
+                    .Select(d => new MachineConsumeAbsExcel {
+                            ConsumedDate = string.Format("{0:dd.MM.yyyy}", d.ConsumedDate),
+                            ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
+                            EmployeeName = d.EmployeeName,
+                            MachineName = d.MachineName ?? d.WarehouseName,
+                            ItemCategoryName = d.ItemCategoryName,
+                            ItemName = d.ItemName,
+                            SpiralNo = d.SpiralNo,
+                            TotalConsumed = d.TotalConsumed,
+                            ActiveCredit = credits.Where(m => m.EmployeeId == d.EmployeeId && 
+                            (
+                                (m.ItemCategoryId == d.ItemCategoryId && d.ItemGroupId == null && d.ItemId == null)
+                                ||
+                                (m.ItemGroupId == d.ItemGroupId && d.ItemId == null)
+                                ||
+                                (m.ItemId == d.ItemId)
+                            )
+                            ).Select(m => m.RangeCredit).FirstOrDefault(),
+                        }).ToArray();
+
+                if (filter.PlantId == null || filter.PlantId.Length == 0)
+                data = new MachineConsumeAbsExcel[0];
             }
             catch
             {
@@ -619,6 +751,7 @@ namespace MachManager.Controllers
                 worksheet.Cell(1,6).Value = "Stok";
                 worksheet.Cell(1,7).Value = "Spiral No";
                 worksheet.Cell(1,8).Value = "Miktar";
+                worksheet.Cell(1,9).Value = "Bakiye";
 
                 worksheet.Cell(2,1).InsertData(data);
 
@@ -1075,7 +1208,7 @@ namespace MachManager.Controllers
                 //// create machine item consume
                 _context.MachineItemConsume.Add(new MachineItemConsume{
                     ConsumedCount = 1,
-                    ConsumedDate = DateTime.Now,
+                    ConsumedDate = DateTime.Now, //model.DeliverDate,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,
@@ -1087,7 +1220,7 @@ namespace MachManager.Controllers
                 //// create employee credit consume
                 _context.EmployeeCreditConsume.Add(new EmployeeCreditConsume{
                     ConsumedCredit = 1,
-                    ConsumedDate = DateTime.Now,
+                    ConsumedDate = DateTime.Now, //model.DeliverDate,
                     EmployeeId = model.EmployeeId,
                     ItemId = model.ItemId,
                     ItemGroupId = dbItem.ItemGroupId,

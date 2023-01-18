@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Cors;
 using MachManager.Helpers;
 using MachManager.Business;
 using MachManager.Models.Parameters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using ClosedXML;
 using ClosedXML.Excel;
 
@@ -77,6 +79,104 @@ namespace MachManager.Controllers
             
             return data;
         }
+
+        [HttpGet]
+        [Route("SearchForWarehouse/{warehouseId}/{employeeId}/{query}")]
+        public IEnumerable<ItemModel> SearchForWarehouse(int warehouseId, int employeeId, string query)
+        {
+            ResolveHeaders(Request);
+            ItemModel[] data = new ItemModel[0];
+
+            if (query == null)
+                query = "";
+
+            try
+            {
+                var dbWarehouse = _context.Warehouse.FirstOrDefault(d => d.Id == warehouseId);
+
+                var hotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId)
+                    .Select(d => d.ItemCategoryId).Distinct().ToArray();
+
+                var hotSalesGroups = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId && d.ItemGroupId != null)
+                    .Select(d => d.ItemGroupId).Distinct().ToArray();
+                
+                var hotSalesItems = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId && d.ItemGroupId != null && d.ItemId != null)
+                    .Select(d => d.ItemId).Distinct().ToArray();
+
+                var credits = _context.EmployeeCredit.Where(d => d.EmployeeId == employeeId)
+                    .Select(d => new EmployeeCreditModel{
+                        Id = d.Id,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupId = d.ItemGroupId,
+                        ItemId = d.ItemId,
+                        RangeCredit = d.RangeCredit,
+                    }).ToArray();
+
+                data = _context.Item
+                    .Where(d =>
+                        d.ItemCategory.PlantId == dbWarehouse.PlantId
+                        &&
+                        (query.Length == 0 || 
+                            (
+                                EF.Functions.Like(d.ItemCode, $"%{query}%") || EF.Functions.Like(d.ItemName, $"%{query}%")
+                                || d.Barcode1 == query || d.Barcode2 == query
+                            )
+                        )
+                        &&
+                        (
+                            (hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.ItemCategoryId))
+                            &&
+                            (hotSalesGroups.Length == 0 || hotSalesGroups.Contains(d.ItemGroupId))
+                            &&
+                            (hotSalesItems.Length == 0 || hotSalesItems.Contains(d.Id))
+                        )
+                    )
+                    .Select(d => new ItemModel{
+                    Id = d.Id,
+                    AlternatingCode1 = d.AlternatingCode1,
+                    AlternatingCode2 = d.AlternatingCode2,
+                    Barcode1 = d.Barcode1,
+                    Barcode2 = d.Barcode2,
+                    CreatedDate = d.CreatedDate,
+                    CriticalMax = d.CriticalMax,
+                    CriticalMin = d.CriticalMin,
+                    Explanation = d.Explanation,
+                    IsActive = d.IsActive,
+                    ItemImage = d.ItemImage,
+                    ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                    ItemCategoryId = d.ItemCategoryId,
+                    ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                    ItemCode = d.ItemCode,
+                    ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                    ItemGroupId = d.ItemGroupId,
+                    ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                    ItemName = d.ItemName,
+                    Price1 = d.Price1,
+                    Price2 = d.Price2,
+                    UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                    UnitTypeId = d.UnitTypeId,
+                    UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                    ViewOrder = d.ViewOrder
+                }).ToArray();
+
+                data = data.Where(d => 
+                    credits.Any(c => 
+                        c.ItemCategoryId == d.ItemCategoryId
+                        &&
+                        (c.ItemGroupId == null || c.ItemGroupId == d.ItemGroupId)
+                        &&
+                        (c.ItemId == null || c.ItemId == d.Id)
+                    )
+                ).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
 
         [Authorize(Policy = "FactoryOfficer")]
         [HttpGet]

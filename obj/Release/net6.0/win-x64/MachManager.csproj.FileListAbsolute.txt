@@ -436,8 +436,6 @@ D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Microsoft.
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Microsoft.IdentityModel.Tokens.dll
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Microsoft.OpenApi.dll
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Microsoft.Win32.SystemEvents.dll
-D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Npgsql.dll
-D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Swashbuckle.AspNetCore.Swagger.dll
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Swashbuckle.AspNetCore.SwaggerUI.dll

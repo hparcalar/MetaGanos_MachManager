@@ -126,6 +126,11 @@ namespace MachManager.Controllers
                         Last4CharForCardRead = d.Last4CharForCardRead,
                         AutoSpiralLoading = d.AutoSpiralLoading,
                     }).FirstOrDefault();
+
+                if (data == null || data.Id == 0){
+                    data = new PlantModel();
+                    data.PlantCode = GeneratePlantCode();
+                }
             }
             catch
             {
@@ -133,6 +138,48 @@ namespace MachManager.Controllers
             }
             
             return data;
+        }
+
+        private string GeneratePlantCode(){
+            try
+            {
+                int nextNumber = 2000;
+                var lastRecord = _context.Plant
+                    .OrderBy(d => d.PlantCode)
+                    .FirstOrDefault();
+
+                if (lastRecord != null){
+                    int macCode = 2000;
+                    var convertResult = Int32.TryParse(lastRecord.PlantCode, out macCode);
+                    if (convertResult && macCode < 2000)
+                        macCode = 2000;
+                    
+                    macCode++;
+                    string dbMacCode = string.Format("{0:0000}", macCode);
+                    var existingMachine = _context.Plant.FirstOrDefault(d => d.PlantCode == dbMacCode);
+
+                    while (existingMachine != null){
+                        macCode++;
+                        dbMacCode = string.Format("{0:0000}", macCode);
+                        existingMachine = _context.Plant.FirstOrDefault(d => d.PlantCode == dbMacCode);
+
+                        if (macCode == 9999)
+                            break;
+                    }
+
+                    if (existingMachine == null){
+                        nextNumber = macCode;
+                    }
+                }
+
+                return string.Format("{0:0000}", nextNumber);
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            
+            return string.Empty;
         }
 
         [AllowAnonymous]
@@ -560,6 +607,9 @@ namespace MachManager.Controllers
 
             try
             {
+                if (model.DealerId == null)
+                    throw new Exception("Bayi bilgisi seçmelisiniz.");
+
                 var dbObj = _context.Plant.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
                     dbObj = new Plant();

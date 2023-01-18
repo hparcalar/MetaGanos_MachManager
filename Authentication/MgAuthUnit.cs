@@ -11,5 +11,7 @@ namespace MachManager.Authentication{
         Items,
         ConsumptionReport,
         EmployeeCards,
+        Warehouses,
+        Firms,
     }
 }

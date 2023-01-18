@@ -291,6 +291,35 @@ namespace MachManager.Controllers
                     dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
+
+                    using (MetaGanosSchema nContext = SchemaFactory.CreateContext()){
+                        data.Credits = nContext.EmployeeCredit.Where(d => d.EmployeeId == id)
+                        .Select(d => new EmployeeCreditModel{
+                            Id = d.Id,
+                            ActiveCredit = d.ActiveCredit,
+                            EmployeeId = d.EmployeeId,
+                            ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemGroupId = d.ItemGroupId,
+                            ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                            ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                            ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                            ItemId = d.ItemId,
+                            ItemName = d.Item != null ? d.Item.ItemName : "",
+                            CreditEndDate = d.CreditEndDate,
+                            CreditLoadDate = d.CreditLoadDate,
+                            CreditStartDate = d.CreditStartDate,
+                            CreditByRange = d.CreditByRange,
+                            RangeLength = d.RangeLength,
+                            RangeCredit = d.RangeCredit,
+                            RangeIndex = d.RangeIndex,
+                            RangeType = d.RangeType,
+                            ProductIntervalTime = d.ProductIntervalTime,
+                            ProductIntervalType = d.ProductIntervalType,
+                            SpecificRangeDates = d.SpecificRangeDates,
+                        }).OrderBy(d => d.CreditLoadDate).ToArray();
+
+                    }
                 }
             }
             catch
@@ -427,6 +456,35 @@ namespace MachManager.Controllers
                     dbPlant.LastUpdateDate = DateTime.Now.AddMinutes(10);
 
                     _context.SaveChanges();
+
+                    using (MetaGanosSchema nContext = SchemaFactory.CreateContext()){
+                        data = nContext.EmployeeCredit.Where(d => d.EmployeeId == id)
+                        .Select(d => new EmployeeCreditModel{
+                            Id = d.Id,
+                            ActiveCredit = d.ActiveCredit,
+                            EmployeeId = d.EmployeeId,
+                            ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemGroupId = d.ItemGroupId,
+                            ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                            ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                            ItemCode = d.Item != null ? d.Item.ItemCode : "",
+                            ItemId = d.ItemId,
+                            ItemName = d.Item != null ? d.Item.ItemName : "",
+                            CreditEndDate = d.CreditEndDate,
+                            CreditLoadDate = d.CreditLoadDate,
+                            CreditStartDate = d.CreditStartDate,
+                            CreditByRange = d.CreditByRange,
+                            RangeLength = d.RangeLength,
+                            RangeCredit = d.RangeCredit,
+                            RangeIndex = d.RangeIndex,
+                            RangeType = d.RangeType,
+                            ProductIntervalTime = d.ProductIntervalTime,
+                            ProductIntervalType = d.ProductIntervalType,
+                            SpecificRangeDates = d.SpecificRangeDates,
+                        }).OrderBy(d => d.CreditLoadDate).ToArray();
+
+                    }
                 }
             }
             catch

@@ -102,15 +102,22 @@ namespace MachManager.Controllers
 
             try
             {
+                if (model.PlantId == null)
+                    throw new Exception("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+
                 var dbObj = _context.EmployeeCard.FirstOrDefault(d => d.Id == model.Id);
                 if (dbObj == null){
                     dbObj = new EmployeeCard();
                     _context.EmployeeCard.Add(dbObj);
                 }
 
+                var dbOther = _context.Employee.FirstOrDefault(d => d.EmployeeCard != null && d.EmployeeCard.CardCode == model.CardCode
+                    && d.PlantId == model.PlantId);
+
                 if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode
                     && d.PlantId == model.PlantId && d.Id != model.Id))
-                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage));
+                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage) + 
+                    " Ait olduğu kişi: " + dbOther.EmployeeName);
 
                 model.MapTo(dbObj);
 
