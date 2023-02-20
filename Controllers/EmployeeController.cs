@@ -202,8 +202,9 @@ namespace MachManager.Controllers
                 foreach (var crd in data.Credits)
                 {
                     if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
-                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
-                        if (dbCredit != null){
+                        while (crd.CreditLoadDate < DateTime.Now.Date){
+                            var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                            if (dbCredit != null){
                             try
                             {
                                 dbCredit.CreditLoadDate = DateTime.Now.Date;
@@ -244,10 +245,12 @@ namespace MachManager.Controllers
 
                             _creditUpdated = true;
                         }
+                        }
                     }
                     else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
-                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
-                        if (dbCredit != null){
+                        while (crd.CreditEndDate <= DateTime.Now.Date){
+                            var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                            if (dbCredit != null){
                             try
                             {
                                 var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditLoadDate.Value).TotalDays));
@@ -282,6 +285,7 @@ namespace MachManager.Controllers
                             {
                                 
                             }
+                        }
                         }
                     }
                 }
@@ -371,8 +375,9 @@ namespace MachManager.Controllers
                 foreach (var crd in data)
                 {
                     if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
-                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
-                        if (dbCredit != null){
+                        while (crd.CreditLoadDate < DateTime.Now.Date){
+                            var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                            if (dbCredit != null){
                             try
                             {
                                 dbCredit.CreditLoadDate = DateTime.Now.Date;
@@ -412,40 +417,43 @@ namespace MachManager.Controllers
 
                             _creditUpdated = true;
                         }
+                        }
                     }
                     else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
-                        var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
-                        if (dbCredit != null){
-                            try
-                            {
-                                var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditLoadDate.Value).TotalDays));
-                                dbCredit.CreditLoadDate = crd.CreditEndDate.Value;
-                                dbCredit.RangeCredit = crd.CreditByRange;
-                                dbCredit.ActiveCredit = crd.CreditByRange;
-                                dbCredit.CreditStartDate = dbCredit.CreditEndDate.Value;
-                                dbCredit.CreditEndDate = dbCredit.CreditEndDate.Value.AddDays(diffDays);
+                        while (crd.CreditEndDate <= DateTime.Now.Date){
+                            var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
+                            if (dbCredit != null){
+                                try
+                                {
+                                    var diffDays = Convert.ToInt32(Math.Abs((crd.CreditEndDate.Value - crd.CreditLoadDate.Value).TotalDays));
+                                    dbCredit.CreditLoadDate = crd.CreditEndDate.Value;
+                                    dbCredit.RangeCredit = crd.CreditByRange;
+                                    dbCredit.ActiveCredit = crd.CreditByRange;
+                                    dbCredit.CreditStartDate = dbCredit.CreditEndDate.Value;
+                                    dbCredit.CreditEndDate = dbCredit.CreditEndDate.Value.AddDays(diffDays);
 
-                                dbCredit.MapTo(crd);
-                                crd.UpdateLiveRangeData(_context);
-                                crd.MapTo(dbCredit);
+                                    dbCredit.MapTo(crd);
+                                    crd.UpdateLiveRangeData(_context);
+                                    crd.MapTo(dbCredit);
 
-                                string newRanges = "";                            
-                                DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
+                                    string newRanges = "";                            
+                                    DateTime dtCurrent = dbCredit.CreditStartDate.Value.Date;
 
-                                while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
-                                    newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
-                                    dtCurrent = dtCurrent.AddDays(1);
+                                    while (dtCurrent <= dbCredit.CreditEndDate.Value.Date){
+                                        newRanges += "\""+ string.Format("{0:yyyy-MM-ddTHH:mm:ss}", dtCurrent) +".000Z\",";
+                                        dtCurrent = dtCurrent.AddDays(1);
+                                    }
+
+                                    newRanges = newRanges.Substring(0, newRanges.Length - 1);
+                                    newRanges = "[" + newRanges + "]";
+                                    dbCredit.SpecificRangeDates = newRanges;
+
+                                    _creditUpdated = true;
                                 }
-
-                                newRanges = newRanges.Substring(0, newRanges.Length - 1);
-                                newRanges = "[" + newRanges + "]";
-                                dbCredit.SpecificRangeDates = newRanges;
-
-                                _creditUpdated = true;
-                            }
-                            catch (System.Exception)
-                            {
-                                
+                                catch (System.Exception)
+                                {
+                                    
+                                }
                             }
                         }
                     }

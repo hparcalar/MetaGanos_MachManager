@@ -11,6 +11,7 @@ namespace MachManager.Models{
         public DateTime? LastUpdateDate { get; set; }
         public bool? Last4CharForCardRead { get; set; }
         public bool? AutoSpiralLoading { get; set; }
+        public bool? IsCreditsVisible { get; set; }
 
         #region VISUAL ELEMENTS
         public string DealerCode { get; set; }

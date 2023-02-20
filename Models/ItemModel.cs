@@ -27,6 +27,7 @@ namespace MachManager.Models{
         public string ItemCategoryName { get; set; }
         public string UnitTypeCode { get; set; }
         public string UnitTypeName { get; set; }
+        public int? PlantId { get; set; }
         #endregion
     }
 }

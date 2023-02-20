@@ -32,6 +32,7 @@ namespace MachManager.Authentication
             }
             else if (authType == MgAuthType.FactoryOfficer){
                 claimList.Add(new Claim(ClaimTypes.Role, "Machine"));
+                claimList.Add(new Claim(ClaimTypes.Role, "Employee"));
             }
 
             claimList.Add(new Claim(ClaimTypes.UserData, userId.ToString()));

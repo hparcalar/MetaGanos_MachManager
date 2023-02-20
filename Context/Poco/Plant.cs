@@ -18,6 +18,7 @@ namespace MachManager.Context {
         public Nullable<int> DealerId { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
         public bool? AutoSpiralLoading { get; set; }
+        public bool? IsCreditsVisible { get; set; }
 
         // REFERENCES
         public virtual Dealer Dealer { get; set; }

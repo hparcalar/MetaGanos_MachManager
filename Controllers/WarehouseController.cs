@@ -96,6 +96,49 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("GetByCode/{plantId}")]
+        public WarehouseModel GetByCode(int plantId, string wrCode)
+        {
+            WarehouseModel data = new WarehouseModel();
+            try
+            {
+                data = _context.Warehouse.Where(d => d.PlantId == plantId && d.WarehouseCode == wrCode)
+                    .Select(d => new WarehouseModel{
+                        Id = d.Id,
+                        DealerId = d.DealerId,
+                        IsActive = d.IsActive,
+                        PlantId = d.PlantId,
+                        WarehouseCode = d.WarehouseCode,
+                        WarehouseName = d.WarehouseName,
+                    }).FirstOrDefault();
+
+                if (data != null && data.Id > 0){
+                    data.HotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == data.Id)
+                        .Select(d => new WarehouseHotSalesCategoryModel{
+                            Id = d.Id,
+                            ItemCategoryId = d.ItemCategoryId,
+                            ItemGroupId = d.ItemGroupId,
+                            ItemId = d.ItemId,
+                            ItemText = d.Item != null ? d.Item.ItemName :
+                                d.ItemGroup != null ? d.ItemGroup.ItemGroupName :
+                                d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        }).ToArray();
+                }
+                else
+                {
+                    data = new WarehouseModel();
+                    data.HotSalesCategories = new WarehouseHotSalesCategoryModel[0];
+                }
+            }
+            catch
+            {
+
+            }
+
+            return data;
+        }
+        
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(WarehouseModel model){
@@ -152,7 +195,7 @@ namespace MachManager.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "FactoryOfficer")]
+        [Authorize(Policy = "Employee")]
         [Route("{plantId}/DeliverProduct")]
         public BusinessResult DeliverProduct(int plantId, DeliverProductModel model){
             BusinessResult result = new BusinessResult();
@@ -425,6 +468,8 @@ namespace MachManager.Controllers
             {
                 data = _context.WarehouseLoad
                     .Where(d =>
+                        (d.Item != null && d.Item.ItemCategory.PlantId == dbPlant.Id) 
+                        &&
                         (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
                         &&
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))

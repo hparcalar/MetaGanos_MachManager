@@ -352,7 +352,7 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/hostfxr.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/hostpolicy.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore_amd64_amd64_6.0.1022.47605.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordaccore_amd64_amd64_6.0.1322.58009.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscordbi.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/mscorrc.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/msquic.dll
@@ -376,6 +376,7 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.IdentityModel.Tokens.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.OpenApi.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Microsoft.Win32.SystemEvents.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Newtonsoft.Json.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Npgsql.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Npgsql.EntityFrameworkCore.PostgreSQL.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/publish/Swashbuckle.AspNetCore.Swagger.dll

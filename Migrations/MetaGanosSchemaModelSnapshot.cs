@@ -117,6 +117,15 @@ namespace MachManager.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsRoot")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastSelfValidation")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LicenseKey")
+                        .HasColumnType("text");
+
                     b.Property<int?>("ParentDealerId")
                         .HasColumnType("integer");
 
@@ -813,6 +822,37 @@ namespace MachManager.Migrations
                     b.ToTable("ItemReceiptDetail");
                 });
 
+            modelBuilder.Entity("MachManager.Context.LicenseKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DealerCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DealerName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastValidation")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LicenseCode")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LicenseKey");
+                });
+
             modelBuilder.Entity("MachManager.Context.Machine", b =>
                 {
                     b.Property<int>("Id")
@@ -1119,6 +1159,9 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsCreditsVisible")
                         .HasColumnType("boolean");
 
                     b.Property<bool?>("Last4CharForCardRead")
@@ -1649,7 +1692,7 @@ namespace MachManager.Migrations
             modelBuilder.Entity("MachManager.Context.EmployeeCredit", b =>
                 {
                     b.HasOne("MachManager.Context.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("EmployeeCredit")
                         .HasForeignKey("EmployeeId");
 
                     b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
@@ -2074,6 +2117,11 @@ namespace MachManager.Migrations
                     b.Navigation("Plant");
 
                     b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("MachManager.Context.Employee", b =>
+                {
+                    b.Navigation("EmployeeCredit");
                 });
 
             modelBuilder.Entity("MachManager.Context.EmployeeCard", b =>

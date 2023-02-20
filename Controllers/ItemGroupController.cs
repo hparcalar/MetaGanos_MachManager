@@ -205,6 +205,63 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Route("ItemsForWarehouse/{groupId}/{warehouseId}")]
+        public IEnumerable<ItemModel> GetItemsForWarehouse(int groupId, int warehouseId)
+        {
+            ResolveHeaders(Request);
+            ItemModel[] data = new ItemModel[0];
+            try
+            {
+                var hotSalesItems = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId
+                        && d.ItemGroupId == groupId
+                        && d.ItemId != null
+                    )
+                    .Select(d => d.ItemId).Distinct().ToArray();
+
+                data = _context.Item
+                    .Where(d => d.ItemGroupId == groupId
+                        &&
+                        (
+                            hotSalesItems.Length == 0 || hotSalesItems.Contains(d.Id)
+                        )
+                    )
+                    .Select(d => new ItemModel{
+                        Id = d.Id,
+                        AlternatingCode1 = d.AlternatingCode1,
+                        AlternatingCode2 = d.AlternatingCode2,
+                        Barcode1 = d.Barcode1,
+                        Barcode2 = d.Barcode2,
+                        CreatedDate = d.CreatedDate,
+                        CriticalMax = d.CriticalMax,
+                        CriticalMin = d.CriticalMin,
+                        Explanation = d.Explanation,
+                        IsActive = d.IsActive,
+                        ItemImage = d.ItemImage,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.ItemCode,
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemName = d.ItemName,
+                        Price1 = d.Price1,
+                        Price2 = d.Price2,
+                        UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                        UnitTypeId = d.UnitTypeId,
+                        UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                        ViewOrder = d.ViewOrder
+                    }).OrderBy(d => d.ItemCode).ToArray();
+            }
+            catch
+            {
+
+            }
+
+            return data;
+        }
+
 
         [Authorize(Policy = "FactoryOfficer")]
         [Route("{id}")]

@@ -37,6 +37,7 @@ namespace MachManager.Controllers
                         IsActive = d.IsActive,
                         ParentDealerId = d.ParentDealerId,
                         DefaultLanguage = d.DefaultLanguage,
+                        ParentDealerName = d.ParentDealer != null ? d.ParentDealer.DealerName : "",
                     }).OrderBy(d => d.DealerCode).ToArray();
             }
             catch

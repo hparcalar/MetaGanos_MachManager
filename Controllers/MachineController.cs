@@ -672,6 +672,8 @@ namespace MachManager.Controllers
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
                         EmployeeCode = d.Employee.EmployeeCode,
                         EmployeeName = d.Employee.EmployeeName,
+                        DepartmentCode = d.Employee.Department != null ? d.Employee.Department.DepartmentCode : "",
+                        DepartmentName = d.Employee.Department != null ? d.Employee.Department.DepartmentName : "",
                         MachineId = d.MachineId,
                         EmployeeId = d.EmployeeId,
                         PlantId = d.Machine.PlantId,
@@ -691,6 +693,8 @@ namespace MachManager.Controllers
                         WarehouseName = d.Key.WarehouseName,
                         EmployeeCode = d.Key.EmployeeCode,
                         EmployeeName = d.Key.EmployeeName,
+                        DepartmentCode = d.Key.DepartmentCode,
+                        DepartmentName = d.Key.DepartmentName,
                         ItemCode = d.Key.ItemCode,
                         ItemName = d.Key.ItemName,
                         ItemCategoryCode = d.Key.ItemCategoryCode,
@@ -714,6 +718,7 @@ namespace MachManager.Controllers
                             ConsumedTime = string.Format("{0:HH:mm}", d.ConsumedDate),
                             EmployeeName = d.EmployeeName,
                             MachineName = d.MachineName ?? d.WarehouseName,
+                            DepartmentName = d.DepartmentName,
                             ItemCategoryName = d.ItemCategoryName,
                             ItemName = d.ItemName,
                             SpiralNo = d.SpiralNo,
@@ -748,11 +753,12 @@ namespace MachManager.Controllers
                 worksheet.Cell(1,2).Value = "Saat";
                 worksheet.Cell(1,3).Value = "Personel";
                 worksheet.Cell(1,4).Value = "Makine";
-                worksheet.Cell(1,5).Value = "Kategori";
-                worksheet.Cell(1,6).Value = "Stok";
-                worksheet.Cell(1,7).Value = "Spiral No";
-                worksheet.Cell(1,8).Value = "Miktar";
-                worksheet.Cell(1,9).Value = "Bakiye";
+                worksheet.Cell(1,5).Value = "Departman";
+                worksheet.Cell(1,6).Value = "Kategori";
+                worksheet.Cell(1,7).Value = "Stok";
+                worksheet.Cell(1,8).Value = "Spiral No";
+                worksheet.Cell(1,9).Value = "Miktar";
+                worksheet.Cell(1,10).Value = "Bakiye";
 
                 worksheet.Cell(2,1).InsertData(data);
 

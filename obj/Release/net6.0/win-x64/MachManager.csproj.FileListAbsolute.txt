@@ -405,5 +405,6 @@
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.Security.Cryptography.ProtectedData.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/System.Windows.Extensions.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/Microsoft.Data.SqlClient.SNI.dll
-/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.1022.47605.dll
 /home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/ref/MachManager.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/Newtonsoft.Json.dll
+/home/hakan/Projects/MetaGanos/MachManager/bin/Release/net6.0/win-x64/mscordaccore_amd64_amd64_6.0.1322.58009.dll

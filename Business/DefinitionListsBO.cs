@@ -93,6 +93,45 @@ namespace MachManager.Business{
             return data;
         }
 
+        public ItemCategoryModel[] GetItemCategoriesAboutWr(int warehouseId){
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+
+            try
+            {
+                var dbWarehouse = _context.Warehouse.FirstOrDefault(d => d.Id == warehouseId);
+                var hotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId)
+                    .Select(d => d.ItemCategoryId).Distinct().ToArray();
+
+                data = _context.ItemCategory
+                .Where(d => 
+                    d.PlantId == dbWarehouse.PlantId &&
+                    (hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id)))
+                    .Select(d => new ItemCategoryModel{
+                        Id = d.Id,
+                        ControlTimeType = d.ControlTimeType,
+                        CreatedDate = d.CreatedDate,
+                        IsActive = d.IsActive,
+                        ItemCategoryCode = d.ItemCategoryCode,
+                        ItemCategoryName = d.ItemCategoryName,
+                        ItemChangeTime = d.ItemChangeTime,
+                        CategoryImage = d.CategoryImage,
+                        ViewOrder = d.ViewOrder,
+                        CreditRangeType = d.CreditRangeType,
+                        CreditByRange = d.CreditByRange,
+                        CreditRangeLength = d.CreditRangeLength,
+                        PlantId = d.PlantId,
+                        PlantCode = d.Plant != null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                    }).OrderBy(d => d.ItemCategoryCode).ToArray();
+            }
+            catch (System.Exception)
+            {
+
+            }
+
+            return data;
+        }
+
         public WarehouseModel[] GetWarehouses(int[] plants = null){
             WarehouseModel[] data = new WarehouseModel[0];
 
@@ -138,6 +177,7 @@ namespace MachManager.Business{
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
                         AutoSpiralLoading = d.AutoSpiralLoading,
+                        IsCreditsVisible = d.IsCreditsVisible,
                     }).OrderBy(d => d.PlantCode).ToArray();
             }
             catch (System.Exception)
@@ -437,7 +477,8 @@ namespace MachManager.Business{
                         UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
                         UnitTypeId = d.UnitTypeId,
                         UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
-                        ViewOrder = d.ViewOrder
+                        ViewOrder = d.ViewOrder,
+                        PlantId = d.ItemCategory != null ? d.ItemCategory.PlantId : null,
                     }).OrderBy(d => d.ItemCode).ToArray();
             }
             catch (System.Exception)

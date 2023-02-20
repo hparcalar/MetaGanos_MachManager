@@ -60,6 +60,26 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("GetForWarehouse/{warehouseId}")]
+        public IEnumerable<ItemCategoryModel> GetForWarehouse(int warehouseId)
+        {
+            ResolveHeaders(Request);
+            ItemCategoryModel[] data = new ItemCategoryModel[0];
+            try
+            {
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetItemCategoriesAboutWr(warehouseId);
+                }
+            }
+            catch
+            {
+
+            }
+
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public ItemCategoryModel Get(int id)
         {
@@ -153,6 +173,43 @@ namespace MachManager.Controllers
             }
             
             
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/GroupsForWarehouse/{warehouseId}")]
+        public IEnumerable<ItemGroupModel> GetGroupsForWarehouse(int id, int warehouseId)
+        {
+            ItemGroupModel[] data = new ItemGroupModel[0];
+
+            var hotSalesGroups = _context.WarehouseHotSalesCategory.Where(d =>
+                d.WarehouseId == warehouseId &&
+                 d.ItemCategoryId == id && d.ItemGroupId != null)
+                .Select(d => d.ItemGroupId).Distinct().ToArray();
+
+            try
+            {
+                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id
+                    &&
+                    (
+                        hotSalesGroups.Length == 0
+                        ||
+                        hotSalesGroups.Contains(d.Id)
+                    )
+                ).Select(d => new ItemGroupModel{
+                        Id = d.Id,
+                        ItemGroupCode = d.ItemGroupCode,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupName = d.ItemGroupName,
+                        GroupImage = d.GroupImage,
+                    }).OrderBy(d => d.ItemGroupCode).ToArray();
+            }
+            catch
+            {
+
+            }
+
+
             return data;
         }
 
