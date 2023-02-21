@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj": {}
+    "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj": {}
   },
   "projects": {
-    "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj": {
+    "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj",
+        "projectUniqueName": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj",
         "projectName": "MachManager",
-        "projectPath": "/home/hakan/Projects/MetaGanos/MachManager/MachManager.csproj",
-        "packagesPath": "/root/.nuget/packages/",
-        "outputPath": "/home/hakan/Projects/MetaGanos/MachManager/obj/",
+        "projectPath": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj",
+        "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/root/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -95,24 +102,11 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[6.0.13, 6.0.13]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[6.0.13, 6.0.13]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[6.0.13, 6.0.13]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -121,12 +115,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.113/RuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

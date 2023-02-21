@@ -404,7 +404,7 @@ namespace MachManager.Controllers
                         &&
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                         &&
-                        (filter == null || filter.EmployeeId == null || filter.EmployeeId == 0 || filter.EmployeeId == d.EmployeeId)
+                        (filter == null || filter.EmployeeId == null || filter.EmployeeId.Length == 0 || filter.EmployeeId.Contains(d.EmployeeId ?? 0))
                     )
                     .GroupBy(d => new {
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",

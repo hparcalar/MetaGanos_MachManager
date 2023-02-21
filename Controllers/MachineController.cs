@@ -526,6 +526,10 @@ namespace MachManager.Controllers
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
                         &&
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
+                        &&
+                        (filter == null || filter.EmployeeId == null || filter.EmployeeId.Length == 0 || filter.EmployeeId.Contains(d.Employee.Id))
+                        &&
+                        (filter == null || filter.DepartmentId == null || filter.DepartmentId.Length == 0 || filter.DepartmentId.Contains(d.Employee.DepartmentId ?? 0))
                     )
                     .GroupBy(d => new {
                         Id = d.Id,
@@ -657,6 +661,10 @@ namespace MachManager.Controllers
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
                         &&
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
+                        &&
+                        (filter == null || filter.EmployeeId == null || filter.EmployeeId.Length == 0 || filter.EmployeeId.Contains(d.Employee.Id))
+                        &&
+                        (filter == null || filter.DepartmentId == null || filter.DepartmentId.Length == 0 || filter.DepartmentId.Contains(d.Employee.DepartmentId ?? 0))
                     )
                     .GroupBy(d => new {
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
