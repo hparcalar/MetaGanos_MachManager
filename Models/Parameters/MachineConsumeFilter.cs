@@ -5,7 +5,8 @@ namespace MachManager.Models.Parameters{
         public string PlantCode { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int? EmployeeId { get; set; }
+        public int[] EmployeeId { get; set; }
+        public int[] DepartmentId { get; set; }
         public int[] PlantId { get; set; }
         public int[] CategoryId { get; set; }
         public int[] GroupId { get; set; }

@@ -11,6 +11,9 @@ namespace MachManager.Context {
         public string Explanation { get; set; } = "";
         public string DealerPassword { get; set; }
         public string DefaultLanguage { get; set; }
+        public string LicenseKey { get; set; }
+        public bool IsRoot { get; set; }
+        public DateTime? LastSelfValidation { get; set; }
 
         [ForeignKey("ParentDealer")]
         public Nullable<int> ParentDealerId { get; set; }

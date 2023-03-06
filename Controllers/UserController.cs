@@ -360,7 +360,7 @@ namespace MachManager.Controllers
                 #endregion
 
                 var dbUser = _context.Employee.Where(d =>
-                    d.Plant.PlantCode == model.PlantCode && d.Plant.Dealer.DealerCode == model.DealerCode &&
+                    d.PlantId == dbPlant.Id &&
                     d.EmployeeCard != null &&
                     possibleKeys.Contains(d.EmployeeCard.CardCode)).FirstOrDefault();
 

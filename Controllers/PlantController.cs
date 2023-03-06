@@ -69,6 +69,7 @@ namespace MachManager.Controllers
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
                         AutoSpiralLoading = d.AutoSpiralLoading,
+                        IsCreditsVisible = d.IsCreditsVisible,
                     }).FirstOrDefault();
             }
             catch
@@ -125,6 +126,7 @@ namespace MachManager.Controllers
                         PlantName = d.PlantName,
                         Last4CharForCardRead = d.Last4CharForCardRead,
                         AutoSpiralLoading = d.AutoSpiralLoading,
+                        IsCreditsVisible = d.IsCreditsVisible,
                     }).FirstOrDefault();
 
                 if (data == null || data.Id == 0){

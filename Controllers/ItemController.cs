@@ -11,11 +11,11 @@ using MachManager.Models.Operational;
 using MachManager.Controllers.Base;
 using MachManager.i18n;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using MachManager.Helpers;
 using MachManager.Business;
 using MachManager.Models.Parameters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using ClosedXML;
 using ClosedXML.Excel;
 
@@ -99,7 +99,7 @@ namespace MachManager.Controllers
 
                 var hotSalesGroups = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId && d.ItemGroupId != null)
                     .Select(d => d.ItemGroupId).Distinct().ToArray();
-                
+
                 var hotSalesItems = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId && d.ItemGroupId != null && d.ItemId != null)
                     .Select(d => d.ItemId).Distinct().ToArray();
 
@@ -171,12 +171,11 @@ namespace MachManager.Controllers
             }
             catch
             {
-                
+
             }
-            
+
             return data;
         }
-
 
         [Authorize(Policy = "FactoryOfficer")]
         [HttpGet]

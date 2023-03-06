@@ -49,16 +49,19 @@ namespace MachManager.Business{
             return data;
         }
 
-        public ItemCategoryModel[] GetItemCategoriesAboutWr(int warehouseId){
+         public ItemCategoryModel[] GetItemCategoriesAboutWr(int warehouseId){
             ItemCategoryModel[] data = new ItemCategoryModel[0];
 
             try
             {
+                var dbWarehouse = _context.Warehouse.FirstOrDefault(d => d.Id == warehouseId);
                 var hotSalesCategories = _context.WarehouseHotSalesCategory.Where(d => d.WarehouseId == warehouseId)
                     .Select(d => d.ItemCategoryId).Distinct().ToArray();
 
                 data = _context.ItemCategory
-                .Where(d => hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id))
+                .Where(d => 
+                    d.PlantId == dbWarehouse.PlantId &&
+                    (hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id)))
                     .Select(d => new ItemCategoryModel{
                         Id = d.Id,
                         ControlTimeType = d.ControlTimeType,
@@ -79,7 +82,7 @@ namespace MachManager.Business{
             }
             catch (System.Exception)
             {
-                
+
             }
 
             return data;
@@ -393,13 +396,13 @@ namespace MachManager.Business{
                         (d.EmployeeStatus ?? 0) == 0
                         &&
                         (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
-                    );
+                    ).OrderBy(d => d.EmployeeCode);
                 
                 resData.TotalRecords = rawData.Count();
                 resData.CurrentPage = page ?? 0;
                 resData.TotalPages = resData.TotalRecords / recordsPerPage + 1;
 
-                data = rawData
+               data = rawData
                     .Select(d => new EmployeeModel{
                         Id = d.Id,
                         ActiveCredit = d.ActiveCredit,
@@ -473,7 +476,8 @@ namespace MachManager.Business{
                         UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
                         UnitTypeId = d.UnitTypeId,
                         UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
-                        ViewOrder = d.ViewOrder
+                        ViewOrder = d.ViewOrder,
+                        PlantId = d.ItemCategory != null ? d.ItemCategory.PlantId : null,
                     }).OrderBy(d => d.ItemCode).ToArray();
             }
             catch (System.Exception)

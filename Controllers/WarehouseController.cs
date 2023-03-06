@@ -133,13 +133,12 @@ namespace MachManager.Controllers
             }
             catch
             {
-                
+
             }
-            
+
             return data;
         }
-
-
+        
         [Authorize(Policy = "FactoryOfficer")]
         [HttpPost]
         public BusinessResult Post(WarehouseModel model){
@@ -405,7 +404,7 @@ namespace MachManager.Controllers
                         &&
                         (filter == null || filter.ItemId == null || filter.ItemId.Length == 0 || filter.ItemId.Contains(d.Item.Id))
                         &&
-                        (filter == null || filter.EmployeeId == null || filter.EmployeeId == 0 || filter.EmployeeId == d.EmployeeId)
+                        (filter == null || filter.EmployeeId == null || filter.EmployeeId.Length == 0 || filter.EmployeeId.Contains(d.EmployeeId ?? 0))
                     )
                     .GroupBy(d => new {
                         MachineCode = d.Machine != null ? d.Machine.MachineCode : "",
@@ -469,6 +468,8 @@ namespace MachManager.Controllers
             {
                 data = _context.WarehouseLoad
                     .Where(d =>
+                        (d.Item != null && d.Item.ItemCategory.PlantId == dbPlant.Id) 
+                        &&
                         (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
                         &&
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))

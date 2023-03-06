@@ -818,3 +818,4 @@ D:\Projects\Software\MetaGanos_MachManager\obj\Release\net6.0\win-x64\refint\Mac
 D:\Projects\Software\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.pdb
 D:\Projects\Software\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.genruntimeconfig.cache
 D:\Projects\Software\MetaGanos_MachManager\obj\Release\net6.0\win-x64\ref\MachManager.dll
+D:\Projects\Software\MetaGanos_MachManager\bin\Release\net6.0\win-x64\Newtonsoft.Json.dll

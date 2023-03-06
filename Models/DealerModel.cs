@@ -9,5 +9,6 @@ namespace MachManager.Models
         public Nullable<int> ParentDealerId { get; set; }
         public bool IsActive { get; set; }
         public string DefaultLanguage { get; set; }
+        public string ParentDealerName { get; set; }
     }
 }

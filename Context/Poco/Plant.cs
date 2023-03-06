@@ -14,6 +14,7 @@ namespace MachManager.Context {
         public bool? Last4CharForCardRead { get; set; }
         public DateTime? LastUpdateDate { get; set; }
         public bool? AutoSpiralLoading { get; set; }
+        public bool? IsCreditsVisible { get; set; }
 
         [ForeignKey("Dealer")]
         public Nullable<int> DealerId { get; set; }

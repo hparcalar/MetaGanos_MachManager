@@ -73,9 +73,9 @@ namespace MachManager.Controllers
             }
             catch
             {
-                
+
             }
-            
+
             return data;
         }
 
@@ -120,6 +120,29 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("{id}/Groups")]
+        public IEnumerable<ItemGroupModel> GetGroups(int id)
+        {
+            ItemGroupModel[] data = new ItemGroupModel[0];
+            
+            try
+            {
+                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id).Select(d => new ItemGroupModel{
+                        Id = d.Id,
+                        ItemGroupCode = d.ItemGroupCode,
+                        ItemGroupName = d.ItemGroupName,
+                    }).OrderBy(d => d.ItemGroupCode).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}/GroupsNonWr")]
         public IEnumerable<ItemGroupModel> GetGroupsNonWr(int id)
         {
@@ -149,6 +172,85 @@ namespace MachManager.Controllers
                 
             }
             
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/GroupsForWarehouse/{warehouseId}")]
+        public IEnumerable<ItemGroupModel> GetGroupsForWarehouse(int id, int warehouseId)
+        {
+            ItemGroupModel[] data = new ItemGroupModel[0];
+
+            var hotSalesGroups = _context.WarehouseHotSalesCategory.Where(d =>
+                d.WarehouseId == warehouseId &&
+                 d.ItemCategoryId == id && d.ItemGroupId != null)
+                .Select(d => d.ItemGroupId).Distinct().ToArray();
+
+            try
+            {
+                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id
+                    &&
+                    (
+                        hotSalesGroups.Length == 0
+                        ||
+                        hotSalesGroups.Contains(d.Id)
+                    )
+                ).Select(d => new ItemGroupModel{
+                        Id = d.Id,
+                        ItemGroupCode = d.ItemGroupCode,
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemGroupName = d.ItemGroupName,
+                        GroupImage = d.GroupImage,
+                    }).OrderBy(d => d.ItemGroupCode).ToArray();
+            }
+            catch
+            {
+
+            }
+
+
+            return data;
+        }
+
+        [HttpGet]
+        [Route("{id}/Items")]
+        public IEnumerable<ItemModel> GetItems(int id)
+        {
+            ItemModel[] data = new ItemModel[0];
+            try
+            {
+                data = _context.Item.Where(d => d.ItemCategoryId == id).Select(d => new ItemModel{
+                        Id = d.Id,
+                        AlternatingCode1 = d.AlternatingCode1,
+                        AlternatingCode2 = d.AlternatingCode2,
+                        Barcode1 = d.Barcode1,
+                        Barcode2 = d.Barcode2,
+                        CreatedDate = d.CreatedDate,
+                        CriticalMax = d.CriticalMax,
+                        CriticalMin = d.CriticalMin,
+                        Explanation = d.Explanation,
+                        IsActive = d.IsActive,
+                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
+                        ItemCategoryId = d.ItemCategoryId,
+                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
+                        ItemCode = d.ItemCode,
+                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
+                        ItemGroupId = d.ItemGroupId,
+                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
+                        ItemName = d.ItemName,
+                        Price1 = d.Price1,
+                        Price2 = d.Price2,
+                        UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
+                        UnitTypeId = d.UnitTypeId,
+                        UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
+                        ViewOrder = d.ViewOrder
+                    }).OrderBy(d => d.ItemCode).ToArray();
+            }
+            catch
+            {
+                
+            }
             
             return data;
         }
@@ -197,108 +299,6 @@ namespace MachManager.Controllers
                 }
 
                 data = properData.ToArray();
-            }
-            catch
-            {
-                
-            }
-            
-            return data;
-        }
-
-        [HttpGet]
-        [Route("{id}/Groups")]
-        public IEnumerable<ItemGroupModel> GetGroups(int id)
-        {
-            ItemGroupModel[] data = new ItemGroupModel[0];
-            
-            try
-            {
-                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id).Select(d => new ItemGroupModel{
-                        Id = d.Id,
-                        ItemGroupCode = d.ItemGroupCode,
-                        ItemGroupName = d.ItemGroupName,
-                    }).OrderBy(d => d.ItemGroupCode).ToArray();
-            }
-            catch
-            {
-                
-            }
-            
-            
-            return data;
-        }
-
-        [HttpGet]
-        [Route("{id}/GroupsForWarehouse/{warehouseId}")]
-        public IEnumerable<ItemGroupModel> GetGroupsForWarehouse(int id, int warehouseId)
-        {
-            ItemGroupModel[] data = new ItemGroupModel[0];
-
-            var hotSalesGroups = _context.WarehouseHotSalesCategory.Where(d =>
-                d.WarehouseId == warehouseId &&
-                 d.ItemCategoryId == id && d.ItemGroupId != null)
-                .Select(d => d.ItemGroupId).Distinct().ToArray();
-            
-            try
-            {
-                data = _context.ItemGroup.Where(d => d.ItemCategoryId == id
-                    &&
-                    (
-                        hotSalesGroups.Length == 0
-                        ||
-                        hotSalesGroups.Contains(d.Id)
-                    )
-                ).Select(d => new ItemGroupModel{
-                        Id = d.Id,
-                        ItemGroupCode = d.ItemGroupCode,
-                        ItemCategoryId = d.ItemCategoryId,
-                        ItemGroupName = d.ItemGroupName,
-                        GroupImage = d.GroupImage,
-                    }).OrderBy(d => d.ItemGroupCode).ToArray();
-            }
-            catch
-            {
-                
-            }
-            
-            
-            return data;
-        }
-
-        [HttpGet]
-        [Route("{id}/Items")]
-        public IEnumerable<ItemModel> GetItems(int id)
-        {
-            ItemModel[] data = new ItemModel[0];
-            try
-            {
-                data = _context.Item.Where(d => d.ItemCategoryId == id).Select(d => new ItemModel{
-                        Id = d.Id,
-                        AlternatingCode1 = d.AlternatingCode1,
-                        AlternatingCode2 = d.AlternatingCode2,
-                        Barcode1 = d.Barcode1,
-                        Barcode2 = d.Barcode2,
-                        CreatedDate = d.CreatedDate,
-                        CriticalMax = d.CriticalMax,
-                        CriticalMin = d.CriticalMin,
-                        Explanation = d.Explanation,
-                        IsActive = d.IsActive,
-                        ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
-                        ItemCategoryId = d.ItemCategoryId,
-                        ItemCategoryName = d.ItemCategory != null ? d.ItemCategory.ItemCategoryName : "",
-                        ItemCode = d.ItemCode,
-                        ItemGroupCode = d.ItemGroup != null ? d.ItemGroup.ItemGroupCode : "",
-                        ItemGroupId = d.ItemGroupId,
-                        ItemGroupName = d.ItemGroup != null ? d.ItemGroup.ItemGroupName : "",
-                        ItemName = d.ItemName,
-                        Price1 = d.Price1,
-                        Price2 = d.Price2,
-                        UnitTypeCode = d.UnitType != null ? d.UnitType.UnitTypeCode : "",
-                        UnitTypeId = d.UnitTypeId,
-                        UnitTypeName = d.UnitType != null ? d.UnitType.UnitTypeName : "",
-                        ViewOrder = d.ViewOrder
-                    }).OrderBy(d => d.ItemCode).ToArray();
             }
             catch
             {

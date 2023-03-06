@@ -114,11 +114,18 @@ namespace MachManager.Controllers
                 var dbOther = _context.Employee.FirstOrDefault(d => d.EmployeeCard != null && d.EmployeeCard.CardCode == model.CardCode
                     && d.PlantId == model.PlantId);
 
-                if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode
-                    && d.PlantId == model.PlantId && d.Id != model.Id))
-                    throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage) + 
-                    " Ait olduğu kişi: " + dbOther.EmployeeName);
-
+                if(dbOther != null){
+                    if(_context.EmployeeCard.Any(d => d.CardCode == model.CardCode && d.PlantId == model.PlantId && d.Id != model.Id && dbOther.EmployeeStatus == 2)){
+                        var card = _context.EmployeeCard.FirstOrDefault(d => d.CardCode == model.CardCode && d.PlantId == model.PlantId && d.Id != model.Id && dbOther.EmployeeStatus == 2);
+                        card.CardCode = card.CardCode + "XXX";
+                        dbObj = new EmployeeCard();
+                        _context.EmployeeCard.Add(dbObj);
+                }
+                    else if (_context.EmployeeCard.Any(d => d.CardCode == model.CardCode
+                        && d.PlantId == model.PlantId && d.Id != model.Id))
+                        throw new Exception(_translator.Translate(Expressions.SameCodeExists, _userLanguage) + 
+                        " Ait olduğu kişi: " + dbOther.EmployeeName);
+                }
                 model.MapTo(dbObj);
 
                 _context.SaveChanges();

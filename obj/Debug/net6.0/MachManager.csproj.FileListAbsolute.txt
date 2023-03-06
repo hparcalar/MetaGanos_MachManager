@@ -136,3 +136,4 @@ D:\Projects\Software\MetaGanos_MachManager\obj\Debug\net6.0\refint\MachManager.d
 D:\Projects\Software\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.pdb
 D:\Projects\Software\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.genruntimeconfig.cache
 D:\Projects\Software\MetaGanos_MachManager\obj\Debug\net6.0\ref\MachManager.dll
+D:\Projects\Software\MetaGanos_MachManager\bin\Debug\net6.0\Newtonsoft.Json.dll
