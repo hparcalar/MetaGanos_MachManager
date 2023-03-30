@@ -397,7 +397,7 @@ namespace MachManager.Business{
                         (d.EmployeeStatus ?? 0) == 0
                         &&
                         (departments == null || departments.Length == 0 || (departments != null && departments.Contains(d.DepartmentId ?? 0)))    
-                    );
+                    ).OrderBy(d => d.EmployeeCode);
                 
                 resData.TotalRecords = rawData.Count();
                 resData.CurrentPage = page ?? 0;
