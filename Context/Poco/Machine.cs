@@ -29,8 +29,13 @@ namespace MachManager.Context {
         public Nullable<int> SpiralStartIndex { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
         public string DefaultLanguage { get; set; }
+        public bool? IsAutoConsumption { get; set; }
+
+        [ForeignKey("Warehouse")]
+        public int? AutoConsumptionWarehouseId { get; set; }
 
         // REFERENCES
         public virtual Plant Plant { get; set; }
+        public virtual Warehouse Warehouse { get; set; }
     }
 }

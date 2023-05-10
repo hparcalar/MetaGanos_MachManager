@@ -163,6 +163,7 @@ namespace MachManager.Controllers
                         EmployeeCardId = d.EmployeeCardId,
                         EmployeeCode = d.EmployeeCode,
                         EmployeeName = d.EmployeeName,
+                        BirthDate = d.BirthDate,
                         EmployeePassword = "",
                         Gsm = d.Gsm,
                         IsActive = d.IsActive,
@@ -202,7 +203,8 @@ namespace MachManager.Controllers
                 foreach (var crd in data.Credits)
                 {
                     if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
-                        while (crd.CreditLoadDate < DateTime.Now.Date){
+                        int tryCount = 0;
+                        while (crd.CreditLoadDate < DateTime.Now.Date && tryCount < 5){
                             var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                             if (dbCredit != null){
                             try
@@ -244,11 +246,14 @@ namespace MachManager.Controllers
                             }
 
                             _creditUpdated = true;
+                            
                         }
+                        tryCount++;
                         }
                     }
                     else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
-                        while (crd.CreditEndDate <= DateTime.Now.Date){
+                        int tryCount = 0;
+                        while (crd.CreditEndDate <= DateTime.Now.Date && tryCount < 5){
                             var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                             if (dbCredit != null){
                             try
@@ -286,6 +291,8 @@ namespace MachManager.Controllers
                                 
                             }
                         }
+
+                        tryCount++;
                         }
                     }
                 }
@@ -375,7 +382,8 @@ namespace MachManager.Controllers
                 foreach (var crd in data)
                 {
                     if (crd.CreditLoadDate < DateTime.Now.Date && crd.RangeType == 1){
-                        while (crd.CreditLoadDate < DateTime.Now.Date){
+                        int tryCount = 0;
+                        while (crd.CreditLoadDate < DateTime.Now.Date && tryCount < 5){
                             var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                             if (dbCredit != null){
                             try
@@ -417,10 +425,12 @@ namespace MachManager.Controllers
 
                             _creditUpdated = true;
                         }
+                        tryCount++;
                         }
                     }
                     else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
-                        while (crd.CreditEndDate <= DateTime.Now.Date){
+                        int tryCount = 0;
+                        while (crd.CreditEndDate <= DateTime.Now.Date && tryCount < 5){
                             var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                             if (dbCredit != null){
                                 try
@@ -455,6 +465,7 @@ namespace MachManager.Controllers
                                     
                                 }
                             }
+                            tryCount++;
                         }
                     }
                 }

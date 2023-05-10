@@ -62,8 +62,70 @@ namespace MachManager.Controllers
                         OfficerName = d.Officer != null ? d.Officer.OfficerName : "",
                         WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
-                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Fişi" : "Depo Çıkış Fişi",
+                        InLoadHeaderId = d.InLoadHeaderId,
+                        IsGenerated = d.IsGenerated,
+                        ItemOrderId = d.ItemOrderId,
+                        OutLoadHeaderId = d.OutLoadHeaderId,
+                        OutWarehouseId = d.OutWarehouseId,
+                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Fişi" : d.LoadType == 2 ? "Depo Çıkış Fişi" : d.LoadType == 3 ? "Depo Transfer Fişi" 
+                            : d.LoadType == 4 ? "Depo Transfer Girişi" : d.LoadType == 5 ? "Depo Transfer Çıkışı" : "",
                     }).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
+        [Route("ListAll")]
+        public IEnumerable<WarehouseLoadHeaderModel> GetAll()
+        {
+            ResolveHeaders(Request);
+            WarehouseLoadHeaderModel[] data = new WarehouseLoadHeaderModel[0];
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                data = _context.WarehouseLoadHeader.Where(d => 
+                    (d.LoadType != 4 && d.LoadType != 5) &&
+                    (plants == null || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                    )
+                    .Select(d => new WarehouseLoadHeaderModel{
+                        Id = d.Id,
+                        DocumentNo = d.DocumentNo,
+                        Explanation = d.Explanation,
+                        FirmId = d.FirmId,
+                        LoadDate = d.LoadDate,
+                        LoadOfficerId = d.LoadOfficerId,
+                        LoadType = d.LoadType,
+                        PlantCode = d.Plant !=null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                        PlantId = d.PlantId,
+                        ReceiptNo = d.ReceiptNo,
+                        WarehouseId = d.WarehouseId,
+                        FirmCode = d.Firm != null ? d.Firm.FirmCode : "",
+                        FirmName = d.Firm != null ? d.Firm.FirmName : "",
+                        OfficerCode = d.Officer != null ? d.Officer.OfficerCode : "",
+                        OfficerName = d.Officer != null ? d.Officer.OfficerName : "",
+                        WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
+                        WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
+                        InLoadHeaderId = d.InLoadHeaderId,
+                        IsGenerated = d.IsGenerated,
+                        ItemOrderId = d.ItemOrderId,
+                        OutLoadHeaderId = d.OutLoadHeaderId,
+                        OutWarehouseId = d.OutWarehouseId,
+                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Fişi" : d.LoadType == 2 ? "Depo Çıkış Fişi" : d.LoadType == 3 ? "Depo Transfer Fişi" 
+                            : d.LoadType == 4 ? "Depo Transfer Girişi" : d.LoadType == 5 ? "Depo Transfer Çıkışı" : "",
+                    })
+                    .OrderByDescending(d => d.ReceiptNo)
+                    .ToArray();
             }
             catch
             {
@@ -98,7 +160,13 @@ namespace MachManager.Controllers
                         OfficerName = d.Officer != null ? d.Officer.OfficerName : "",
                         WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
                         WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
-                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Formu" : "Depo Çıkış Formu",
+                        InLoadHeaderId = d.InLoadHeaderId,
+                        IsGenerated = d.IsGenerated,
+                        ItemOrderId = d.ItemOrderId,
+                        OutLoadHeaderId = d.OutLoadHeaderId,
+                        OutWarehouseId = d.OutWarehouseId,
+                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Fişi" : d.LoadType == 2 ? "Depo Çıkış Fişi" : d.LoadType == 3 ? "Depo Transfer Fişi" 
+                            : d.LoadType == 4 ? "Depo Transfer Girişi" : d.LoadType == 5 ? "Depo Transfer Çıkışı" : "",
                     }).FirstOrDefault();
 
                 if (data != null && data.Id > 0){
@@ -139,6 +207,7 @@ namespace MachManager.Controllers
             return data;
         }
 
+        int __lastProducedReceiptNo = 0;
         private string GetNextReceiptNo(){
             try
             {
@@ -153,6 +222,14 @@ namespace MachManager.Controllers
                     .OrderByDescending(d => d.ReceiptNo).Select(d => d.ReceiptNo).FirstOrDefault();
                 if (lastRecord != null && !string.IsNullOrEmpty(lastRecord))
                     nextNumber = Convert.ToInt32(lastRecord) + 1;
+
+                // offline incrementing on multiple calls in a request
+                if (__lastProducedReceiptNo == 0)
+                    __lastProducedReceiptNo = nextNumber;
+                else{
+                    __lastProducedReceiptNo++;
+                    nextNumber = __lastProducedReceiptNo;
+                }
 
                 return string.Format("{0:000000}", nextNumber);
             }
@@ -216,6 +293,86 @@ namespace MachManager.Controllers
                 }
                 #endregion
 
+                #region PROCESS IF TRANSFER RECEIPT TYPE
+
+                if (dbObj.LoadType == 3){
+                    // in receipt process
+                    var inReceipt = dbObj.InLoadHeader;
+                    if (inReceipt == null){
+                        inReceipt = new WarehouseLoadHeader();
+                        inReceipt.ReceiptNo = GetNextReceiptNo();
+                        inReceipt.WarehouseId = dbObj.WarehouseId;
+                        inReceipt.LoadDate = dbObj.LoadDate;
+                        inReceipt.PlantId = dbObj.PlantId;
+                        inReceipt.LoadOfficerId = dbObj.LoadOfficerId;
+                        inReceipt.LoadType = 4;
+                        inReceipt.IsGenerated = true;
+                        
+                        _context.WarehouseLoadHeader.Add(inReceipt);
+                        dbObj.InLoadHeader = inReceipt;
+                    }
+                    inReceipt.WarehouseId = dbObj.WarehouseId;
+
+                    // in receipt details
+                    var _inCurrentDetails = _context.WarehouseLoad.Where(d => d.WarehouseLoadHeaderId == inReceipt.Id).ToArray();
+                    foreach (var item in _inCurrentDetails)
+                    {
+                        _context.WarehouseLoad.Remove(item);
+                    }
+
+                    foreach (var item in model.Details)
+                    {
+                        var dbDetail = new WarehouseLoad();
+                        _context.WarehouseLoad.Add(dbDetail);
+
+                        item.MapTo(dbDetail);
+                        dbDetail.LoadType = inReceipt.LoadType;
+                        dbDetail.LoadDate = inReceipt.LoadDate;
+                        dbDetail.WarehouseId = inReceipt.WarehouseId;
+                        dbDetail.OfficerId = inReceipt.LoadOfficerId;
+                        dbDetail.WarehouseLoadHeader = inReceipt;
+                    }
+                    
+                    // out receipt process
+                    var outReceipt = dbObj.OutLoadHeader;
+                    if (outReceipt == null){
+                        outReceipt = new WarehouseLoadHeader();
+                        outReceipt.ReceiptNo = GetNextReceiptNo();
+                        outReceipt.WarehouseId = dbObj.OutWarehouseId;
+                        outReceipt.LoadDate = dbObj.LoadDate;
+                        outReceipt.PlantId = dbObj.PlantId;
+                        outReceipt.LoadOfficerId = dbObj.LoadOfficerId;
+                        outReceipt.LoadType = 5;
+                        outReceipt.IsGenerated = true;
+                        
+                        _context.WarehouseLoadHeader.Add(outReceipt);
+                        dbObj.OutLoadHeader = outReceipt;
+                    }
+                    outReceipt.WarehouseId = dbObj.OutWarehouseId;
+
+                    // out receipt details
+                    var _outCurrentDetails = _context.WarehouseLoad.Where(d => d.WarehouseLoadHeaderId == outReceipt.Id).ToArray();
+                    foreach (var item in _outCurrentDetails)
+                    {
+                        _context.WarehouseLoad.Remove(item);
+                    }
+
+                    foreach (var item in model.Details)
+                    {
+                        var dbDetail = new WarehouseLoad();
+                        _context.WarehouseLoad.Add(dbDetail);
+
+                        item.MapTo(dbDetail);
+                        dbDetail.LoadType = outReceipt.LoadType;
+                        dbDetail.LoadDate = outReceipt.LoadDate;
+                        dbDetail.WarehouseId = outReceipt.WarehouseId;
+                        dbDetail.OfficerId = outReceipt.LoadOfficerId;
+                        dbDetail.WarehouseLoadHeader = outReceipt;
+                    }
+                }
+
+                #endregion
+
                 _context.SaveChanges();
                 result.Result=true;
                 result.RecordId = dbObj.Id;
@@ -241,6 +398,25 @@ namespace MachManager.Controllers
                 var dbObj = _context.WarehouseLoadHeader.FirstOrDefault(d => d.Id == id);
                 if (dbObj == null)
                     throw new Exception(_translator.Translate(Expressions.RecordNotFound, _userLanguage));
+
+                // delete if its a warehouse transfer receipt
+                if (dbObj.LoadType == 3){
+                    var inReceipt = _context.WarehouseLoadHeader.FirstOrDefault(d => d.Id == dbObj.InLoadHeaderId);
+                    var inDetails = _context.WarehouseLoad.Where(d => d.WarehouseLoadHeaderId == inReceipt.Id).ToArray();
+                    foreach (var item in inDetails)
+                    {
+                        _context.WarehouseLoad.Remove(item);
+                    }
+                    _context.WarehouseLoadHeader.Remove(inReceipt);
+
+                    var outReceipt = _context.WarehouseLoadHeader.FirstOrDefault(d => d.Id == dbObj.OutLoadHeaderId);
+                    var outDetails = _context.WarehouseLoad.Where(d => d.WarehouseLoadHeaderId == outReceipt.Id).ToArray();
+                    foreach (var item in outDetails)
+                    {
+                        _context.WarehouseLoad.Remove(item);
+                    }
+                    _context.WarehouseLoadHeader.Remove(outReceipt);
+                }
 
                 var details = _context.WarehouseLoad.Where(d => d.WarehouseLoadHeaderId == id).ToArray();
                 foreach (var item in details)

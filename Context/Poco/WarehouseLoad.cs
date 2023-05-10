@@ -25,11 +25,15 @@ namespace MachManager.Context{
         [ForeignKey("Machine")]
         public Nullable<int> MachineId { get; set; }
 
+        [ForeignKey("ItemOrderDetail")]
+        public int? ItemOrderDetailId { get; set; }
+
         // REFERENCES
         public virtual Item Item { get; set; }
         public virtual Officer Officer { get; set; }
         public virtual Warehouse Warehouse { get; set; }
         public virtual Machine Machine { get; set; }
         public virtual WarehouseLoadHeader WarehouseLoadHeader { get; set; }
+        public virtual ItemOrderDetail ItemOrderDetail { get; set; }
     }
 }

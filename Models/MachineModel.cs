@@ -22,6 +22,8 @@ namespace MachManager.Models{
         public Nullable<DateTime> CreatedDate { get; set; }
         public Nullable<int> SpiralStartIndex { get; set; }
         public string DefaultLanguage { get; set; }
+        public bool? IsAutoConsumption { get; set; }
+        public int? AutoConsumptionWarehouseId { get; set; }
 
         #region VISUAL ELEMENTS
         public MachineSpiralModel[] Spirals { get; set; }

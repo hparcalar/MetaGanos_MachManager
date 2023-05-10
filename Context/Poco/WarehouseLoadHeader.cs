@@ -22,11 +22,29 @@ namespace MachManager.Context{
 
         [ForeignKey("Officer")]
         public int? LoadOfficerId { get; set; }
+
+        [ForeignKey("ItemOrder")]
+        public int? ItemOrderId { get; set; }
         public string Explanation { get; set; }
+
+        [ForeignKey("OutWarehouse")]
+        public int? OutWarehouseId { get; set; }
+
+        [ForeignKey("InLoadHeader")]
+        public int? InLoadHeaderId { get; set; }
+
+        [ForeignKey("OutLoadHeader")]
+        public int? OutLoadHeaderId { get; set; }
+        
+        public bool? IsGenerated { get; set; }
 
         public virtual Firm Firm { get; set; }
         public virtual Plant Plant { get; set; }
         public virtual Warehouse Warehouse { get; set; }
         public virtual Officer Officer { get; set; }
+        public virtual ItemOrder ItemOrder { get; set; }
+        public virtual Warehouse OutWarehouse { get; set; }
+        public virtual WarehouseLoadHeader InLoadHeader { get; set; }
+        public virtual WarehouseLoadHeader OutLoadHeader { get; set; }
     }
 }

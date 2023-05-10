@@ -52,6 +52,54 @@ namespace MachManager.Migrations
                     b.ToTable("AuthUnit");
                 });
 
+            modelBuilder.Entity("MachManager.Context.Complaint", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ComplaintCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ComplaintDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("ComplaintStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OwnerEmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("OwnerEmployeeId");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("PlantId");
+
+                    b.ToTable("Complaint");
+                });
+
             modelBuilder.Entity("MachManager.Context.CreditLoadHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -300,6 +348,9 @@ namespace MachManager.Migrations
                     b.Property<int>("ActiveCredit")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("integer");
 
@@ -505,6 +556,65 @@ namespace MachManager.Migrations
                     b.ToTable("EmployeeCreditConsume");
                 });
 
+            modelBuilder.Entity("MachManager.Context.EmployeeNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("NotificationStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("TargetDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("PlantId");
+
+                    b.ToTable("EmployeeNotification");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ExternalCardRead", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CardNo")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId");
+
+                    b.ToTable("ExternalCardRead");
+                });
+
             modelBuilder.Entity("MachManager.Context.Firm", b =>
                 {
                     b.Property<int>("Id")
@@ -579,6 +689,9 @@ namespace MachManager.Migrations
 
                     b.Property<string>("AlternatingCode2")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("AverageRating")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Barcode1")
                         .HasColumnType("text");
@@ -726,6 +839,106 @@ namespace MachManager.Migrations
                     b.ToTable("ItemGroup");
                 });
 
+            modelBuilder.Entity("MachManager.Context.ItemOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FirmId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemOrderStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("OrderDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal?>("OverallTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReceiptNo")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ReceiptType")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("SubTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("TaxTotal")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirmId");
+
+                    b.HasIndex("PlantId");
+
+                    b.ToTable("ItemOrder");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ItemOrderDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemOrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemOrderStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("LineNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("OverallTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("SubTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("TaxRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("TaxTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("ItemOrderId");
+
+                    b.ToTable("ItemOrderDetail");
+                });
+
             modelBuilder.Entity("MachManager.Context.ItemReceipt", b =>
                 {
                     b.Property<int>("Id")
@@ -861,6 +1074,9 @@ namespace MachManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AutoConsumptionWarehouseId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Barcode")
                         .HasColumnType("text");
 
@@ -897,6 +1113,9 @@ namespace MachManager.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool?>("IsAutoConsumption")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LocationData")
                         .HasColumnType("text");
 
@@ -925,6 +1144,8 @@ namespace MachManager.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AutoConsumptionWarehouseId");
 
                     b.HasIndex("PlantId");
 
@@ -1265,6 +1486,43 @@ namespace MachManager.Migrations
                     b.ToTable("PlantPrintFile");
                 });
 
+            modelBuilder.Entity("MachManager.Context.ProductRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Rate")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RatingDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductRating");
+                });
+
             modelBuilder.Entity("MachManager.Context.SpiralFace", b =>
                 {
                     b.Property<int>("Id")
@@ -1341,6 +1599,101 @@ namespace MachManager.Migrations
                     b.HasIndex("SysLangId");
 
                     b.ToTable("SysLangDict");
+                });
+
+            modelBuilder.Entity("MachManager.Context.SysNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GotoLink")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("NotificationDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("NotificationStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("NotificationType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("WarningType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SysNotification");
+                });
+
+            modelBuilder.Entity("MachManager.Context.SysPublication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Attachment")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("AttachmentContentType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AttachmentFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PublicationDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("PublicationStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("ReplaceWithHomeVideo")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("WarningType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantId");
+
+                    b.ToTable("SysPublication");
                 });
 
             modelBuilder.Entity("MachManager.Context.UnitType", b =>
@@ -1441,6 +1794,9 @@ namespace MachManager.Migrations
                     b.Property<int?>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ItemOrderDetailId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("LoadDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -1465,6 +1821,8 @@ namespace MachManager.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("ItemOrderDetailId");
 
                     b.HasIndex("MachineId");
 
@@ -1494,6 +1852,15 @@ namespace MachManager.Migrations
                     b.Property<int?>("FirmId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("InLoadHeaderId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("IsGenerated")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ItemOrderId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("LoadDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -1501,6 +1868,12 @@ namespace MachManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int?>("LoadType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OutLoadHeaderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OutWarehouseId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("PlantId")
@@ -1516,7 +1889,15 @@ namespace MachManager.Migrations
 
                     b.HasIndex("FirmId");
 
+                    b.HasIndex("InLoadHeaderId");
+
+                    b.HasIndex("ItemOrderId");
+
                     b.HasIndex("LoadOfficerId");
+
+                    b.HasIndex("OutLoadHeaderId");
+
+                    b.HasIndex("OutWarehouseId");
 
                     b.HasIndex("PlantId");
 
@@ -1534,6 +1915,33 @@ namespace MachManager.Migrations
                         .IsRequired();
 
                     b.Navigation("Officer");
+                });
+
+            modelBuilder.Entity("MachManager.Context.Complaint", b =>
+                {
+                    b.HasOne("MachManager.Context.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
+                    b.HasOne("MachManager.Context.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("OwnerEmployeeId");
+
+                    b.HasOne("MachManager.Context.Officer", "Officer")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId");
+
+                    b.HasOne("MachManager.Context.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Officer");
+
+                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("MachManager.Context.CreditLoadHistory", b =>
@@ -1743,6 +2151,32 @@ namespace MachManager.Migrations
                     b.Navigation("ItemGroup");
                 });
 
+            modelBuilder.Entity("MachManager.Context.EmployeeNotification", b =>
+                {
+                    b.HasOne("MachManager.Context.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
+
+                    b.HasOne("MachManager.Context.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Plant");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ExternalCardRead", b =>
+                {
+                    b.HasOne("MachManager.Context.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
+                });
+
             modelBuilder.Entity("MachManager.Context.Firm", b =>
                 {
                     b.HasOne("MachManager.Context.Plant", "Plant")
@@ -1789,6 +2223,36 @@ namespace MachManager.Migrations
                         .HasForeignKey("ItemCategoryId");
 
                     b.Navigation("ItemCategory");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ItemOrder", b =>
+                {
+                    b.HasOne("MachManager.Context.Firm", "Firm")
+                        .WithMany()
+                        .HasForeignKey("FirmId");
+
+                    b.HasOne("MachManager.Context.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId");
+
+                    b.Navigation("Firm");
+
+                    b.Navigation("Plant");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ItemOrderDetail", b =>
+                {
+                    b.HasOne("MachManager.Context.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
+                    b.HasOne("MachManager.Context.ItemOrder", "ItemOrder")
+                        .WithMany("ItemOrderDetails")
+                        .HasForeignKey("ItemOrderId");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("ItemOrder");
                 });
 
             modelBuilder.Entity("MachManager.Context.ItemReceipt", b =>
@@ -1847,11 +2311,17 @@ namespace MachManager.Migrations
 
             modelBuilder.Entity("MachManager.Context.Machine", b =>
                 {
+                    b.HasOne("MachManager.Context.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("AutoConsumptionWarehouseId");
+
                     b.HasOne("MachManager.Context.Plant", "Plant")
                         .WithMany()
                         .HasForeignKey("PlantId");
 
                     b.Navigation("Plant");
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("MachManager.Context.MachineItemConsume", b =>
@@ -1993,6 +2463,27 @@ namespace MachManager.Migrations
                     b.Navigation("Plant");
                 });
 
+            modelBuilder.Entity("MachManager.Context.ProductRating", b =>
+                {
+                    b.HasOne("MachManager.Context.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
+
+                    b.HasOne("MachManager.Context.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
+                    b.HasOne("MachManager.Context.Officer", "Officer")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Officer");
+                });
+
             modelBuilder.Entity("MachManager.Context.SpiralFace", b =>
                 {
                     b.HasOne("MachManager.Context.ItemCategory", "ItemCategory")
@@ -2015,6 +2506,30 @@ namespace MachManager.Migrations
                         .HasForeignKey("SysLangId");
 
                     b.Navigation("SysLang");
+                });
+
+            modelBuilder.Entity("MachManager.Context.SysNotification", b =>
+                {
+                    b.HasOne("MachManager.Context.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId");
+
+                    b.HasOne("MachManager.Context.Officer", "Officer")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Officer");
+
+                    b.Navigation("Plant");
+                });
+
+            modelBuilder.Entity("MachManager.Context.SysPublication", b =>
+                {
+                    b.HasOne("MachManager.Context.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId");
+
+                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("MachManager.Context.Warehouse", b =>
@@ -2065,6 +2580,10 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("ItemId");
 
+                    b.HasOne("MachManager.Context.ItemOrderDetail", "ItemOrderDetail")
+                        .WithMany()
+                        .HasForeignKey("ItemOrderDetailId");
+
                     b.HasOne("MachManager.Context.Machine", "Machine")
                         .WithMany()
                         .HasForeignKey("MachineId");
@@ -2083,6 +2602,8 @@ namespace MachManager.Migrations
 
                     b.Navigation("Item");
 
+                    b.Navigation("ItemOrderDetail");
+
                     b.Navigation("Machine");
 
                     b.Navigation("Officer");
@@ -2098,9 +2619,25 @@ namespace MachManager.Migrations
                         .WithMany()
                         .HasForeignKey("FirmId");
 
+                    b.HasOne("MachManager.Context.WarehouseLoadHeader", "InLoadHeader")
+                        .WithMany()
+                        .HasForeignKey("InLoadHeaderId");
+
+                    b.HasOne("MachManager.Context.ItemOrder", "ItemOrder")
+                        .WithMany()
+                        .HasForeignKey("ItemOrderId");
+
                     b.HasOne("MachManager.Context.Officer", "Officer")
                         .WithMany()
                         .HasForeignKey("LoadOfficerId");
+
+                    b.HasOne("MachManager.Context.WarehouseLoadHeader", "OutLoadHeader")
+                        .WithMany()
+                        .HasForeignKey("OutLoadHeaderId");
+
+                    b.HasOne("MachManager.Context.Warehouse", "OutWarehouse")
+                        .WithMany()
+                        .HasForeignKey("OutWarehouseId");
 
                     b.HasOne("MachManager.Context.Plant", "Plant")
                         .WithMany()
@@ -2112,7 +2649,15 @@ namespace MachManager.Migrations
 
                     b.Navigation("Firm");
 
+                    b.Navigation("InLoadHeader");
+
+                    b.Navigation("ItemOrder");
+
                     b.Navigation("Officer");
+
+                    b.Navigation("OutLoadHeader");
+
+                    b.Navigation("OutWarehouse");
 
                     b.Navigation("Plant");
 
@@ -2127,6 +2672,11 @@ namespace MachManager.Migrations
             modelBuilder.Entity("MachManager.Context.EmployeeCard", b =>
                 {
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("MachManager.Context.ItemOrder", b =>
+                {
+                    b.Navigation("ItemOrderDetails");
                 });
 
             modelBuilder.Entity("MachManager.Context.SysLang", b =>

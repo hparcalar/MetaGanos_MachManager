@@ -10,6 +10,13 @@ namespace MachManager.Models{
         public int? WarehouseId { get; set; }
         public int? LoadOfficerId { get; set; }
         public string Explanation { get; set; }
+        public int? ItemOrderId { get; set; }
+
+        public int? OutWarehouseId { get; set; }
+        public int? InLoadHeaderId { get; set; }
+
+        public int? OutLoadHeaderId { get; set; }
+        public bool? IsGenerated { get; set; }
 
         #region VISUAL ELEMENTS
         public string FirmCode { get; set; }
@@ -21,6 +28,7 @@ namespace MachManager.Models{
         public string LoadTypeText { get; set; }
         public string PlantCode { get; set; }
         public string PlantName { get; set; }
+        public string ItemOrderNo { get; set; }
 
         public WarehouseLoadModel[] Details { get; set; }
         #endregion

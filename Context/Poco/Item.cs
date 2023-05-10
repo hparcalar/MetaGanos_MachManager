@@ -19,6 +19,7 @@ namespace MachManager.Context {
         public string Explanation { get; set; } = "";
         public string ItemImage { get; set; }
         public int ViewOrder { get; set; }
+        public decimal? AverageRating { get; set; }
 
         [ForeignKey("ItemGroup")]
         public Nullable<int> ItemGroupId { get; set; }

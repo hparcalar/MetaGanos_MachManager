@@ -468,6 +468,8 @@ namespace MachManager.Controllers
             {
                 data = _context.WarehouseLoad
                     .Where(d =>
+                        (d.WarehouseLoadHeader.WarehouseId != null)
+                        &&
                         (d.Item != null && d.Item.ItemCategory.PlantId == dbPlant.Id) 
                         &&
                         (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
@@ -478,12 +480,15 @@ namespace MachManager.Controllers
                     )
                     .GroupBy(d => new {
                         ItemId = d.ItemId,
+                        WarehouseId = d.WarehouseLoadHeader.WarehouseId,
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
                         ItemCategoryCode = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryName = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryName : "",
                         ItemGroupCode = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupCode : "",
                         ItemGroupName = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupName : "",
+                        WarehouseCode = d.WarehouseLoadHeader.Warehouse.WarehouseCode,
+                        WarehouseName = d.WarehouseLoadHeader.Warehouse.WarehouseName,
                     })
                     .Select(d => new WarehouseItemStatusSummary{
                         ItemId = d.Key.ItemId,
@@ -493,14 +498,20 @@ namespace MachManager.Controllers
                         ItemCategoryName = d.Key.ItemCategoryName,
                         ItemGroupCode = d.Key.ItemGroupCode,
                         ItemGroupName = d.Key.ItemGroupName,
-                        InQuantity = d.Where(m => m.LoadType == 1).Sum(m => m.Quantity) ?? 0,
-                        OutQuantity = d.Where(m => m.LoadType == 2).Sum(m => m.Quantity) ?? 0,
+                        WarehouseCode = d.Key.WarehouseCode,
+                        WarehouseName = d.Key.WarehouseName,
+                        WarehouseId = d.Key.WarehouseId,
+                        InQuantity = d.Where(m => m.LoadType == 1 || m.LoadType == 4).Sum(m => m.Quantity) ?? 0,
+                        OutQuantity = d.Where(m => m.LoadType == 2 || m.LoadType == 5).Sum(m => m.Quantity) ?? 0,
                     }).ToArray();
 
                 if (data != null){
                     foreach (var item in data)
                     {
-                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.ItemId == item.ItemId).Sum(d => d.ConsumedCount);
+                        // otomata çıkış yapılırken depo çıkış fişi ile çıkılmalı, depo takibinin sağlıklı olması için bu şekilde ilerilenmeli
+
+                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.Machine.IsAutoConsumption == true 
+                            && d.Machine.AutoConsumptionWarehouseId == item.WarehouseId && d.ItemId == item.ItemId).Sum(d => d.ConsumedCount);
                         item.OutQuantity += (consumeOuts ?? 0);
                         item.TotalQuantity = item.InQuantity - item.OutQuantity;
                     }
@@ -531,6 +542,8 @@ namespace MachManager.Controllers
             {
                 data = _context.WarehouseLoad
                     .Where(d =>
+                        (d.WarehouseLoadHeader.WarehouseId != null)
+                        &&
                         (filter == null || filter.CategoryId == null || filter.CategoryId.Length == 0 || filter.CategoryId.Contains(d.Item.ItemCategoryId ?? 0))
                         &&
                         (filter == null || filter.GroupId == null || filter.GroupId.Length == 0 || filter.GroupId.Contains(d.Item.ItemGroupId ?? 0))
@@ -539,26 +552,36 @@ namespace MachManager.Controllers
                     )
                     .GroupBy(d => new {
                         ItemId = d.ItemId,
+                        WarehouseId = d.WarehouseLoadHeader.WarehouseId,
                         ItemCode = d.Item.ItemCode,
                         ItemName = d.Item.ItemName,
                         ItemCategoryCode = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryName = d.Item.ItemCategory != null ? d.Item.ItemCategory.ItemCategoryName : "",
                         ItemGroupCode = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupCode : "",
                         ItemGroupName = d.Item.ItemGroup != null ? d.Item.ItemGroup.ItemGroupName : "",
+                        WarehouseCode = d.WarehouseLoadHeader.Warehouse.WarehouseCode,
+                        WarehouseName = d.WarehouseLoadHeader.Warehouse.WarehouseName,
                     })
                     .Select(d => new ItemConsumeAbs{
                         ItemCode = d.Key.ItemCode,
                         ItemName = d.Key.ItemName,
+                        WarehouseId = d.Key.WarehouseId,
                         Category = d.Key.ItemCategoryName,
                         Group = d.Key.ItemGroupName,
-                        InQuantity = d.Where(m => m.LoadType == 1).Sum(m => m.Quantity) ?? 0,
-                        OutQuantity = d.Where(m => m.LoadType == 2).Sum(m => m.Quantity) ?? 0,
+                        InQuantity = d.Where(m => m.LoadType == 1 || m.LoadType == 4).Sum(m => m.Quantity) ?? 0,
+                        OutQuantity = d.Where(m => m.LoadType == 2 || m.LoadType == 5).Sum(m => m.Quantity) ?? 0,
+                        WarehouseCode = d.Key.WarehouseCode,
+                        WarehouseName = d.Key.WarehouseName,
+                        ItemId = d.Key.ItemId,
                     }).ToArray();
 
                 if (data != null){
                     foreach (var item in data)
                     {
-                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.Item.ItemCode == item.ItemCode && d.Item.ItemCategory.PlantId == filter.PlantId[0]).Sum(d => d.ConsumedCount);
+                        // otomata çıkış yapılırken depo çıkış fişi ile çıkılmalı, depo takibinin sağlıklı olması için bu şekilde ilerilenmeli
+
+                        int? consumeOuts = _context.MachineItemConsume.Where(d => d.Machine.IsAutoConsumption == true 
+                            && d.Machine.AutoConsumptionWarehouseId == item.WarehouseId && d.ItemId == item.ItemId).Sum(d => d.ConsumedCount);
                         item.OutQuantity += (consumeOuts ?? 0);
                         item.TotalQuantity = item.InQuantity - item.OutQuantity;
                     }
@@ -578,11 +601,13 @@ namespace MachManager.Controllers
 
                 worksheet.Cell(1,1).Value = "Stok Kodu";
                 worksheet.Cell(1,2).Value = "Stok Adı";
-                worksheet.Cell(1,3).Value = "Kategori";
-                worksheet.Cell(1,4).Value = "Grup";
-                worksheet.Cell(1,5).Value = "Giriş";
-                worksheet.Cell(1,6).Value = "Çıkış";
-                worksheet.Cell(1,7).Value = "Kalan";
+                worksheet.Cell(1,3).Value = "Depo Kodu";
+                worksheet.Cell(1,4).Value = "Depo Adı";
+                worksheet.Cell(1,5).Value = "Kategori";
+                worksheet.Cell(1,6).Value = "Grup";
+                worksheet.Cell(1,7).Value = "Giriş";
+                worksheet.Cell(1,8).Value = "Çıkış";
+                worksheet.Cell(1,9).Value = "Kalan";
 
                 worksheet.Cell(2,1).InsertData(data);
 

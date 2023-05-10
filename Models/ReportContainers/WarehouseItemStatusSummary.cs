@@ -3,6 +3,7 @@ namespace MachManager.Models.ReportContainers{
         public int? ItemId { get; set; }
         public int? ItemGroupId { get; set; }
         public int? ItemCategoryId { get; set; }
+        public int? WarehouseId { get; set; }
         public int? PlantId { get; set; }
         public string WarehouseCode { get; set; }
         public string WarehouseName { get; set; }

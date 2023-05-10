@@ -271,6 +271,8 @@ namespace MachManager.Business{
                         DefaultLanguage = d.DefaultLanguage,
                         SpecialCustomer = d.SpecialCustomer,
                         StartVideoPath = d.StartVideoPath,
+                        IsAutoConsumption = d.IsAutoConsumption,
+                        AutoConsumptionWarehouseId = d.AutoConsumptionWarehouseId,
                     }).OrderBy(d => d.MachineCode).ToArray();
             }
             catch (System.Exception)
@@ -303,6 +305,7 @@ namespace MachManager.Business{
                         Email = d.Email,
                         EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
                         EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
+                        BirthDate = d.BirthDate,
                         EmployeeCardId = d.EmployeeCardId,
                         EmployeeCode = d.EmployeeCode,
                         EmployeeName = d.EmployeeName,
@@ -342,6 +345,7 @@ namespace MachManager.Business{
                         DepartmentCode = d.Department != null ? d.Department.DepartmentCode : "",
                         DepartmentId = d.DepartmentId,
                         DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
+                        BirthDate = d.BirthDate,
                         Email = d.Email,
                         EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
                         EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
@@ -411,6 +415,7 @@ namespace MachManager.Business{
                         DepartmentId = d.DepartmentId,
                         DepartmentName = d.Department != null ? d.Department.DepartmentName : "",
                         Email = d.Email,
+                        BirthDate = d.BirthDate,
                         EmployeeCardCode = d.EmployeeCard != null ? d.EmployeeCard.CardCode : "",
                         EmployeeCardHex = d.EmployeeCard != null ? d.EmployeeCard.HexKey : "",
                         EmployeeCardId = d.EmployeeCardId,
@@ -463,6 +468,7 @@ namespace MachManager.Business{
                         CriticalMax = d.CriticalMax,
                         CriticalMin = d.CriticalMin,
                         Explanation = d.Explanation,
+                        AverageRating = d.AverageRating,
                         IsActive = d.IsActive,
                         ItemCategoryCode = d.ItemCategory != null ? d.ItemCategory.ItemCategoryCode : "",
                         ItemCategoryId = d.ItemCategoryId,

@@ -122,6 +122,8 @@ namespace MachManager.Controllers
                         Rows = d.Rows,
                         SpecialCustomer = d.SpecialCustomer,
                         StartVideoPath = d.StartVideoPath,
+                        IsAutoConsumption = d.IsAutoConsumption,
+                        AutoConsumptionWarehouseId = d.AutoConsumptionWarehouseId,
                     }).FirstOrDefault();
 
                 if (data == null || data.Id == 0){
@@ -249,6 +251,8 @@ namespace MachManager.Controllers
                         Rows = d.Rows,
                         SpecialCustomer = d.SpecialCustomer,
                         StartVideoPath = d.StartVideoPath,
+                        IsAutoConsumption = d.IsAutoConsumption,
+                        AutoConsumptionWarehouseId = d.AutoConsumptionWarehouseId,
                     }).FirstOrDefault();
 
                 data.Spirals = _context.MachineSpiral.Where(d => d.MachineId == data.Id)
