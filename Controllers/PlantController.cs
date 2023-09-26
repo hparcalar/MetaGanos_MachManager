@@ -380,6 +380,28 @@ namespace MachManager.Controllers
             return data;
         }
 
+        [HttpGet]
+        [Authorize(Policy = "Machine")]
+        [Route("{id}/Warehouses")]
+        public IEnumerable<WarehouseModel> GetWarehouses(int id)
+        {
+            ResolveHeaders(Request);
+            WarehouseModel[] data = new WarehouseModel[0];
+            try
+            {
+                int[] plants = new int[]{id};
+
+                using (DefinitionListsBO bObj = new DefinitionListsBO(this._context)){
+                    data = bObj.GetWarehouses(plants);
+                }
+            }
+            catch
+            {
+
+            }
+
+            return data;
+        }
 
         [HttpGet]
         [Authorize(Policy = "FactoryOfficer")]

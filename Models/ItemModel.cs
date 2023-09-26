@@ -19,6 +19,7 @@ namespace MachManager.Models{
         public Nullable<int> UnitTypeId { get; set; }
         public bool IsActive { get; set; }
         public Nullable<DateTime> CreatedDate { get; set; }
+        public decimal? AverageRating { get; set; }
         
         #region VISUAL ELEMENTS
         public string ItemGroupCode { get; set; }

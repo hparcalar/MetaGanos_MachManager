@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yqgn6kzsX/zUcwkLepMM+ngmAl1FcN2uQ6IZI29eefqYRnjjB+Vvcjrbk+ZmdgJT/5QxmyD0f+stX7Yl8SOliA==",
+  "dgSpecHash": "OqwJJd+1TafTmHA7bd3oW4SKazgY0eI3uf5o7fONEjRFmH5JwSQIkCibYIpAOOQp+/vA7N4t7O1vFwlUjJBIHA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj",
+  "projectFilePath": "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\MachManager.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\closedxml\\0.95.4\\closedxml.0.95.4.nupkg.sha512",
