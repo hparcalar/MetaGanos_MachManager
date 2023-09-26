@@ -117,7 +117,7 @@ namespace MachManager.Controllers
                 if(dbOther != null){
                     if(_context.EmployeeCard.Any(d => d.CardCode == model.CardCode && d.PlantId == model.PlantId && d.Id != model.Id && dbOther.EmployeeStatus == 2)){
                         var card = _context.EmployeeCard.FirstOrDefault(d => d.CardCode == model.CardCode && d.PlantId == model.PlantId && d.Id != model.Id && dbOther.EmployeeStatus == 2);
-                        card.CardCode = card.CardCode + "XXX";
+                        card.CardCode = "XXX" + card.CardCode;
                         dbObj = new EmployeeCard();
                         _context.EmployeeCard.Add(dbObj);
                 }

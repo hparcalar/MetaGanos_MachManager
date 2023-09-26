@@ -798,7 +798,6 @@ C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\hostfxr.dll
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\hostpolicy.dll
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\mscordaccore.dll
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\mscordaccore_amd64_amd64_6.0.1122.52304.dll
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\mscordbi.dll
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\mscorrc.dll
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\msquic.dll
@@ -811,13 +810,6 @@ C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.csproj.CoreCompileInputs.cache
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.MachManager.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.build.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.buildMultiTargeting.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.buildTransitive.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.pack.json
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.build.json
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.development.json
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\scopedcss\bundle\MachManager.styles.css
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.csproj.CopyComplete
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.dll
@@ -825,3 +817,11 @@ C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.pdb
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\MachManager.genruntimeconfig.cache
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\ref\MachManager.dll
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\bin\Release\net6.0\win-x64\mscordaccore_amd64_amd64_6.0.1122.52304.dll
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.MachManager.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.build.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.buildMultiTargeting.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets\msbuild.buildTransitive.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.pack.json
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.build.json
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Release\net6.0\win-x64\staticwebassets.development.json

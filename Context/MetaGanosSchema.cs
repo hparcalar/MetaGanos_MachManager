@@ -42,6 +42,8 @@ namespace MachManager.Context {
         public DbSet<DepartmentCredit> DepartmentCredit { get; set; }
         public DbSet<MachineTemplate> MachineTemplate { get; set; }
         public DbSet<LicenseKey> LicenseKey { get; set; }
+        public DbSet<Return> Return { get; set; }
+        public DbSet<Notification> Notification { get; set; }
 
         public MetaGanosSchema() : base(){}
         public MetaGanosSchema(Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options){}

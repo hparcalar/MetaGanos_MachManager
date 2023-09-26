@@ -42,7 +42,9 @@ builder.Services.AddAuthentication(x =>
             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(apiKey)),
         };
     });
-builder.Services.AddHostedService<LicenseWorker>();
+
+//builder.Services.AddHostedService<LicenseWorker>();
+
 builder.Services.AddSingleton<MgAuth>(new MgAuth(apiKey));
 builder.Services.AddAuthorization(options =>
 {

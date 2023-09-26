@@ -221,6 +221,7 @@ namespace MachManager.Controllers
 
                                 dbCredit.CreditLoadDate = DateTime.Now.Date;
                                 dbCredit.CreditStartDate = DateTime.Now.Date;
+                                crd.CreditLoadDate = dbCredit.CreditLoadDate;
                                 // dbCredit.CreditEndDate = DateTime.Now.Date;
 
                                 string newRanges = "";                            
@@ -248,7 +249,8 @@ namespace MachManager.Controllers
                         }
                     }
                     else if (crd.CreditEndDate <= DateTime.Now.Date && crd.RangeType != 1){
-                        while (crd.CreditEndDate <= DateTime.Now.Date){
+                        int maxTryCount = 5;
+                        while (crd.CreditEndDate <= DateTime.Now.Date && maxTryCount > 0){
                             var dbCredit = _context.EmployeeCredit.FirstOrDefault(d => d.Id == crd.Id);
                             if (dbCredit != null){
                             try
@@ -286,6 +288,7 @@ namespace MachManager.Controllers
                                 
                             }
                         }
+                        maxTryCount--;
                         }
                     }
                 }

@@ -441,7 +441,7 @@ namespace MachManager.Controllers
                         SpiralNo = d.Key.SpiralNo,
                         TotalConsumed = d.Sum(m => m.ConsumedCount),
                     })
-                    .OrderBy(d => d.ConsumedDate)
+                    .OrderByDescending(d => d.ConsumedDate)
                     .ToArray();
             }
             catch (System.Exception)

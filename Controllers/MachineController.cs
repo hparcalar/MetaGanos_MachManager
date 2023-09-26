@@ -1173,6 +1173,21 @@ namespace MachManager.Controllers
                 if (dbCredit == null || dbCredit.RangeCredit <= 0)
                     throw new Exception(_translator.Translate(Expressions.EmployeeIsOutOfCredit, _userLanguage));
 
+                var eCreditConsume = _context.EmployeeCreditConsume.Where(d => d.EmployeeId == model.EmployeeId && d.ItemId == model.ItemId).OrderByDescending(d => d.Id).FirstOrDefault();
+                var eCredit = _context.EmployeeCredit.Where(d => d.EmployeeId == model.EmployeeId && 
+                    ((d.ItemId == null && d.ItemGroupId == null && d.ItemCategoryId == dbItem.ItemCategoryId) || 
+                    (d.ItemId == null && d.ItemGroupId == dbItem.ItemGroupId) || 
+                    (d.ItemId == model.ItemId))).OrderBy(d => d.Id).FirstOrDefault();
+                var dCredit = _context.DepartmentCredit.Where(d => d.DepartmentId == dbEmployee.DepartmentId && 
+                    ((d.ItemId == null && d.ItemGroupId == null && d.ItemCategoryId == dbItem.ItemCategoryId) || 
+                    (d.ItemId == null && d.ItemGroupId == dbItem.ItemGroupId) || 
+                    (d.ItemId == model.ItemId))).OrderBy(d => d.Id).FirstOrDefault();
+                if(eCreditConsume != null && ((eCredit != null && DateTime.Now < eCreditConsume.ConsumedDate.Value.AddHours(eCredit.ProductIntervalTime ?? 0)) || 
+                    (dCredit != null && DateTime.Now < eCreditConsume.ConsumedDate.Value.AddHours(dCredit.ProductIntervalTime ?? 0 )))
+                ){
+                    throw new Exception(_translator.Translate(Expressions.MinimumDuration, _userLanguage));
+                }
+
                 result.Result=true;
             }
             catch (System.Exception ex)
@@ -1258,6 +1273,19 @@ namespace MachManager.Controllers
                     creditModelDomain.MapTo(checkDbCredit);
                     checkContext.SaveChanges();
                 }
+
+                if (dbSpiral.ActiveQuantity <= 3){
+                    _context.Notification.Add(new Notification{
+                        PlantId = dbPlant.Id,
+                        NotificationTitle = dbSpiral.ActiveQuantity != 0 ? "Spiralde Ürün Azaldı." : "Spiralde Ürün Bitti.",
+                        NotificationMessage = model.SpiralNo + " nolu spiralde " + dbSpiral.ActiveQuantity + " adet ürün kaldı.",
+                        IsSeen = false,
+                        CreatedDate = DateTime.Now,
+                        IsDeleted = false,
+                    });
+                }
+                _context.SaveChanges();
+                result.Result = true;
             }
             catch (System.Exception ex)
             {

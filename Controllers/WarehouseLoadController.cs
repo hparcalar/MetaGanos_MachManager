@@ -74,6 +74,53 @@ namespace MachManager.Controllers
         }
 
         [HttpGet]
+        [Route("ListAll")]
+        public IEnumerable<WarehouseLoadHeaderModel> ListAll()
+        {
+            ResolveHeaders(Request);
+            WarehouseLoadHeaderModel[] data = new WarehouseLoadHeaderModel[0];
+            try
+            {
+                int[] plants = null;
+                if (_isDealer)
+                    plants = _context.Plant.Where(d => d.DealerId == _appUserId).Select(d => d.Id).ToArray();
+                else if (_isFactoryOfficer)
+                    plants = new int[]{ _context.Officer.Where(d => d.Id == _appUserId).Select(d => d.PlantId).First() };
+
+                data = _context.WarehouseLoadHeader.Where(d => 
+                    (plants == null || (plants != null && plants.Contains(d.PlantId ?? 0)))
+                    )
+                    .Select(d => new WarehouseLoadHeaderModel{
+                        Id = d.Id,
+                        DocumentNo = d.DocumentNo,
+                        Explanation = d.Explanation,
+                        FirmId = d.FirmId,
+                        LoadDate = d.LoadDate,
+                        LoadOfficerId = d.LoadOfficerId,
+                        LoadType = d.LoadType,
+                        PlantCode = d.Plant !=null ? d.Plant.PlantCode : "",
+                        PlantName = d.Plant != null ? d.Plant.PlantName : "",
+                        PlantId = d.PlantId,
+                        ReceiptNo = d.ReceiptNo,
+                        WarehouseId = d.WarehouseId,
+                        FirmCode = d.Firm != null ? d.Firm.FirmCode : "",
+                        FirmName = d.Firm != null ? d.Firm.FirmName : "",
+                        OfficerCode = d.Officer != null ? d.Officer.OfficerCode : "",
+                        OfficerName = d.Officer != null ? d.Officer.OfficerName : "",
+                        WarehouseCode = d.Warehouse != null ? d.Warehouse.WarehouseCode : "",
+                        WarehouseName = d.Warehouse != null ? d.Warehouse.WarehouseName : "",
+                        LoadTypeText = d.LoadType == 1 ? "Depo Giriş Fişi" : "Depo Çıkış Fişi",
+                    }).ToArray();
+            }
+            catch
+            {
+                
+            }
+            
+            return data;
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public WarehouseLoadHeaderModel GetById(int id)
         {

@@ -179,6 +179,8 @@ namespace MachManager.i18n{
         ConsumptionsBasedCategory=174,
         EmployeeCards=175,
         Firms=176,
+        ReturnReport=177,
+        MinimumDuration=178,
 
     }
 
@@ -359,6 +361,9 @@ namespace MachManager.i18n{
             { Expressions.ConsumptionsBasedCategory, "Kategori Bazlı Tüketimler" },
             { Expressions.EmployeeCards, "Personel Kartları" },
             { Expressions.Firms, "Firmalar" },
+            { Expressions.ReturnReport, "İade Raporu" },
+            //{ Expressions.MinimumDuration, "İki Ürün Arası Belirlenen Minimum Süre Geçmedi" },
+            { Expressions.MinimumDuration, "İkinci Ürünü Daha Sonra Alabilirsiniz. Bu Ürün İçin Zaman Limiti Vardır." },
         };
     }
 }

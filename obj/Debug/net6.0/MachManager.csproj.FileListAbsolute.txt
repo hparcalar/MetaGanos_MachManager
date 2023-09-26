@@ -131,11 +131,6 @@ C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachMan
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.csproj.CoreCompileInputs.cache
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.MachManager.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.build.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.MachManager.props
-C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets.pack.json
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets.build.json
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets.development.json
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\scopedcss\bundle\MachManager.styles.css
@@ -145,3 +140,8 @@ C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\refint\
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.pdb
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\MachManager.genruntimeconfig.cache
 C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\ref\MachManager.dll
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.MachManager.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.build.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.MachManager.props
+C:\Users\USER\Desktop\ButanMakina\MetaGanos_MachManager\obj\Debug\net6.0\staticwebassets.pack.json
