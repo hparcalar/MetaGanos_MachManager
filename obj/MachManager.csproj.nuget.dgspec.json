@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\MachManager.csproj": {}
+    "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj": {}
   },
   "projects": {
-    "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\MachManager.csproj": {
+    "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\MachManager.csproj",
+        "projectUniqueName": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj",
         "projectName": "MachManager",
-        "projectPath": "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\MachManager.csproj",
+        "projectPath": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\MachManager.csproj",
         "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\USER\\Desktop\\ProjectBackup\\MachManager\\obj\\",
+        "outputPath": "C:\\Users\\USER\\Desktop\\ButanMakina\\MetaGanos_MachManager\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",

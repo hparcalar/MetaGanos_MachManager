@@ -23,9 +23,9 @@ namespace MachManager.Controllers
     [ApiController]
     [Route("[controller]")]
     [EnableCors()]
-    public class NotificationController : MgControllerBase
+    public class MachineNotificationController : MgControllerBase
     {
-        public NotificationController(MetaGanosSchema context): base(context){ }
+        public MachineNotificationController(MetaGanosSchema context): base(context){ }
 
         [HttpGet]
         public IEnumerable<NotificationModel> Get()
