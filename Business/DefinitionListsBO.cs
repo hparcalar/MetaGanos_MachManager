@@ -104,8 +104,9 @@ namespace MachManager.Business{
 
                 data = _context.ItemCategory
                 .Where(d => 
-                    d.PlantId == dbWarehouse.PlantId &&
-                    (hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id)))
+                    d.PlantId == dbWarehouse.PlantId //&&
+                    //(hotSalesCategories.Length == 0 || hotSalesCategories.Contains(d.Id))  /*/ If you want all categories to appear in the wr app. /*/
+                    )
                     .Select(d => new ItemCategoryModel{
                         Id = d.Id,
                         ControlTimeType = d.ControlTimeType,
